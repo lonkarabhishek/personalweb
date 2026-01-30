@@ -11,60 +11,25 @@ export const Hero: React.FC = () => {
 
   return (
     <Section className="pt-32 md:pt-48 min-h-[100vh] flex flex-col justify-center relative overflow-hidden">
-      {/* Animated background elements */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute w-[800px] h-[800px] rounded-full pointer-events-none"
+      {/* Animated background elements - hidden on mobile for performance */}
+      <div
+        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none hidden md:block"
         style={{
           background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
           top: '-30%',
           right: '-20%',
-          filter: 'blur(80px)',
+          filter: 'blur(60px)',
         }}
       />
-      <motion.div
-        animate={{
-          scale: [1.2, 1, 1.2],
-          opacity: [0.2, 0.4, 0.2],
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
+      <div
+        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none hidden md:block"
         style={{
           background: 'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%)',
           bottom: '-20%',
           left: '-10%',
-          filter: 'blur(80px)',
+          filter: 'blur(60px)',
         }}
       />
-
-      {/* Floating particles */}
-      {[...Array(6)].map((_, i) => (
-        <motion.div
-          key={i}
-          animate={{
-            y: [-20, 20, -20],
-            x: [-10, 10, -10],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{
-            duration: 5 + i,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.5,
-          }}
-          className="absolute w-2 h-2 rounded-full pointer-events-none"
-          style={{
-            background: i % 2 === 0 ? '#8b5cf6' : '#06b6d4',
-            top: `${20 + i * 12}%`,
-            left: `${10 + i * 15}%`,
-            filter: 'blur(1px)',
-          }}
-        />
-      ))}
 
       <div className="max-w-4xl relative z-10">
         <motion.div

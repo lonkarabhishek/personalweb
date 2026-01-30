@@ -9,14 +9,9 @@ const linkedInRecommendationsUrl = "https://www.linkedin.com/in/lonkarabhishek/d
 export const Recommendations: React.FC = () => {
   return (
     <Section id="recommendations" className="relative overflow-hidden">
-      {/* Background decoration */}
-      <motion.div
-        animate={{
-          scale: [1, 1.15, 1],
-          opacity: [0.1, 0.2, 0.1],
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
+      {/* Background decoration - hidden on mobile for performance */}
+      <div
+        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none opacity-15 hidden md:block"
         style={{
           background: 'radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%)',
           top: '10%',
@@ -49,7 +44,7 @@ export const Recommendations: React.FC = () => {
               rel="noopener noreferrer"
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="block bg-white/5 backdrop-blur-sm p-8 md:p-10 rounded-2xl border border-white/10 hover:border-primary/30 h-full flex flex-col relative overflow-hidden group cursor-pointer"
+              className="block bg-white/5 md:backdrop-blur-sm p-8 md:p-10 rounded-2xl border border-white/10 hover:border-primary/30 h-full flex flex-col relative overflow-hidden group cursor-pointer"
             >
               {/* Hover gradient */}
               <motion.div

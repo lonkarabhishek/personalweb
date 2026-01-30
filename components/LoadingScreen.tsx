@@ -34,33 +34,23 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
             backgroundSize: '400% 400%',
           }}
         >
-          {/* Animated background orbs */}
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute w-[500px] h-[500px] rounded-full"
+          {/* Static background orbs for better performance */}
+          <div
+            className="absolute w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full opacity-40"
             style={{
               background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)',
               top: '-20%',
               left: '-10%',
-              filter: 'blur(60px)',
+              filter: 'blur(40px)',
             }}
           />
-          <motion.div
-            animate={{
-              scale: [1.2, 1, 1.2],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute w-[400px] h-[400px] rounded-full"
+          <div
+            className="absolute w-[250px] h-[250px] md:w-[400px] md:h-[400px] rounded-full opacity-40"
             style={{
               background: 'radial-gradient(circle, rgba(6, 182, 212, 0.4) 0%, transparent 70%)',
               bottom: '-20%',
               right: '-10%',
-              filter: 'blur(60px)',
+              filter: 'blur(40px)',
             }}
           />
 

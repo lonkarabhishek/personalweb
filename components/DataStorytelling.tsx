@@ -9,14 +9,9 @@ export const DataStorytelling: React.FC = () => {
 
   return (
     <Section className="relative overflow-hidden">
-      {/* Background decoration */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 180, 360],
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute w-[800px] h-[800px] pointer-events-none opacity-30"
+      {/* Background decoration - hidden on mobile for performance */}
+      <div
+        className="absolute w-[800px] h-[800px] pointer-events-none opacity-30 hidden md:block"
         style={{
           background: 'conic-gradient(from 0deg, transparent, rgba(139, 92, 246, 0.1), transparent, rgba(6, 182, 212, 0.1), transparent)',
           top: '-50%',
@@ -49,7 +44,7 @@ export const DataStorytelling: React.FC = () => {
           <motion.div
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-primary/30 transition-all"
+            className="bg-white/5 md:backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-primary/30 transition-all"
           >
             <ul className="space-y-5">
               {examples.map((example, i) => (

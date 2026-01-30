@@ -89,12 +89,33 @@
         background-size: 400% 400%;
         animation: gradient 15s ease infinite;
       }
-      /* Glassmorphism */
+      /* Glassmorphism - simplified on mobile */
       .glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      @media (min-width: 768px) {
+        .glass {
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        }
+      }
+
+      /* Reduce motion for users who prefer it */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* Optimize animations on mobile */
+      @media (max-width: 768px) {
+        .gradient-bg {
+          animation: none;
+          background: #0a0a0f;
+        }
       }
       /* Glow effects */
       .glow-purple {

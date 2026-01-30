@@ -35,7 +35,7 @@ export const Services: React.FC = () => {
             <motion.div
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="bg-white/5 backdrop-blur-sm p-8 h-full rounded-2xl border border-white/10 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+              className="bg-white/5 md:backdrop-blur-sm p-8 h-full rounded-2xl border border-white/10 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
             >
               {/* Gradient glow on hover */}
               <motion.div

@@ -10,9 +10,9 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="bg-dark-light border-t border-white/10 pt-16 pb-8 px-6 md:px-12 relative overflow-hidden">
-      {/* Background glow */}
+      {/* Background glow - hidden on mobile for performance */}
       <div
-        className="absolute w-[400px] h-[400px] rounded-full pointer-events-none"
+        className="absolute w-[400px] h-[400px] rounded-full pointer-events-none hidden md:block"
         style={{
           background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
           bottom: '-50%',

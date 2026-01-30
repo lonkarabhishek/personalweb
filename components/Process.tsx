@@ -6,19 +6,14 @@ import { Section, FadeIn } from './ui/Layout';
 export const Process: React.FC = () => {
   return (
     <Section id="process" dark className="relative overflow-hidden">
-      {/* Background decoration */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.1, 0.2, 0.1],
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
+      {/* Background decoration - hidden on mobile */}
+      <div
+        className="absolute w-[400px] h-[400px] rounded-full pointer-events-none opacity-15 hidden md:block"
         style={{
           background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)',
           top: '10%',
           left: '-20%',
-          filter: 'blur(80px)',
+          filter: 'blur(60px)',
         }}
       />
 

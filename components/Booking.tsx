@@ -14,14 +14,9 @@ export const Booking: React.FC = () => {
   return (
     <>
       <Section className="py-32 md:py-40 text-center relative overflow-hidden">
-        {/* Background glow */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.3, 0.2],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute w-[600px] h-[600px] rounded-full pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        {/* Background glow - hidden on mobile for performance */}
+        <div
+          className="absolute w-[600px] h-[600px] rounded-full pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 hidden md:block"
           style={{
             background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)',
             filter: 'blur(80px)',

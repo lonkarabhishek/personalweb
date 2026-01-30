@@ -16,13 +16,9 @@ const companies = [
 export const Companies: React.FC = () => {
   return (
     <Section className="py-20 relative overflow-hidden">
-      {/* Background glow */}
-      <motion.div
-        animate={{
-          opacity: [0.1, 0.15, 0.1],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute w-full h-full pointer-events-none"
+      {/* Background glow - hidden on mobile for performance */}
+      <div
+        className="absolute w-full h-full pointer-events-none opacity-10 hidden md:block"
         style={{
           background: 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
         }}
@@ -57,7 +53,7 @@ export const Companies: React.FC = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ y: -4, scale: 1.02 }}
-              className="group relative bg-white/5 backdrop-blur-sm border border-white/10 hover:border-primary/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-all cursor-default"
+              className="group relative bg-white/5 md:backdrop-blur-sm border border-white/10 hover:border-primary/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-all cursor-default"
             >
               {/* Hover gradient */}
               <motion.div

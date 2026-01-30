@@ -69,7 +69,7 @@ export const FloatingSideNav: React.FC = () => {
             <motion.span
               initial={{ opacity: 0, x: 10 }}
               whileHover={{ opacity: 1, x: 0 }}
-              className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 text-white text-sm font-medium whitespace-nowrap pointer-events-none"
+              className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-dark-light/95 border border-white/10 text-white text-sm font-medium whitespace-nowrap pointer-events-none"
             >
               {section.name}
             </motion.span>
@@ -81,7 +81,7 @@ export const FloatingSideNav: React.FC = () => {
               className={`relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                 isActive
                   ? 'bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30'
-                  : 'bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10'
+                  : 'bg-white/5 border border-white/10 hover:bg-white/10'
               }`}
             >
               <Icon
@@ -123,7 +123,7 @@ export const FloatingSideNav: React.FC = () => {
         <motion.span
           initial={{ opacity: 0, x: 10 }}
           whileHover={{ opacity: 1, x: 0 }}
-          className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 text-white text-sm font-medium whitespace-nowrap pointer-events-none"
+          className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-dark-light/95 border border-white/10 text-white text-sm font-medium whitespace-nowrap pointer-events-none"
         >
           Book a call
         </motion.span>

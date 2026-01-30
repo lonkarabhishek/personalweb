@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
           className={cn(
             "max-w-6xl mx-auto rounded-2xl transition-all duration-500 ease-out",
             isScrolled
-              ? "bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg shadow-primary/5"
+              ? "bg-white/5 md:backdrop-blur-xl border border-white/10 shadow-lg shadow-primary/5"
               : "bg-transparent border border-transparent"
           )}
         >
@@ -168,7 +168,7 @@ export const Navbar: React.FC = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="absolute top-full left-4 right-4 mt-2 bg-dark-light/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col space-y-2 md:hidden shadow-xl"
+              className="absolute top-full left-4 right-4 mt-2 bg-dark-light/98 border border-white/10 rounded-2xl p-6 flex flex-col space-y-2 md:hidden shadow-xl"
             >
               {navLinks.map((link, index) => {
                 const Icon = link.icon;

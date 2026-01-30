@@ -8,14 +8,9 @@ export const About: React.FC = () => {
 
   return (
     <Section id="about" dark className="relative overflow-hidden">
-      {/* Background decoration */}
-      <motion.div
-        animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.1, 0.2, 0.1],
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
+      {/* Background decoration - hidden on mobile for performance */}
+      <div
+        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none opacity-15 hidden md:block"
         style={{
           background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
           bottom: '-20%',
