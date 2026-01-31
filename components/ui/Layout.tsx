@@ -23,22 +23,27 @@ interface SectionProps {
   dark?: boolean;
 }
 
-export const Section: React.FC<SectionProps> = ({ id, className, children, dark = false }) => {
-  return (
-    <section
-      id={id}
-      className={cn(
-        "py-20 md:py-32 px-6 md:px-12 lg:px-24 relative",
-        dark ? "bg-surface-secondary" : "bg-white",
-        className
-      )}
-    >
-      <div className="max-w-6xl mx-auto">
-        {children}
-      </div>
-    </section>
-  );
-};
+export const Section = React.forwardRef<HTMLElement, SectionProps>(
+  ({ id, className, children, dark = false }, ref) => {
+    return (
+      <section
+        ref={ref}
+        id={id}
+        className={cn(
+          "py-20 md:py-32 px-6 md:px-12 lg:px-24 relative",
+          dark ? "bg-surface-secondary" : "bg-white",
+          className
+        )}
+      >
+        <div className="max-w-6xl mx-auto">
+          {children}
+        </div>
+      </section>
+    );
+  }
+);
+
+Section.displayName = 'Section';
 
 export const FadeIn: React.FC<{ children: React.ReactNode; delay?: number; className?: string }> = ({
   children,

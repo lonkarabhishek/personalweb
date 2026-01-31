@@ -25,23 +25,23 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
           <div className="space-y-4">
-            <Link to="/" className="flex items-center space-x-2 group">
-              <motion.div
-                whileHover={{ rotate: 180 }}
-                transition={{ duration: 0.5 }}
-                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md"
-                style={{
-                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
-                }}
-              >
-                <span className="text-white font-bold text-lg">A</span>
-              </motion.div>
-              <span className="text-xl font-serif font-semibold text-text-primary group-hover:text-primary transition-colors">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center space-x-3 group cursor-pointer"
+            >
+              <motion.img
+                whileHover={{ rotate: 10, scale: 1.1 }}
+                transition={{ duration: 0.3 }}
+                src="/favicon.png"
+                alt="Abhishek Lonkar"
+                className="w-10 h-10 rounded-xl shadow-md object-cover"
+              />
+              <span className="text-xl font-sans font-bold text-text-primary group-hover:text-primary transition-colors tracking-tight">
                 Abhishek Lonkar
               </span>
-            </Link>
-            <div className="flex items-center text-text-secondary">
-              <MapPin size={16} className="mr-2 text-primary" />
+            </button>
+            <div className="flex items-center text-[#64748b]">
+              <MapPin size={16} className="mr-2 text-[#64748b]" />
               <span className="text-sm">{location}</span>
             </div>
           </div>
@@ -62,9 +62,9 @@ export const Footer: React.FC = () => {
               <motion.a
                 whileHover={{ x: 4 }}
                 href={`mailto:${email}`}
-                className="flex items-center text-text-secondary hover:text-text-primary transition-colors group"
+                className="flex items-center text-[#64748b] hover:text-text-primary transition-colors group"
               >
-                <Mail size={16} className="mr-2 text-primary group-hover:text-accent transition-colors" />
+                <Mail size={16} className="mr-2 text-[#64748b] group-hover:text-primary transition-colors" />
                 {email}
               </motion.a>
               <motion.a
@@ -72,9 +72,9 @@ export const Footer: React.FC = () => {
                 href={linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center text-text-secondary hover:text-text-primary transition-colors group"
+                className="flex items-center text-[#64748b] hover:text-text-primary transition-colors group"
               >
-                <Linkedin size={16} className="mr-2 text-primary group-hover:text-accent transition-colors" />
+                <Linkedin size={16} className="mr-2 text-[#64748b] group-hover:text-primary transition-colors" />
                 LinkedIn
               </motion.a>
             </div>
@@ -99,12 +99,12 @@ export const Footer: React.FC = () => {
                   const element = document.getElementById('work');
                   if (element) element.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="text-text-secondary hover:text-text-primary transition-colors text-left"
+                className="text-[#64748b] hover:text-text-primary transition-colors text-left"
               >
                 Work
               </motion.button>
               <motion.div whileHover={{ x: 4 }}>
-                <Link to="/resume" className="text-text-secondary hover:text-text-primary transition-colors">
+                <Link to="/resume" className="text-[#64748b] hover:text-text-primary transition-colors">
                   Resume
                 </Link>
               </motion.div>
@@ -112,10 +112,10 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-text-muted">
+        <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-[#64748b]">
           <p>&copy; {year} Abhishek Lonkar. All rights reserved.</p>
           <p className="mt-2 md:mt-0 flex items-center">
-            Built with <Heart size={14} className="mx-1 text-accent-pink" /> and reliability in mind.
+            Built with <Heart size={14} className="mx-1 text-pink-500" /> and reliability in mind.
           </p>
         </div>
       </div>

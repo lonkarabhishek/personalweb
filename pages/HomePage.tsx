@@ -8,12 +8,10 @@ import { Recommendations } from '../components/Recommendations';
 import { About } from '../components/About';
 import { Companies } from '../components/Companies';
 import { Booking } from '../components/Booking';
-import { FloatingSideNav } from '../components/FloatingSideNav';
 
 export const HomePage: React.FC = () => {
   return (
     <div className="flex flex-col">
-      <FloatingSideNav />
       <Hero />
       <Services />
       <Work />

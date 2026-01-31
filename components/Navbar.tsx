@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Briefcase, Settings, User, Calendar, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -12,7 +11,7 @@ export const Navbar: React.FC = () => {
   const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    setIsMobile(window.innerWidth < 768);
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -68,29 +67,13 @@ export const Navbar: React.FC = () => {
     }
   };
 
-  // Mobile floating bottom navbar
+  // Mobile floating right-side vertical navbar (no top header - Hero handles it)
   if (isMobile) {
     return (
       <>
-        {/* Simple top header with logo only */}
-        <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-2">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md"
-                style={{
-                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
-                }}
-              >
-                <span className="text-white font-bold text-lg">A</span>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Floating bottom navigation */}
-        <nav className="fixed bottom-4 left-4 right-4 z-50">
-          <div className="bg-white border border-border rounded-2xl px-2 py-2 flex items-center justify-around shadow-lg">
+        {/* Floating right-side vertical navigation */}
+        <nav className="fixed right-3 top-1/2 -translate-y-1/2 z-40">
+          <div className="flex flex-col items-center space-y-2">
             {mobileNavLinks.map((link) => {
               const Icon = link.icon;
               const isActive = activeSection === link.id;
@@ -101,16 +84,16 @@ export const Navbar: React.FC = () => {
                   key={link.id}
                   onClick={() => handleScrollTo(link.id)}
                   className={cn(
-                    "flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all",
+                    "flex items-center justify-center w-10 h-10 rounded-xl transition-all shadow-sm",
                     isBook
-                      ? "bg-gradient-to-r from-primary to-accent"
+                      ? "bg-gradient-to-br from-primary to-accent"
                       : isActive
-                      ? "bg-primary/10"
-                      : "bg-transparent"
+                      ? "bg-white/90 backdrop-blur-sm"
+                      : "bg-white/70 backdrop-blur-sm"
                   )}
                 >
                   <Icon
-                    size={20}
+                    size={18}
                     className={cn(
                       "transition-colors",
                       isBook
@@ -120,18 +103,6 @@ export const Navbar: React.FC = () => {
                         : "text-text-muted"
                     )}
                   />
-                  <span
-                    className={cn(
-                      "text-[10px] mt-1 font-medium",
-                      isBook
-                        ? "text-white"
-                        : isActive
-                        ? "text-primary"
-                        : "text-text-muted"
-                    )}
-                  >
-                    {link.name}
-                  </span>
                 </button>
               );
             })}
@@ -162,21 +133,21 @@ export const Navbar: React.FC = () => {
         >
           <div className="px-6 py-4 flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="group flex items-center space-x-2">
-              <motion.div
-                whileHover={{ rotate: 180, scale: 1.1 }}
-                transition={{ duration: 0.5 }}
-                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md"
-                style={{
-                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
-                }}
-              >
-                <span className="text-white font-bold text-lg">A</span>
-              </motion.div>
-              <span className="text-xl font-serif font-semibold text-text-primary tracking-tight group-hover:text-primary transition-colors">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="group flex items-center space-x-2 cursor-pointer"
+            >
+              <motion.img
+                src="/favicon.png"
+                alt="Abhishek Lonkar"
+                whileHover={{ rotate: 10, scale: 1.1 }}
+                transition={{ duration: 0.3 }}
+                className="w-10 h-10 rounded-xl shadow-md object-cover"
+              />
+              <span className="text-xl font-sans font-bold text-text-primary tracking-tight group-hover:text-primary transition-colors">
                 Abhishek Lonkar
               </span>
-            </Link>
+            </button>
 
             {/* Desktop Nav */}
             <div className="flex items-center space-x-2">
@@ -205,7 +176,7 @@ export const Navbar: React.FC = () => {
                 );
               })}
 
-              {/* Book a call button */}
+              {/* Book a free call button */}
               <motion.button
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -220,7 +191,7 @@ export const Navbar: React.FC = () => {
               >
                 <span className="relative z-10 flex items-center">
                   <Calendar size={14} className="mr-2" />
-                  Book a call
+                  Book a free call
                 </span>
                 <motion.div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"

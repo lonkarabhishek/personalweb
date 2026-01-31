@@ -2,11 +2,12 @@ import React from 'react';
 import { ArrowUpRight, Lock, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { siteContent } from '../content/site';
-import { Section, FadeIn } from './ui/Layout';
+import { FadeIn } from './ui/Layout';
 
 export const Work: React.FC = () => {
   return (
-    <Section id="work" className="relative overflow-hidden">
+    <section id="work" className="relative overflow-hidden py-20 md:py-32 px-6 md:px-12 lg:px-24 bg-white">
+      <div className="max-w-6xl mx-auto">
       {/* Background decoration */}
       <div
         className="absolute w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full pointer-events-none opacity-30 hidden md:block"
@@ -30,7 +31,7 @@ export const Work: React.FC = () => {
         >
           Portfolio
         </span>
-        <h2 className="font-serif text-3xl md:text-4xl text-text-primary mb-16">Selected Work</h2>
+        <h2 className="font-sans text-3xl md:text-4xl text-text-primary mb-16 font-bold tracking-tight">Selected <span className="italic text-[#64748b]">Work</span></h2>
       </FadeIn>
 
       <div className="space-y-8 relative z-10">
@@ -49,10 +50,21 @@ export const Work: React.FC = () => {
                 }}
               />
 
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 relative z-10">
+              <div className="flex flex-col md:flex-row md:items-start gap-6 relative z-10">
+                {/* Number */}
+                <div
+                  className="text-4xl md:text-5xl font-extralight text-text-primary/70 tracking-tight flex-shrink-0"
+                  style={{
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontFeatureSettings: '"zero" 1, "ss01" 1',
+                  }}
+                >
+                  {String(i + 1).padStart(2, '0')}.
+                </div>
+
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-2xl font-serif text-text-primary group-hover:text-primary transition-colors">
+                    <h3 className="text-2xl font-sans font-bold text-text-primary tracking-tight">
                       {project.title}
                     </h3>
                     {project.inProgress && (
@@ -62,12 +74,12 @@ export const Work: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <p className="text-lg text-text-secondary leading-relaxed mb-6 max-w-2xl">
+                  <p className="text-lg text-[#64748b] leading-[1.8] mb-6 max-w-2xl">
                     {project.description}
                   </p>
 
                   {project.note && (
-                    <div className="flex items-center text-sm text-text-muted mb-4 italic">
+                    <div className="flex items-center text-sm text-[#64748b] mb-4 italic">
                       <Lock size={14} className="mr-2" />
                       {project.note}
                     </div>
@@ -97,6 +109,7 @@ export const Work: React.FC = () => {
           </FadeIn>
         ))}
       </div>
-    </Section>
+      </div>
+    </section>
   );
 };
