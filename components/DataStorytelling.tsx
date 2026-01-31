@@ -9,11 +9,11 @@ export const DataStorytelling: React.FC = () => {
 
   return (
     <Section className="relative overflow-hidden">
-      {/* Background decoration - hidden on mobile for performance */}
+      {/* Background decoration */}
       <div
-        className="absolute w-[800px] h-[800px] pointer-events-none opacity-30 hidden md:block"
+        className="absolute w-[800px] h-[800px] pointer-events-none opacity-20 hidden md:block"
         style={{
-          background: 'conic-gradient(from 0deg, transparent, rgba(139, 92, 246, 0.1), transparent, rgba(6, 182, 212, 0.1), transparent)',
+          background: 'conic-gradient(from 0deg, transparent, rgba(124, 58, 237, 0.05), transparent, rgba(8, 145, 178, 0.05), transparent)',
           top: '-50%',
           right: '-30%',
           filter: 'blur(40px)',
@@ -26,16 +26,16 @@ export const DataStorytelling: React.FC = () => {
             whileHover={{ scale: 1.1, rotate: 5 }}
             className="inline-flex items-center justify-center p-4 rounded-2xl mb-8"
             style={{
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2))',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
+              background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(8, 145, 178, 0.1))',
+              border: '1px solid rgba(124, 58, 237, 0.2)',
             }}
           >
             <BarChart3 size={32} className="text-primary" />
           </motion.div>
-          <h2 className="font-serif text-3xl md:text-4xl text-white mb-6">
+          <h2 className="font-serif text-3xl md:text-4xl text-text-primary mb-6">
             {title}
           </h2>
-          <p className="text-lg text-white/60 leading-relaxed mb-8">
+          <p className="text-lg text-text-secondary leading-relaxed mb-8">
             {copy}
           </p>
         </FadeIn>
@@ -44,7 +44,7 @@ export const DataStorytelling: React.FC = () => {
           <motion.div
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="bg-white/5 md:backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-primary/30 transition-all"
+            className="bg-white md:backdrop-blur-sm p-8 rounded-2xl border border-border hover:border-primary/30 hover:shadow-lg transition-all"
           >
             <ul className="space-y-5">
               {examples.map((example, i) => (
@@ -60,12 +60,12 @@ export const DataStorytelling: React.FC = () => {
                   <div
                     className="w-6 h-6 rounded-lg flex items-center justify-center mr-4 shrink-0 mt-0.5"
                     style={{
-                      background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                      background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                     }}
                   >
                     <TrendingUp size={12} className="text-white" />
                   </div>
-                  <span className="text-white/80 font-light text-lg group-hover:text-white transition-colors">
+                  <span className="text-text-secondary font-light text-lg group-hover:text-text-primary transition-colors">
                     {example}
                   </span>
                 </motion.li>

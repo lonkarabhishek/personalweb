@@ -6,11 +6,11 @@ import { Section, FadeIn } from './ui/Layout';
 export const Process: React.FC = () => {
   return (
     <Section id="process" dark className="relative overflow-hidden">
-      {/* Background decoration - hidden on mobile */}
+      {/* Background decoration */}
       <div
-        className="absolute w-[400px] h-[400px] rounded-full pointer-events-none opacity-15 hidden md:block"
+        className="absolute w-[400px] h-[400px] rounded-full pointer-events-none opacity-20 hidden md:block"
         style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%)',
           top: '10%',
           left: '-20%',
           filter: 'blur(60px)',
@@ -21,7 +21,7 @@ export const Process: React.FC = () => {
         <span
           className="font-medium tracking-widest text-xs uppercase mb-4 block"
           style={{
-            background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+            background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -29,7 +29,7 @@ export const Process: React.FC = () => {
         >
           Process
         </span>
-        <h2 className="font-serif text-3xl md:text-4xl text-white mb-16">How I work</h2>
+        <h2 className="font-serif text-3xl md:text-4xl text-text-primary mb-16">How I work</h2>
       </FadeIn>
 
       <div className="relative ml-4 md:ml-8 space-y-12 md:space-y-16 py-4">
@@ -46,8 +46,8 @@ export const Process: React.FC = () => {
               transition={{ delay: i * 0.1 + 0.3, type: "spring" }}
               className="absolute -left-[7px] top-2 w-4 h-4 rounded-full"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
-                boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)',
+                background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
+                boxShadow: '0 0 20px rgba(124, 58, 237, 0.3)',
               }}
             />
 
@@ -59,7 +59,7 @@ export const Process: React.FC = () => {
               <span
                 className="text-sm font-medium tracking-widest uppercase mb-1 block"
                 style={{
-                  background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -67,10 +67,10 @@ export const Process: React.FC = () => {
               >
                 Phase {step.step}
               </span>
-              <h3 className="text-xl md:text-2xl font-serif text-white mb-3 group-hover:text-primary-light transition-colors">
+              <h3 className="text-xl md:text-2xl font-serif text-text-primary mb-3 group-hover:text-primary transition-colors">
                 {step.title}
               </h3>
-              <p className="text-white/60 max-w-xl leading-relaxed">
+              <p className="text-text-secondary max-w-xl leading-relaxed">
                 {step.description}
               </p>
             </motion.div>

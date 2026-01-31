@@ -9,12 +9,12 @@ export const Footer: React.FC = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-dark-light border-t border-white/10 pt-16 pb-8 px-6 md:px-12 relative overflow-hidden">
-      {/* Background glow - hidden on mobile for performance */}
+    <footer className="bg-surface-secondary border-t border-border pt-16 pb-8 px-6 md:px-12 relative overflow-hidden">
+      {/* Background glow */}
       <div
         className="absolute w-[400px] h-[400px] rounded-full pointer-events-none hidden md:block"
         style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, transparent 70%)',
           bottom: '-50%',
           left: '50%',
           transform: 'translateX(-50%)',
@@ -29,18 +29,18 @@ export const Footer: React.FC = () => {
               <motion.div
                 whileHover={{ rotate: 180 }}
                 transition={{ duration: 0.5 }}
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md"
                 style={{
-                  background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 }}
               >
                 <span className="text-white font-bold text-lg">A</span>
               </motion.div>
-              <span className="text-xl font-serif font-semibold text-white group-hover:text-primary-light transition-colors">
+              <span className="text-xl font-serif font-semibold text-text-primary group-hover:text-primary transition-colors">
                 Abhishek Lonkar
               </span>
             </Link>
-            <div className="flex items-center text-white/50">
+            <div className="flex items-center text-text-secondary">
               <MapPin size={16} className="mr-2 text-primary" />
               <span className="text-sm">{location}</span>
             </div>
@@ -50,7 +50,7 @@ export const Footer: React.FC = () => {
             <h4
               className="text-sm font-medium uppercase tracking-widest"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -62,7 +62,7 @@ export const Footer: React.FC = () => {
               <motion.a
                 whileHover={{ x: 4 }}
                 href={`mailto:${email}`}
-                className="flex items-center text-white/70 hover:text-white transition-colors group"
+                className="flex items-center text-text-secondary hover:text-text-primary transition-colors group"
               >
                 <Mail size={16} className="mr-2 text-primary group-hover:text-accent transition-colors" />
                 {email}
@@ -72,7 +72,7 @@ export const Footer: React.FC = () => {
                 href={linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center text-white/70 hover:text-white transition-colors group"
+                className="flex items-center text-text-secondary hover:text-text-primary transition-colors group"
               >
                 <Linkedin size={16} className="mr-2 text-primary group-hover:text-accent transition-colors" />
                 LinkedIn
@@ -84,7 +84,7 @@ export const Footer: React.FC = () => {
             <h4
               className="text-sm font-medium uppercase tracking-widest"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -99,12 +99,12 @@ export const Footer: React.FC = () => {
                   const element = document.getElementById('work');
                   if (element) element.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="text-white/70 hover:text-white transition-colors text-left"
+                className="text-text-secondary hover:text-text-primary transition-colors text-left"
               >
                 Work
               </motion.button>
               <motion.div whileHover={{ x: 4 }}>
-                <Link to="/resume" className="text-white/70 hover:text-white transition-colors">
+                <Link to="/resume" className="text-text-secondary hover:text-text-primary transition-colors">
                   Resume
                 </Link>
               </motion.div>
@@ -112,7 +112,7 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-white/40">
+        <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-text-muted">
           <p>&copy; {year} Abhishek Lonkar. All rights reserved.</p>
           <p className="mt-2 md:mt-0 flex items-center">
             Built with <Heart size={14} className="mx-1 text-accent-pink" /> and reliability in mind.

@@ -8,11 +8,11 @@ export const About: React.FC = () => {
 
   return (
     <Section id="about" dark className="relative overflow-hidden">
-      {/* Background decoration - hidden on mobile for performance */}
+      {/* Background decoration */}
       <div
-        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none opacity-15 hidden md:block"
+        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none opacity-20 hidden md:block"
         style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%)',
           bottom: '-20%',
           right: '-10%',
           filter: 'blur(80px)',
@@ -25,7 +25,7 @@ export const About: React.FC = () => {
             <span
               className="font-medium tracking-widest text-xs uppercase mb-4 block"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -33,7 +33,7 @@ export const About: React.FC = () => {
             >
               About
             </span>
-            <h2 className="font-serif text-3xl md:text-4xl text-white">My Journey</h2>
+            <h2 className="font-serif text-3xl md:text-4xl text-text-primary">My Journey</h2>
 
             {/* Decorative element */}
             <motion.div
@@ -43,19 +43,19 @@ export const About: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="h-1 w-20 mt-6 rounded-full origin-left"
               style={{
-                background: 'linear-gradient(90deg, #8b5cf6, #06b6d4)',
+                background: 'linear-gradient(90deg, #7c3aed, #0891b2)',
               }}
             />
           </FadeIn>
         </div>
 
         <div className="lg:col-span-8">
-          <div className="space-y-8 text-lg text-white/60 leading-relaxed font-light">
+          <div className="space-y-8 text-lg text-text-secondary leading-relaxed font-light">
             <FadeIn delay={0.1}>
               <motion.p
                 whileHover={{ x: 8 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/30 transition-all cursor-default"
+                className="p-6 rounded-2xl bg-white border border-border hover:border-primary/30 hover:shadow-lg transition-all cursor-default"
               >
                 {intro}
               </motion.p>
@@ -64,7 +64,7 @@ export const About: React.FC = () => {
               <motion.p
                 whileHover={{ x: 8 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/30 transition-all cursor-default"
+                className="p-6 rounded-2xl bg-white border border-border hover:border-accent/30 hover:shadow-lg transition-all cursor-default"
               >
                 {middle}
               </motion.p>
@@ -73,7 +73,7 @@ export const About: React.FC = () => {
               <motion.p
                 whileHover={{ x: 8 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-accent-pink/30 transition-all cursor-default"
+                className="p-6 rounded-2xl bg-white border border-border hover:border-accent-pink/30 hover:shadow-lg transition-all cursor-default"
               >
                 {outro}
               </motion.p>

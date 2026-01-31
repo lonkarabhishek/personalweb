@@ -17,7 +17,6 @@ export const Navbar: React.FC = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
 
-      // Determine active section for mobile nav
       const sections = ['about', 'process', 'work'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
@@ -78,9 +77,9 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md"
                 style={{
-                  background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 }}
               >
                 <span className="text-white font-bold text-lg">A</span>
@@ -91,7 +90,7 @@ export const Navbar: React.FC = () => {
 
         {/* Floating bottom navigation */}
         <nav className="fixed bottom-4 left-4 right-4 z-50">
-          <div className="bg-dark-light/95 border border-white/10 rounded-2xl px-2 py-2 flex items-center justify-around shadow-lg shadow-black/20">
+          <div className="bg-white border border-border rounded-2xl px-2 py-2 flex items-center justify-around shadow-lg">
             {mobileNavLinks.map((link) => {
               const Icon = link.icon;
               const isActive = activeSection === link.id;
@@ -106,7 +105,7 @@ export const Navbar: React.FC = () => {
                     isBook
                       ? "bg-gradient-to-r from-primary to-accent"
                       : isActive
-                      ? "bg-white/10"
+                      ? "bg-primary/10"
                       : "bg-transparent"
                   )}
                 >
@@ -118,7 +117,7 @@ export const Navbar: React.FC = () => {
                         ? "text-white"
                         : isActive
                         ? "text-primary"
-                        : "text-white/50"
+                        : "text-text-muted"
                     )}
                   />
                   <span
@@ -127,8 +126,8 @@ export const Navbar: React.FC = () => {
                       isBook
                         ? "text-white"
                         : isActive
-                        ? "text-white"
-                        : "text-white/50"
+                        ? "text-primary"
+                        : "text-text-muted"
                     )}
                   >
                     {link.name}
@@ -157,7 +156,7 @@ export const Navbar: React.FC = () => {
           className={cn(
             "max-w-6xl mx-auto rounded-2xl transition-all duration-500 ease-out",
             isScrolled
-              ? "bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg shadow-primary/5"
+              ? "bg-white/80 backdrop-blur-xl border border-border shadow-lg"
               : "bg-transparent border border-transparent"
           )}
         >
@@ -167,14 +166,14 @@ export const Navbar: React.FC = () => {
               <motion.div
                 whileHover={{ rotate: 180, scale: 1.1 }}
                 transition={{ duration: 0.5 }}
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md"
                 style={{
-                  background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 }}
               >
                 <span className="text-white font-bold text-lg">A</span>
               </motion.div>
-              <span className="text-xl font-serif font-semibold text-white tracking-tight group-hover:text-primary-light transition-colors">
+              <span className="text-xl font-serif font-semibold text-text-primary tracking-tight group-hover:text-primary transition-colors">
                 Abhishek Lonkar
               </span>
             </Link>
@@ -191,13 +190,13 @@ export const Navbar: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * index }}
                     onClick={() => handleScrollTo(link.id)}
-                    className="relative group flex items-center px-3 py-2 rounded-xl hover:bg-white/5 transition-all"
+                    className="relative group flex items-center px-3 py-2 rounded-xl hover:bg-surface-secondary transition-all"
                   >
-                    <Icon size={18} className="text-white/70 group-hover:text-primary transition-colors" />
+                    <Icon size={18} className="text-text-secondary group-hover:text-primary transition-colors" />
                     <motion.span
                       initial={{ width: 0, opacity: 0, marginLeft: 0 }}
                       whileHover={{ width: 'auto', opacity: 1, marginLeft: 8 }}
-                      className="overflow-hidden whitespace-nowrap text-sm font-medium text-white"
+                      className="overflow-hidden whitespace-nowrap text-sm font-medium text-text-primary"
                     >
                       {link.name}
                     </motion.span>
@@ -214,9 +213,9 @@ export const Navbar: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowBooking(true)}
-                className="ml-2 px-5 py-2.5 text-sm font-medium rounded-full text-white relative overflow-hidden group flex items-center"
+                className="ml-2 px-5 py-2.5 text-sm font-medium rounded-full text-white relative overflow-hidden group flex items-center shadow-md"
                 style={{
-                  background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 }}
               >
                 <span className="relative z-10 flex items-center">
@@ -226,7 +225,7 @@ export const Navbar: React.FC = () => {
                 <motion.div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
                   style={{
-                    background: 'linear-gradient(135deg, #06b6d4, #ec4899)',
+                    background: 'linear-gradient(135deg, #0891b2, #db2777)',
                   }}
                 />
               </motion.button>

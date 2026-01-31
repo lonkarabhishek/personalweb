@@ -16,11 +16,11 @@ const companies = [
 export const Companies: React.FC = () => {
   return (
     <Section className="py-20 relative overflow-hidden">
-      {/* Background glow - hidden on mobile for performance */}
+      {/* Background glow */}
       <div
-        className="absolute w-full h-full pointer-events-none opacity-10 hidden md:block"
+        className="absolute w-full h-full pointer-events-none opacity-20 hidden md:block"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center, rgba(124, 58, 237, 0.08) 0%, transparent 70%)',
         }}
       />
 
@@ -29,7 +29,7 @@ export const Companies: React.FC = () => {
           <span
             className="font-medium tracking-widest text-xs uppercase mb-4 block"
             style={{
-              background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+              background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -37,7 +37,7 @@ export const Companies: React.FC = () => {
           >
             Experience
           </span>
-          <h2 className="font-serif text-2xl md:text-3xl text-white">
+          <h2 className="font-serif text-2xl md:text-3xl text-text-primary">
             Companies & Organizations I've Worked With
           </h2>
         </div>
@@ -53,19 +53,19 @@ export const Companies: React.FC = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ y: -4, scale: 1.02 }}
-              className="group relative bg-white/5 md:backdrop-blur-sm border border-white/10 hover:border-primary/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-all cursor-default"
+              className="group relative bg-white border border-border hover:border-primary/30 hover:shadow-lg rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-all cursor-default"
             >
               {/* Hover gradient */}
               <motion.div
                 className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{
-                  background: 'radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.05) 0%, transparent 70%)',
                 }}
               />
 
               <div className="relative z-10 flex flex-col items-center">
                 {/* Logo */}
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden bg-white flex items-center justify-center mb-4 p-2">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden bg-white border border-border flex items-center justify-center mb-4 p-2">
                   <img
                     src={company.logo}
                     alt={`${company.name} logo`}
@@ -73,19 +73,19 @@ export const Companies: React.FC = () => {
                   />
                 </div>
 
-                <h3 className="text-base md:text-lg font-semibold text-white group-hover:text-primary-light transition-colors">
+                <h3 className="text-base md:text-lg font-semibold text-text-primary group-hover:text-primary transition-colors">
                   {company.name}
                 </h3>
                 {company.fullName && (
-                  <p className="text-xs text-white/40 mt-1 hidden md:block">
+                  <p className="text-xs text-text-muted mt-1 hidden md:block">
                     {company.fullName}
                   </p>
                 )}
                 <span
                   className="inline-block mt-2 px-2 py-0.5 rounded-full text-xs"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2))',
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(8, 145, 178, 0.1))',
+                    color: '#7c3aed',
                   }}
                 >
                   {company.type}

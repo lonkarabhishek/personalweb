@@ -18,7 +18,7 @@ export const Services: React.FC = () => {
         <span
           className="font-medium tracking-widest text-xs uppercase mb-4 block"
           style={{
-            background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+            background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -26,7 +26,7 @@ export const Services: React.FC = () => {
         >
           Services
         </span>
-        <h2 className="font-serif text-3xl md:text-4xl text-white mb-16">What I help with</h2>
+        <h2 className="font-serif text-3xl md:text-4xl text-text-primary mb-16">What I help with</h2>
       </FadeIn>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -35,13 +35,13 @@ export const Services: React.FC = () => {
             <motion.div
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="bg-white/5 md:backdrop-blur-sm p-8 h-full rounded-2xl border border-white/10 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+              className="bg-white p-8 h-full rounded-2xl border border-border hover:border-primary/30 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
             >
               {/* Gradient glow on hover */}
               <motion.div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{
-                  background: 'radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.05) 0%, transparent 70%)',
                 }}
               />
 
@@ -51,10 +51,10 @@ export const Services: React.FC = () => {
                 >
                   <span className="text-white font-bold text-lg">{String(i + 1).padStart(2, '0')}</span>
                 </div>
-                <h3 className="text-xl font-medium text-white mb-4 group-hover:text-primary-light transition-colors">
+                <h3 className="text-xl font-medium text-text-primary mb-4 group-hover:text-primary transition-colors">
                   {service.title}
                 </h3>
-                <p className="text-white/60 leading-relaxed">{service.description}</p>
+                <p className="text-text-secondary leading-relaxed">{service.description}</p>
               </div>
             </motion.div>
           </FadeIn>

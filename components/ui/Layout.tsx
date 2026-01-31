@@ -7,12 +7,10 @@ const useIsMobile = () => {
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
-    // Check if mobile based on screen width and touch capability
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
     };
     checkMobile();
-    // Don't add resize listener to avoid re-renders
   }, []);
 
   return isMobile;
@@ -31,7 +29,7 @@ export const Section: React.FC<SectionProps> = ({ id, className, children, dark 
       id={id}
       className={cn(
         "py-20 md:py-32 px-6 md:px-12 lg:px-24 relative",
-        dark ? "bg-dark-light" : "bg-transparent",
+        dark ? "bg-surface-secondary" : "bg-white",
         className
       )}
     >
@@ -49,7 +47,6 @@ export const FadeIn: React.FC<{ children: React.ReactNode; delay?: number; class
 }) => {
   const isMobile = useIsMobile();
 
-  // On mobile, render without animation
   if (isMobile) {
     return <div className={className}>{children}</div>;
   }

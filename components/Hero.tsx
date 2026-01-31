@@ -20,17 +20,17 @@ export const Hero: React.FC = () => {
       <Section className="pt-32 min-h-[100vh] flex flex-col justify-center relative overflow-hidden">
         <div className="max-w-4xl relative z-10">
           <div>
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/5 border border-primary/20 mb-8">
               <Sparkles size={14} className="text-primary mr-2" />
-              <span className="text-sm text-white/70">Available for new projects</span>
+              <span className="text-sm text-text-secondary">Available for new projects</span>
             </div>
 
             <h1 className="font-serif text-4xl leading-[1.1] mb-8 font-medium">
-              <span className="text-white">I help brands and teams </span>
+              <span className="text-text-primary">I help brands and teams </span>
               <span
                 className="inline-block"
                 style={{
-                  background: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #ec4899 100%)',
+                  background: 'linear-gradient(135deg, #7c3aed 0%, #0891b2 50%, #db2777 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -41,16 +41,16 @@ export const Hero: React.FC = () => {
             </h1>
           </div>
 
-          <p className="text-xl text-white/60 leading-relaxed max-w-2xl mb-10 font-light">
+          <p className="text-xl text-text-secondary leading-relaxed max-w-2xl mb-10 font-light">
             {subheadline}
           </p>
 
           <div className="flex flex-col gap-4 mb-6">
             <button
               onClick={() => setShowBooking(true)}
-              className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-white active:scale-95 transition-transform"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-white active:scale-95 transition-transform shadow-lg"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
               }}
             >
               <span className="flex items-center">
@@ -63,7 +63,7 @@ export const Hero: React.FC = () => {
                 const element = document.getElementById('work');
                 if (element) element.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-white rounded-full font-medium active:scale-95 transition-transform"
+              className="inline-flex items-center justify-center px-8 py-4 border border-border text-text-primary rounded-full font-medium active:scale-95 transition-transform hover:bg-surface-secondary"
             >
               {secondaryCta}
             </button>
@@ -71,7 +71,7 @@ export const Hero: React.FC = () => {
 
           {/* Contact alternatives */}
           <div className="mb-16">
-            <p className="text-white/40 text-sm mb-3">Not ready to meet yet? Send me a message</p>
+            <p className="text-text-muted text-sm mb-3">Not ready to meet yet? Send me a message</p>
             <div className="flex items-center gap-3">
               <a
                 href="https://wa.me/919403612979?text=Hi%20Abhishek%2C%20I%20got%20your%20number%20from%20your%20website.%20Can%20we%20chat%3F"
@@ -101,17 +101,17 @@ export const Hero: React.FC = () => {
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-8">
+          <div className="border-t border-border pt-8">
             <div className="grid grid-cols-1 gap-6">
               {stats.map((stat, i) => (
                 <div
                   key={i}
-                  className="flex items-center space-x-3 text-white/60"
+                  className="flex items-center space-x-3 text-text-secondary"
                 >
                   <div
                     className="w-5 h-5 rounded-full flex items-center justify-center"
                     style={{
-                      background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                      background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                     }}
                   >
                     <CheckCircle2 size={12} className="text-white" />
@@ -135,7 +135,7 @@ export const Hero: React.FC = () => {
       <div
         className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%)',
           top: '-30%',
           right: '-20%',
           filter: 'blur(60px)',
@@ -144,7 +144,7 @@ export const Hero: React.FC = () => {
       <div
         className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(8, 145, 178, 0.08) 0%, transparent 70%)',
           bottom: '-20%',
           left: '-10%',
           filter: 'blur(60px)',
@@ -161,18 +161,18 @@ export const Hero: React.FC = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8"
+            className="inline-flex items-center px-4 py-2 rounded-full bg-primary/5 border border-primary/20 mb-8"
           >
             <Sparkles size={14} className="text-primary mr-2" />
-            <span className="text-sm text-white/70">Available for new projects</span>
+            <span className="text-sm text-text-secondary">Available for new projects</span>
           </motion.div>
 
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 font-medium">
-            <span className="text-white">I help brands and teams </span>
+            <span className="text-text-primary">I help brands and teams </span>
             <span
               className="inline-block"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #ec4899 100%)',
+                background: 'linear-gradient(135deg, #7c3aed 0%, #0891b2 50%, #db2777 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -187,7 +187,7 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.43, 0.13, 0.23, 0.96] }}
-          className="text-xl md:text-2xl text-white/60 leading-relaxed max-w-2xl mb-10 font-light"
+          className="text-xl md:text-2xl text-text-secondary leading-relaxed max-w-2xl mb-10 font-light"
         >
           {subheadline}
         </motion.p>
@@ -199,12 +199,12 @@ export const Hero: React.FC = () => {
           className="flex flex-col sm:flex-row gap-4 mb-6"
         >
           <motion.button
-            whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(139, 92, 246, 0.4)' }}
+            whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(124, 58, 237, 0.3)' }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowBooking(true)}
-            className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-white relative overflow-hidden group"
+            className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-white relative overflow-hidden group shadow-lg"
             style={{
-              background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+              background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
             }}
           >
             <span className="relative z-10 flex items-center">
@@ -214,18 +214,18 @@ export const Hero: React.FC = () => {
             <motion.div
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{
-                background: 'linear-gradient(135deg, #06b6d4, #ec4899)',
+                background: 'linear-gradient(135deg, #0891b2, #db2777)',
               }}
             />
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+            whileHover={{ scale: 1.05, backgroundColor: '#f8fafc' }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
               const element = document.getElementById('work');
               if (element) element.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-white rounded-full font-medium transition-all hover:border-primary/50"
+            className="inline-flex items-center justify-center px-8 py-4 border border-border text-text-primary rounded-full font-medium transition-all hover:border-primary/50"
           >
             {secondaryCta}
           </motion.button>
@@ -238,7 +238,7 @@ export const Hero: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
           className="mb-16"
         >
-          <p className="text-white/40 text-sm mb-3">Not ready to meet yet? Send me a message</p>
+          <p className="text-text-muted text-sm mb-3">Not ready to meet yet? Send me a message</p>
           <div className="flex items-center gap-3">
             <motion.a
               whileHover={{ scale: 1.1, y: -2 }}
@@ -278,7 +278,7 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
-          className="border-t border-white/10 pt-8"
+          className="border-t border-border pt-8"
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.map((stat, i) => (
@@ -288,17 +288,17 @@ export const Hero: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8 + i * 0.1 }}
                 whileHover={{ x: 5 }}
-                className="flex items-center space-x-3 text-white/60 group cursor-default"
+                className="flex items-center space-x-3 text-text-secondary group cursor-default"
               >
                 <div
                   className="w-5 h-5 rounded-full flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                    background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                   }}
                 >
                   <CheckCircle2 size={12} className="text-white" />
                 </div>
-                <span className="text-sm font-medium tracking-wide group-hover:text-white transition-colors">{stat}</span>
+                <span className="text-sm font-medium tracking-wide group-hover:text-text-primary transition-colors">{stat}</span>
               </motion.div>
             ))}
           </div>

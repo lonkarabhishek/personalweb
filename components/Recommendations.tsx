@@ -9,11 +9,11 @@ const linkedInRecommendationsUrl = "https://www.linkedin.com/in/lonkarabhishek/d
 export const Recommendations: React.FC = () => {
   return (
     <Section id="recommendations" className="relative overflow-hidden">
-      {/* Background decoration - hidden on mobile for performance */}
+      {/* Background decoration */}
       <div
-        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none opacity-15 hidden md:block"
+        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none opacity-20 hidden md:block"
         style={{
-          background: 'radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(219, 39, 119, 0.1) 0%, transparent 70%)',
           top: '10%',
           left: '-10%',
           filter: 'blur(80px)',
@@ -24,7 +24,7 @@ export const Recommendations: React.FC = () => {
         <span
           className="font-medium tracking-widest text-xs uppercase mb-4 block"
           style={{
-            background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+            background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -32,7 +32,7 @@ export const Recommendations: React.FC = () => {
         >
           Recommendations
         </span>
-        <h2 className="font-serif text-3xl md:text-4xl text-white mb-16">Trusted by leaders</h2>
+        <h2 className="font-serif text-3xl md:text-4xl text-text-primary mb-16">Trusted by leaders</h2>
       </FadeIn>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
@@ -44,13 +44,13 @@ export const Recommendations: React.FC = () => {
               rel="noopener noreferrer"
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="block bg-white/5 md:backdrop-blur-sm p-8 md:p-10 rounded-2xl border border-white/10 hover:border-primary/30 h-full flex flex-col relative overflow-hidden group cursor-pointer"
+              className="block bg-white p-8 md:p-10 rounded-2xl border border-border hover:border-primary/30 hover:shadow-xl h-full flex flex-col relative overflow-hidden group cursor-pointer"
             >
               {/* Hover gradient */}
               <motion.div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%)',
+                  background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.03) 0%, rgba(219, 39, 119, 0.03) 100%)',
                 }}
               />
 
@@ -59,7 +59,7 @@ export const Recommendations: React.FC = () => {
                   <div
                     className="p-3 rounded-xl"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2))',
+                      background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(8, 145, 178, 0.1))',
                     }}
                   >
                     <Quote size={24} className="text-primary" />
@@ -70,20 +70,20 @@ export const Recommendations: React.FC = () => {
                         <Star key={j} size={14} className="text-amber-400 fill-amber-400" />
                       ))}
                     </div>
-                    <ExternalLink size={14} className="text-white/30 group-hover:text-primary transition-colors" />
+                    <ExternalLink size={14} className="text-text-muted group-hover:text-primary transition-colors" />
                   </div>
                 </div>
 
-                <p className="text-white/70 leading-relaxed mb-8 italic flex-grow text-lg">
+                <p className="text-text-secondary leading-relaxed mb-8 italic flex-grow text-lg">
                   "{rec.text}"
                 </p>
 
-                <div className="mt-auto pt-6 border-t border-white/10">
-                  <p className="text-white font-semibold font-serif text-lg">{rec.name}</p>
+                <div className="mt-auto pt-6 border-t border-border">
+                  <p className="text-text-primary font-semibold font-serif text-lg">{rec.name}</p>
                   <p
                     className="text-sm"
                     style={{
-                      background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                      background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
                       backgroundClip: 'text',
@@ -95,7 +95,7 @@ export const Recommendations: React.FC = () => {
 
                 {/* View on LinkedIn hint */}
                 <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-xs text-white/40 flex items-center">
+                  <span className="text-xs text-text-muted flex items-center">
                     View on LinkedIn
                     <ExternalLink size={10} className="ml-1" />
                   </span>

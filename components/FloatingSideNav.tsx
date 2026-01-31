@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, Settings, User, BarChart3, Star, MessageSquare, Calendar } from 'lucide-react';
+import { Briefcase, Settings, User, Star, MessageSquare } from 'lucide-react';
 
 const sections = [
   { id: 'work', name: 'Work', icon: Briefcase },
@@ -15,10 +15,8 @@ export const FloatingSideNav: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show nav after scrolling past hero
       setIsVisible(window.scrollY > window.innerHeight * 0.5);
 
-      // Determine active section
       const scrollPosition = window.scrollY + window.innerHeight / 3;
 
       for (const section of sections) {
@@ -34,7 +32,7 @@ export const FloatingSideNav: React.FC = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -69,7 +67,7 @@ export const FloatingSideNav: React.FC = () => {
             <motion.span
               initial={{ opacity: 0, x: 10 }}
               whileHover={{ opacity: 1, x: 0 }}
-              className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-dark-light/95 border border-white/10 text-white text-sm font-medium whitespace-nowrap pointer-events-none"
+              className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-white border border-border shadow-lg text-text-primary text-sm font-medium whitespace-nowrap pointer-events-none"
             >
               {section.name}
             </motion.span>
@@ -80,14 +78,14 @@ export const FloatingSideNav: React.FC = () => {
               whileTap={{ scale: 0.95 }}
               className={`relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                 isActive
-                  ? 'bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30'
-                  : 'bg-white/5 border border-white/10 hover:bg-white/10'
+                  ? 'bg-gradient-to-br from-primary to-accent shadow-lg'
+                  : 'bg-white border border-border hover:border-primary/30 hover:shadow-md'
               }`}
             >
               <Icon
                 size={20}
                 className={`transition-colors ${
-                  isActive ? 'text-white' : 'text-white/50 group-hover:text-white'
+                  isActive ? 'text-white' : 'text-text-muted group-hover:text-primary'
                 }`}
               />
 
@@ -105,7 +103,7 @@ export const FloatingSideNav: React.FC = () => {
       })}
 
       {/* Divider */}
-      <div className="w-6 h-px bg-white/10 my-2" />
+      <div className="w-6 h-px bg-border my-2" />
 
       {/* Book a call quick action */}
       <motion.button
@@ -123,7 +121,7 @@ export const FloatingSideNav: React.FC = () => {
         <motion.span
           initial={{ opacity: 0, x: 10 }}
           whileHover={{ opacity: 1, x: 0 }}
-          className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-dark-light/95 border border-white/10 text-white text-sm font-medium whitespace-nowrap pointer-events-none"
+          className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-white border border-border shadow-lg text-text-primary text-sm font-medium whitespace-nowrap pointer-events-none"
         >
           Book a call
         </motion.span>
@@ -131,7 +129,7 @@ export const FloatingSideNav: React.FC = () => {
         <motion.div
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
-          className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-accent-pink to-primary shadow-lg shadow-accent-pink/20"
+          className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-accent-pink to-primary shadow-lg"
         >
           <MessageSquare size={20} className="text-white" />
         </motion.div>
