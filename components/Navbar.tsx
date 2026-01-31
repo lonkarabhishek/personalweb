@@ -1,41 +1,150 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Briefcase, Settings, User, Calendar } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { Briefcase, Settings, User, Calendar, Home } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { BookingModal } from './BookingModal';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
-  const location = useLocation();
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
+
+      // Determine active section for mobile nav
+      const sections = ['about', 'process', 'work'];
+      const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+      let found = false;
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(sectionId);
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found && window.scrollY < 300) {
+        setActiveSection('home');
+      }
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
-    { name: 'Work', href: '#work', icon: Briefcase },
-    { name: 'Process', href: '#process', icon: Settings },
-    { name: 'About', href: '#about', icon: User },
+    { name: 'Work', href: '#work', icon: Briefcase, id: 'work' },
+    { name: 'Process', href: '#process', icon: Settings, id: 'process' },
+    { name: 'About', href: '#about', icon: User, id: 'about' },
   ];
 
-  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, id: string) => {
-    e.preventDefault();
-    // Remove the # from the id
-    const sectionId = id.replace('#', '');
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setMobileMenuOpen(false);
+  const mobileNavLinks = [
+    { name: 'Home', icon: Home, id: 'home' },
+    { name: 'Work', icon: Briefcase, id: 'work' },
+    { name: 'Process', icon: Settings, id: 'process' },
+    { name: 'About', icon: User, id: 'about' },
+    { name: 'Book', icon: Calendar, id: 'book' },
+  ];
+
+  const handleScrollTo = (id: string) => {
+    if (id === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (id === 'book') {
+      setShowBooking(true);
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
+  // Mobile floating bottom navbar
+  if (isMobile) {
+    return (
+      <>
+        {/* Simple top header with logo only */}
+        <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center space-x-2">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                }}
+              >
+                <span className="text-white font-bold text-lg">A</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Floating bottom navigation */}
+        <nav className="fixed bottom-4 left-4 right-4 z-50">
+          <div className="bg-dark-light/95 border border-white/10 rounded-2xl px-2 py-2 flex items-center justify-around shadow-lg shadow-black/20">
+            {mobileNavLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = activeSection === link.id;
+              const isBook = link.id === 'book';
+
+              return (
+                <button
+                  key={link.id}
+                  onClick={() => handleScrollTo(link.id)}
+                  className={cn(
+                    "flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all",
+                    isBook
+                      ? "bg-gradient-to-r from-primary to-accent"
+                      : isActive
+                      ? "bg-white/10"
+                      : "bg-transparent"
+                  )}
+                >
+                  <Icon
+                    size={20}
+                    className={cn(
+                      "transition-colors",
+                      isBook
+                        ? "text-white"
+                        : isActive
+                        ? "text-primary"
+                        : "text-white/50"
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "text-[10px] mt-1 font-medium",
+                      isBook
+                        ? "text-white"
+                        : isActive
+                        ? "text-white"
+                        : "text-white/50"
+                    )}
+                  >
+                    {link.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
+      </>
+    );
+  }
+
+  // Desktop version with animations
   return (
     <>
       <motion.nav
@@ -48,7 +157,7 @@ export const Navbar: React.FC = () => {
           className={cn(
             "max-w-6xl mx-auto rounded-2xl transition-all duration-500 ease-out",
             isScrolled
-              ? "bg-white/5 md:backdrop-blur-xl border border-white/10 shadow-lg shadow-primary/5"
+              ? "bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg shadow-primary/5"
               : "bg-transparent border border-transparent"
           )}
         >
@@ -65,41 +174,15 @@ export const Navbar: React.FC = () => {
               >
                 <span className="text-white font-bold text-lg">A</span>
               </motion.div>
-              <span className="text-xl font-serif font-semibold text-white tracking-tight group-hover:text-primary-light transition-colors hidden sm:block">
+              <span className="text-xl font-serif font-semibold text-white tracking-tight group-hover:text-primary-light transition-colors">
                 Abhishek Lonkar
               </span>
             </Link>
 
-            {/* Desktop Nav - Icon based with hover reveal */}
-            <div className="hidden md:flex items-center space-x-2">
+            {/* Desktop Nav */}
+            <div className="flex items-center space-x-2">
               {navLinks.map((link, index) => {
                 const Icon = link.icon;
-
-                if (link.isRoute) {
-                  return (
-                    <motion.div
-                      key={link.name}
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 * index }}
-                    >
-                      <Link
-                        to={link.href}
-                        className="relative group flex items-center px-3 py-2 rounded-xl hover:bg-white/5 transition-all"
-                      >
-                        <Icon size={18} className="text-white/70 group-hover:text-primary transition-colors" />
-                        <motion.span
-                          initial={{ width: 0, opacity: 0, marginLeft: 0 }}
-                          whileHover={{ width: 'auto', opacity: 1, marginLeft: 8 }}
-                          className="overflow-hidden whitespace-nowrap text-sm font-medium text-white"
-                        >
-                          {link.name}
-                        </motion.span>
-                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-primary to-accent group-hover:w-3/4 transition-all duration-300 rounded-full" />
-                      </Link>
-                    </motion.div>
-                  );
-                }
 
                 return (
                   <motion.button
@@ -107,7 +190,7 @@ export const Navbar: React.FC = () => {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * index }}
-                    onClick={(e) => handleScrollTo(e, link.href)}
+                    onClick={() => handleScrollTo(link.id)}
                     className="relative group flex items-center px-3 py-2 rounded-xl hover:bg-white/5 transition-all"
                   >
                     <Icon size={18} className="text-white/70 group-hover:text-primary transition-colors" />
@@ -148,88 +231,10 @@ export const Navbar: React.FC = () => {
                 />
               </motion.button>
             </div>
-
-            {/* Mobile Toggle */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              className="md:hidden text-white p-2 rounded-xl bg-white/5 border border-white/10"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </motion.button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="absolute top-full left-4 right-4 mt-2 bg-dark-light/98 border border-white/10 rounded-2xl p-6 flex flex-col space-y-2 md:hidden shadow-xl"
-            >
-              {navLinks.map((link, index) => {
-                const Icon = link.icon;
-
-                if (link.isRoute) {
-                  return (
-                    <motion.div
-                      key={link.name}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 * index }}
-                    >
-                      <Link
-                        to={link.href}
-                        className="flex items-center px-4 py-3 text-lg font-medium text-white hover:text-primary-light transition-colors rounded-xl hover:bg-white/5"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Icon size={20} className="mr-3 text-primary" />
-                        {link.name}
-                      </Link>
-                    </motion.div>
-                  );
-                }
-
-                return (
-                  <motion.button
-                    key={link.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 * index }}
-                    onClick={(e) => handleScrollTo(e, link.href)}
-                    className="flex items-center px-4 py-3 text-lg font-medium text-white hover:text-primary-light transition-colors rounded-xl hover:bg-white/5 w-full text-left"
-                  >
-                    <Icon size={20} className="mr-3 text-primary" />
-                    {link.name}
-                  </motion.button>
-                );
-              })}
-
-              <motion.button
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setShowBooking(true);
-                }}
-                className="w-full text-center px-6 py-4 text-white font-medium rounded-xl mt-4 flex items-center justify-center"
-                style={{
-                  background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
-                }}
-              >
-                <Calendar size={18} className="mr-2" />
-                Book a call
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.nav>
 
-      {/* Booking Modal */}
       <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
     </>
   );
