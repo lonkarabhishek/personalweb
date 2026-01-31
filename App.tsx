@@ -19,11 +19,12 @@ const ScrollToTop = () => {
 // Separated content component to use useLocation inside HashRouter context
 const AppContent: React.FC = () => {
   const location = useLocation();
+  const isResumePage = location.pathname === '/resume';
 
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-primary/30 gradient-bg">
       <ScrollToTop />
-      <Navbar />
+      {!isResumePage && <Navbar />}
       <main className="flex-grow">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
