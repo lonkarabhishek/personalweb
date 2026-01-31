@@ -4,23 +4,82 @@ import { motion, AnimatePresence } from 'framer-motion';
 export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Check if mobile
+    setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+  }, []);
+
+  useEffect(() => {
+    // Faster loading on mobile
+    const increment = isMobile ? 15 : 8;
+    const interval = isMobile ? 80 : 100;
+
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
           setIsExiting(true);
-          setTimeout(onComplete, 500);
+          setTimeout(onComplete, isMobile ? 300 : 500);
           return 100;
         }
-        return prev + Math.random() * 8 + 4;
+        return prev + Math.random() * increment + 4;
       });
-    }, 100);
+    }, interval);
 
     return () => clearInterval(timer);
-  }, [onComplete]);
+  }, [onComplete, isMobile]);
 
+  // Simple mobile version
+  if (isMobile) {
+    return (
+      <AnimatePresence>
+        {!isExiting && (
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-dark"
+          >
+            <div className="relative z-10 flex flex-col items-center text-center px-6">
+              <div className="mb-4">
+                <h1 className="text-3xl font-serif font-medium text-white mb-3">
+                  Hi, I'm{' '}
+                  <span
+                    style={{
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    Abhishek
+                  </span>
+                </h1>
+                <p className="text-lg text-white/60 font-light">
+                  It's good to see you.
+                </p>
+              </div>
+
+              {/* Simple loading bar without motion */}
+              <div
+                className="relative h-1 bg-white/10 rounded-full overflow-hidden mt-8"
+                style={{ width: 200 }}
+              >
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full transition-all duration-200"
+                  style={{
+                    width: `${Math.min(progress, 100)}%`,
+                    background: 'linear-gradient(90deg, #8b5cf6, #06b6d4)',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+    );
+  }
+
+  // Desktop version with animations
   return (
     <AnimatePresence>
       {!isExiting && (
@@ -34,9 +93,9 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
             backgroundSize: '400% 400%',
           }}
         >
-          {/* Static background orbs for better performance */}
+          {/* Background orbs - desktop only */}
           <div
-            className="absolute w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full opacity-40"
+            className="absolute w-[500px] h-[500px] rounded-full opacity-40"
             style={{
               background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)',
               top: '-20%',
@@ -45,7 +104,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
             }}
           />
           <div
-            className="absolute w-[250px] h-[250px] md:w-[400px] md:h-[400px] rounded-full opacity-40"
+            className="absolute w-[400px] h-[400px] rounded-full opacity-40"
             style={{
               background: 'radial-gradient(circle, rgba(6, 182, 212, 0.4) 0%, transparent 70%)',
               bottom: '-20%',
@@ -55,14 +114,13 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
           />
 
           <div className="relative z-10 flex flex-col items-center text-center px-6">
-            {/* Greeting */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="mb-4"
             >
-              <h1 className="text-3xl md:text-5xl font-serif font-medium text-white mb-3">
+              <h1 className="text-5xl font-serif font-medium text-white mb-3">
                 Hi, I'm{' '}
                 <span
                   style={{
@@ -79,13 +137,12 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="text-lg md:text-xl text-white/60 font-light"
+                className="text-xl text-white/60 font-light"
               >
                 It's good to see you.
               </motion.p>
             </motion.div>
 
-            {/* Loading bar */}
             <motion.div
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: 200 }}
