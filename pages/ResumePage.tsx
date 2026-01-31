@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Section, FadeIn } from '../components/ui/Layout';
-import { Download, Briefcase, GraduationCap, Code, Wrench, FolderOpen, FileDown, Linkedin, Mail, Phone } from 'lucide-react';
+import { Download, Briefcase, GraduationCap, Wrench, FolderOpen, FileDown, Linkedin, Mail, Phone, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const ResumePage: React.FC = () => {
   const experience = [
@@ -74,46 +75,56 @@ export const ResumePage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen pt-24 pb-16 relative overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Background decorations */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.1, 0.2, 0.1],
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
+      <div
+        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none opacity-30 hidden md:block"
         style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)',
-          top: '10%',
-          right: '-15%',
-          filter: 'blur(80px)',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%)',
+          top: '5%',
+          right: '-10%',
+          filter: 'blur(60px)',
         }}
       />
-      <motion.div
-        animate={{
-          scale: [1.2, 1, 1.2],
-          opacity: [0.1, 0.15, 0.1],
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
+      <div
+        className="absolute w-[400px] h-[400px] rounded-full pointer-events-none opacity-30 hidden md:block"
         style={{
-          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(8, 145, 178, 0.1) 0%, transparent 70%)',
           bottom: '10%',
-          left: '-10%',
-          filter: 'blur(80px)',
+          left: '-5%',
+          filter: 'blur(60px)',
         }}
       />
 
-      <Section className="py-10 md:py-16 relative z-10">
+      {/* Back button */}
+      <div className="fixed top-6 left-6 z-50 print:hidden">
+        <Link
+          to="/"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 text-text-primary hover:border-primary/30 transition-all shadow-sm"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm font-medium">Back</span>
+        </Link>
+      </div>
+
+      <Section className="pt-24 pb-16 relative z-10">
         <FadeIn>
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="font-serif text-4xl md:text-5xl text-white mb-4">Abhishek Lonkar</h1>
+            <div className="flex justify-center mb-4">
+              <img
+                src="/favicon.png"
+                alt="Abhishek Lonkar"
+                className="w-20 h-20 rounded-2xl shadow-lg object-cover"
+              />
+            </div>
+            <h1 className="font-sans text-4xl md:text-5xl font-bold text-text-primary mb-3 tracking-tight">
+              Abhishek Lonkar
+            </h1>
             <p
-              className="text-xl mb-6"
+              className="text-xl font-medium mb-6"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -123,17 +134,17 @@ export const ResumePage: React.FC = () => {
             </p>
 
             {/* Contact info */}
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-white/60 mb-8">
-              <a href="mailto:abhisheksoffice11@gmail.com" className="flex items-center hover:text-white transition-colors">
-                <Mail size={14} className="mr-2 text-primary" />
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-[#64748b] mb-8">
+              <a href="mailto:abhisheksoffice11@gmail.com" className="flex items-center hover:text-text-primary transition-colors">
+                <Mail size={14} className="mr-2" />
                 abhisheksoffice11@gmail.com
               </a>
-              <a href="https://www.linkedin.com/in/lonkarabhishek/" target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-white transition-colors">
-                <Linkedin size={14} className="mr-2 text-primary" />
+              <a href="https://www.linkedin.com/in/lonkarabhishek/" target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-text-primary transition-colors">
+                <Linkedin size={14} className="mr-2" />
                 LinkedIn
               </a>
-              <a href="tel:+919403612979" className="flex items-center hover:text-white transition-colors">
-                <Phone size={14} className="mr-2 text-primary" />
+              <a href="tel:+919403612979" className="flex items-center hover:text-text-primary transition-colors">
+                <Phone size={14} className="mr-2" />
                 +91 9403612979
               </a>
             </div>
@@ -141,13 +152,13 @@ export const ResumePage: React.FC = () => {
             {/* Download buttons */}
             <div className="flex flex-wrap gap-3 justify-center print:hidden">
               <motion.a
-                whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)' }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 href="/Abhishek-Lonkar-21022026.pdf"
                 download="Abhishek-Lonkar-Resume.pdf"
-                className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium text-white"
+                className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium text-white shadow-lg"
                 style={{
-                  background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                 }}
               >
                 <FileDown size={16} className="mr-2" />
@@ -157,7 +168,7 @@ export const ResumePage: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.print()}
-                className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium text-white border border-white/20 hover:bg-white/5 transition-colors"
+                className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium text-text-primary border border-gray-200 hover:border-primary/30 transition-colors"
               >
                 <Download size={16} className="mr-2" />
                 Print
@@ -172,20 +183,12 @@ export const ResumePage: React.FC = () => {
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
                   style={{
-                    background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+                    background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                   }}
                 >
                   <Briefcase size={24} className="text-white" />
                 </div>
-                <h2
-                  className="text-2xl font-bold uppercase tracking-wider"
-                  style={{
-                    background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
+                <h2 className="text-2xl font-sans font-bold text-text-primary tracking-tight">
                   Professional Experience
                 </h2>
               </div>
@@ -197,18 +200,28 @@ export const ResumePage: React.FC = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-primary/30 transition-all"
+                    className="bg-[#f5f5f0] border border-gray-200 rounded-2xl p-6 hover:border-primary/30 hover:shadow-md transition-all"
                   >
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-white">{job.title}</h3>
-                        <p className="text-primary">{job.company}</p>
+                        <h3 className="text-xl font-bold text-text-primary">{job.title}</h3>
+                        <p
+                          className="font-medium"
+                          style={{
+                            background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          }}
+                        >
+                          {job.company}
+                        </p>
                       </div>
-                      <span className="text-white/50 text-sm mt-2 md:mt-0">{job.date}</span>
+                      <span className="text-[#64748b] text-sm mt-2 md:mt-0">{job.date}</span>
                     </div>
                     <ul className="space-y-2">
                       {job.points.map((point, j) => (
-                        <li key={j} className="flex items-start text-white/70 text-sm">
+                        <li key={j} className="flex items-start text-[#64748b] text-sm leading-relaxed">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 mr-3 shrink-0" />
                           {point}
                         </li>
@@ -225,20 +238,12 @@ export const ResumePage: React.FC = () => {
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
                   style={{
-                    background: 'linear-gradient(135deg, #06b6d4, #ec4899)',
+                    background: 'linear-gradient(135deg, #0891b2, #7c3aed)',
                   }}
                 >
                   <Wrench size={24} className="text-white" />
                 </div>
-                <h2
-                  className="text-2xl font-bold uppercase tracking-wider"
-                  style={{
-                    background: 'linear-gradient(135deg, #06b6d4, #ec4899)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
+                <h2 className="text-2xl font-sans font-bold text-text-primary tracking-tight">
                   Skills
                 </h2>
               </div>
@@ -250,14 +255,14 @@ export const ResumePage: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + i * 0.1 }}
-                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-accent/30 transition-all"
+                    className="bg-[#f5f5f0] border border-gray-200 rounded-2xl p-6 hover:border-primary/30 hover:shadow-md transition-all"
                   >
-                    <h3 className="font-bold text-white mb-3">{category}</h3>
+                    <h3 className="font-bold text-text-primary mb-3">{category}</h3>
                     <div className="flex flex-wrap gap-2">
                       {items.map((skill) => (
                         <span
                           key={skill}
-                          className="px-3 py-1 rounded-full text-xs bg-primary/20 text-primary border border-primary/30"
+                          className="px-3 py-1 rounded-full text-xs font-medium bg-white text-text-primary border border-gray-200"
                         >
                           {skill}
                         </span>
@@ -274,20 +279,12 @@ export const ResumePage: React.FC = () => {
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
                   style={{
-                    background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+                    background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                   }}
                 >
                   <FolderOpen size={24} className="text-white" />
                 </div>
-                <h2
-                  className="text-2xl font-bold uppercase tracking-wider"
-                  style={{
-                    background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
+                <h2 className="text-2xl font-sans font-bold text-text-primary tracking-tight">
                   Projects
                 </h2>
               </div>
@@ -299,13 +296,21 @@ export const ResumePage: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + i * 0.1 }}
-                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-accent-pink/30 transition-all"
+                    className="bg-[#f5f5f0] border border-gray-200 rounded-2xl p-6 hover:border-primary/30 hover:shadow-md transition-all"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-bold text-white">{project.name}</h3>
-                    </div>
-                    <p className="text-xs text-primary mb-2">{project.date}</p>
-                    <p className="text-white/60 text-sm">{project.description}</p>
+                    <h3 className="font-bold text-text-primary mb-2">{project.name}</h3>
+                    <p
+                      className="text-xs font-medium mb-2"
+                      style={{
+                        background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
+                      {project.date}
+                    </p>
+                    <p className="text-[#64748b] text-sm leading-relaxed">{project.description}</p>
                   </motion.div>
                 ))}
               </div>
@@ -317,20 +322,12 @@ export const ResumePage: React.FC = () => {
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
                   style={{
-                    background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                    background: 'linear-gradient(135deg, #0891b2, #7c3aed)',
                   }}
                 >
                   <GraduationCap size={24} className="text-white" />
                 </div>
-                <h2
-                  className="text-2xl font-bold uppercase tracking-wider"
-                  style={{
-                    background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
+                <h2 className="text-2xl font-sans font-bold text-text-primary tracking-tight">
                   Education
                 </h2>
               </div>
@@ -339,17 +336,27 @@ export const ResumePage: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-primary/30 transition-all"
+                className="bg-[#f5f5f0] border border-gray-200 rounded-2xl p-6 hover:border-primary/30 hover:shadow-md transition-all"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-white">Bachelor of Engineering</h3>
-                    <p className="text-primary">Electronics and Telecommunications</p>
-                    <p className="text-white/50 text-sm mt-1">Vishwakarma Institute of Information Technology</p>
+                    <h3 className="text-xl font-bold text-text-primary">Bachelor of Engineering</h3>
+                    <p
+                      className="font-medium"
+                      style={{
+                        background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
+                      Electronics and Telecommunications
+                    </p>
+                    <p className="text-[#64748b] text-sm mt-1">Vishwakarma Institute of Information Technology</p>
                   </div>
-                  <span className="text-white/50 text-sm mt-2 md:mt-0">Jun 2016 – May 2020</span>
+                  <span className="text-[#64748b] text-sm mt-2 md:mt-0">Jun 2016 – May 2020</span>
                 </div>
-                <p className="text-white/60 text-sm mt-4">
+                <p className="text-[#64748b] text-sm mt-4 leading-relaxed">
                   Engaged in projects and coursework relevant to data analysis and business intelligence.
                 </p>
               </motion.div>
@@ -363,19 +370,9 @@ export const ResumePage: React.FC = () => {
         @media print {
           body {
             background: white !important;
-            color: black !important;
           }
-          .bg-white\\/5 {
-            background: #f5f5f5 !important;
-          }
-          .text-white {
-            color: black !important;
-          }
-          .text-white\\/50, .text-white\\/60, .text-white\\/70 {
-            color: #555 !important;
-          }
-          .text-primary {
-            color: #8b5cf6 !important;
+          .bg-\\[\\#f5f5f0\\] {
+            background: #f9f9f9 !important;
           }
         }
       `}</style>
