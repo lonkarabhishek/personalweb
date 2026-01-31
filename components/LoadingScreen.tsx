@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+  const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -10,14 +11,22 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
   }, []);
 
   useEffect(() => {
-    const duration = isMobile ? 1500 : 2000;
+    const increment = isMobile ? 15 : 8;
+    const interval = isMobile ? 80 : 100;
 
-    const timer = setTimeout(() => {
-      setIsExiting(true);
-      setTimeout(onComplete, isMobile ? 300 : 500);
-    }, duration);
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(timer);
+          setIsExiting(true);
+          setTimeout(onComplete, isMobile ? 300 : 500);
+          return 100;
+        }
+        return prev + Math.random() * increment + 4;
+      });
+    }, interval);
 
-    return () => clearTimeout(timer);
+    return () => clearInterval(timer);
   }, [onComplete, isMobile]);
 
   // Simple mobile version
@@ -27,51 +36,36 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
         {!isExiting && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-white">
             <div className="relative z-10 flex flex-col items-center text-center px-6">
-              {/* Favicon with pulse */}
-              <div className="relative mb-6">
-                <div
-                  className="absolute inset-0 rounded-2xl animate-ping opacity-20"
-                  style={{
-                    background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
-                  }}
-                />
-                <img
-                  src="/favicon.png"
-                  alt="Abhishek Lonkar"
-                  className="w-20 h-20 rounded-2xl shadow-lg object-cover relative z-10"
-                />
+              <div className="mb-4">
+                <h1 className="text-3xl font-sans font-bold text-text-primary mb-3 tracking-tight">
+                  Hi, I'm{' '}
+                  <span
+                    style={{
+                      background: 'linear-gradient(135deg, #7c3aed 0%, #0891b2 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    Abhishek
+                  </span>
+                </h1>
+                <p className="text-lg text-[#64748b] font-normal">
+                  It's good to see you.
+                </p>
               </div>
 
-              <h1 className="text-2xl font-sans font-bold text-text-primary mb-2 tracking-tight">
-                Hi, I'm{' '}
-                <span
+              <div
+                className="relative h-1 bg-gray-200 rounded-full overflow-hidden mt-8"
+                style={{ width: 200 }}
+              >
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full transition-all duration-200"
                   style={{
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #0891b2 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
+                    width: `${Math.min(progress, 100)}%`,
+                    background: 'linear-gradient(90deg, #7c3aed, #0891b2)',
                   }}
-                >
-                  Abhishek
-                </span>
-              </h1>
-              <p className="text-base text-[#64748b] font-normal">
-                It's good to see you.
-              </p>
-
-              {/* Dots animation */}
-              <div className="flex gap-2 mt-8">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 rounded-full animate-bounce"
-                    style={{
-                      background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
-                      animationDelay: `${i * 0.15}s`,
-                      animationDuration: '0.6s',
-                    }}
-                  />
-                ))}
+                />
               </div>
             </div>
           </div>
@@ -111,45 +105,13 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
           />
 
           <div className="relative z-10 flex flex-col items-center text-center px-6">
-            {/* Favicon with animated rings */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="relative mb-8"
-            >
-              {/* Pulsing rings */}
-              <motion.div
-                animate={{ scale: [1, 1.5, 1.5], opacity: [0.5, 0, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
-                className="absolute inset-0 rounded-3xl"
-                style={{
-                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
-                }}
-              />
-              <motion.div
-                animate={{ scale: [1, 1.3, 1.3], opacity: [0.3, 0, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut", delay: 0.3 }}
-                className="absolute inset-0 rounded-3xl"
-                style={{
-                  background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
-                }}
-              />
-              <motion.img
-                src="/favicon.png"
-                alt="Abhishek Lonkar"
-                className="w-24 h-24 rounded-3xl shadow-xl object-cover relative z-10"
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              />
-            </motion.div>
-
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="mb-4"
             >
-              <h1 className="text-4xl md:text-5xl font-sans font-bold text-text-primary mb-3 tracking-tight">
+              <h1 className="text-5xl font-sans font-bold text-text-primary mb-3 tracking-tight">
                 Hi, I'm{' '}
                 <span
                   style={{
@@ -165,36 +127,30 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
                 className="text-xl text-[#64748b] font-normal"
               >
                 It's good to see you.
               </motion.p>
             </motion.div>
 
-            {/* Animated dots */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="flex gap-3 mt-10"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: 200 }}
+              transition={{ delay: 0.4, duration: 0.4 }}
+              className="relative h-1 bg-gray-200 rounded-full overflow-hidden mt-8"
+              style={{ width: 200 }}
             >
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{
-                    duration: 0.6,
-                    repeat: Infinity,
-                    delay: i * 0.15,
-                    ease: "easeInOut",
-                  }}
-                  className="w-3 h-3 rounded-full"
-                  style={{
-                    background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
-                  }}
-                />
-              ))}
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: `${Math.min(progress, 100)}%` }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{
+                  background: 'linear-gradient(90deg, #7c3aed, #0891b2)',
+                  boxShadow: '0 0 20px rgba(124, 58, 237, 0.3)',
+                }}
+              />
             </motion.div>
           </div>
         </motion.div>
