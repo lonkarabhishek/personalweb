@@ -111,16 +111,18 @@ export const ResumePage: React.FC = () => {
         <FadeIn>
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
+            <Link to="/" className="inline-block mb-4 group">
               <img
                 src="/favicon.png"
                 alt="Abhishek Lonkar"
-                className="w-20 h-20 rounded-2xl shadow-lg object-cover"
+                className="w-20 h-20 rounded-2xl shadow-lg object-cover group-hover:scale-105 transition-transform"
               />
-            </div>
-            <h1 className="font-sans text-4xl md:text-5xl font-bold text-text-primary mb-3 tracking-tight">
-              Abhishek Lonkar
-            </h1>
+            </Link>
+            <Link to="/" className="block group">
+              <h1 className="font-sans text-4xl md:text-5xl font-bold text-text-primary mb-3 tracking-tight group-hover:text-primary transition-colors">
+                Abhishek Lonkar
+              </h1>
+            </Link>
             <p
               className="text-xl font-medium mb-6"
               style={{
