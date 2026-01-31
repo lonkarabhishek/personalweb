@@ -83,14 +83,17 @@ export const Hero: React.FC = () => {
         {/* Fixed Top Bar for Mobile */}
         <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
           <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center gap-2 active:scale-95 transition-transform"
+            >
               <img
                 src="/favicon.png"
                 alt="Abhishek Lonkar"
                 className="w-9 h-9 rounded-xl shadow-sm object-cover"
               />
               <span className="font-semibold text-text-primary text-sm">Abhishek</span>
-            </div>
+            </button>
             <button
               onClick={() => setShowBooking(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium shadow-md active:scale-95 transition-transform"
