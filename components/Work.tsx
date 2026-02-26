@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowUpRight, Lock, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, Lock, Sparkles, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { siteContent } from '../content/site';
 import { FadeIn } from './ui/Layout';
 
@@ -73,6 +74,12 @@ export const Work: React.FC = () => {
                         {project.status}
                       </span>
                     )}
+                    {!project.inProgress && project.status && (
+                      <span className="px-3 py-1 bg-gradient-to-r from-emerald-500/10 to-green-500/10 text-emerald-600 text-xs font-medium rounded-full border border-emerald-500/30 flex items-center">
+                        <Globe size={10} className="mr-1" />
+                        {project.status}
+                      </span>
+                    )}
                   </div>
                   <p className="text-lg text-[#64748b] leading-[1.8] mb-6 max-w-2xl">
                     {project.description}
@@ -85,7 +92,23 @@ export const Work: React.FC = () => {
                     </div>
                   )}
 
-                  {project.link && (
+                  {project.internalRoute ? (
+                    <motion.div whileHover={{ x: 4 }} className="inline-block">
+                      <Link
+                        to={project.internalRoute}
+                        className="inline-flex items-center font-medium transition-colors"
+                        style={{
+                          background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text',
+                        }}
+                      >
+                        {project.linkText}
+                        <ArrowRight size={18} className="ml-1 text-primary" />
+                      </Link>
+                    </motion.div>
+                  ) : project.link ? (
                     <motion.a
                       whileHover={{ x: 4 }}
                       href={project.link}
@@ -102,7 +125,7 @@ export const Work: React.FC = () => {
                       {project.linkText}
                       <ArrowUpRight size={18} className="ml-1 text-primary" />
                     </motion.a>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </motion.div>

@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { HomePage } from './pages/HomePage';
 import { ResumePage } from './pages/ResumePage';
+import { BarkitPage } from './pages/BarkitPage';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { LoadingScreen } from './components/LoadingScreen';
@@ -19,17 +20,18 @@ const ScrollToTop = () => {
 // Separated content component to use useLocation inside HashRouter context
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const isResumePage = location.pathname === '/resume';
+  const isStandalonePage = location.pathname === '/resume' || location.pathname === '/barkit';
 
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-primary/30 gradient-bg">
       <ScrollToTop />
-      {!isResumePage && <Navbar />}
+      {!isStandalonePage && <Navbar />}
       <main className="flex-grow">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<HomePage />} />
             <Route path="/resume" element={<ResumePage />} />
+            <Route path="/barkit" element={<BarkitPage />} />
           </Routes>
         </AnimatePresence>
       </main>

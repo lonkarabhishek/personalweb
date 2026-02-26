@@ -54,10 +54,24 @@ export const siteContent = {
     },
     {
       title: "Data & Analytics Work",
-      description: "I’ve built and maintained 100+ dashboards across revenue, partnerships, and operations. Much of this work is internal, but here’s a public example.",
+      description: "I've built and maintained 100+ dashboards across revenue, partnerships, and operations. Much of this work is internal, but here's a public example.",
       link: "https://public.tableau.com/app/profile/abhishek.lonkar/viz/AbhishekLonkar-RocketlaneAssignmentPartA/Dashboard1?publish=yes",
       linkText: "View Public Tableau Dashboard",
       note: "Note: Most Looker work is confidential and available to discuss in a call."
+    },
+    {
+      title: "The Nashik Kumbh",
+      description: "Comprehensive multilingual guide to Nashik Kumbh Mela 2027 — covers sacred bathing dates, travel logistics, and holy sites along the Godavari. Built with Next.js, supports English, Hindi, and Marathi.",
+      link: "https://thenashikkumbh.com",
+      linkText: "thenashikkumbh.com",
+      status: "Live"
+    },
+    {
+      title: "BarKit",
+      description: "Suite of 7 lightweight macOS menu bar utilities built with Swift. From clipboard history to screen OCR — open source and free forever.",
+      internalRoute: "/barkit",
+      linkText: "View BarKit Tools",
+      status: "Open Source"
     }
   ],
   process: [

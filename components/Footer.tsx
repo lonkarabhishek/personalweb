@@ -108,6 +108,11 @@ export const Footer: React.FC = () => {
                   Resume
                 </Link>
               </motion.div>
+              <motion.div whileHover={{ x: 4 }}>
+                <Link to="/barkit" className="text-[#64748b] hover:text-text-primary transition-colors">
+                  BarKit
+                </Link>
+              </motion.div>
             </div>
           </div>
         </div>
