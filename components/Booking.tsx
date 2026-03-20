@@ -26,10 +26,10 @@ export const Booking: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="font-sans text-3xl md:text-5xl lg:text-6xl text-[#6b7a8a] mb-10 max-w-4xl mx-auto leading-tight relative z-10 font-bold tracking-tight"
         >
-          If you want to move{' '}
-          <span className="italic text-[#9ba8b8]">faster</span>
-          {' '}without things breaking later,{' '}
-          <span className="italic text-[#9ba8b8]">let's talk.</span>
+          Ready to get your website{' '}
+          <span className="italic text-[#9ba8b8]">up and running?</span>
+          {' '}Let's have a quick chat.{' '}
+          <span className="italic text-[#9ba8b8]">it's free.</span>
         </motion.h2>
 
         <motion.div

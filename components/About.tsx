@@ -32,9 +32,9 @@ export const About: React.FC = () => {
               backgroundClip: 'text',
             }}
           >
-            About
+            About Me
           </span>
-          <h2 className="font-sans text-3xl md:text-4xl text-text-primary font-bold tracking-tight mb-12">My <span className="italic text-[#64748b]">Journey</span></h2>
+          <h2 className="font-sans text-3xl md:text-4xl text-text-primary font-bold tracking-tight mb-12">My <span className="italic text-[#64748b]">story</span></h2>
         </FadeIn>
 
         <div className="space-y-8">

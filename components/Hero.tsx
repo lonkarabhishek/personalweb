@@ -113,14 +113,14 @@ export const Hero: React.FC = () => {
               {/* Available badge */}
               <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary/5 border border-primary/20 mb-4">
                 <Sparkles size={12} className="text-primary mr-1.5" />
-                <span className="text-xs text-text-secondary">Available for new projects</span>
+                <span className="text-xs text-text-secondary">Taking on new projects</span>
               </div>
 
               {/* Main headline */}
               <h1 className="font-sans text-3xl leading-[1.15] mb-5 font-bold tracking-tight">
-                <span className="text-text-primary">I help brands and teams </span>
+                <span className="text-text-primary">You run the business. </span>
                 <span className="italic text-text-secondary">
-                  ship work they can trust.
+                  I'll handle the tech.
                 </span>
               </h1>
 
@@ -156,7 +156,7 @@ export const Hero: React.FC = () => {
 
               {/* Trusted by */}
               <div className="mb-6 text-center">
-                <p className="text-[#64748b] text-xs mb-3">Trusted by teams from</p>
+                <p className="text-[#64748b] text-xs mb-3">Worked with</p>
                 <div className="flex items-center justify-center gap-5">
                   <img src="/logos/g2logo.jpg" alt="G2" className="h-5 object-contain grayscale opacity-50" />
                   <img src="/logos/cognizantlogo.jpeg" alt="Cognizant" className="h-5 object-contain grayscale opacity-50" />
@@ -185,13 +185,13 @@ export const Hero: React.FC = () => {
                   }}
                   className="inline-flex items-center justify-center px-8 py-4 border border-border text-text-primary rounded-full font-medium active:scale-95 transition-transform hover:bg-surface-secondary"
                 >
-                  See selected work
+                  See my work
                 </button>
               </div>
 
               {/* Alternative contact */}
               <div>
-                <p className="text-text-muted text-xs mb-3">Not ready to meet yet? Send me a message</p>
+                <p className="text-text-muted text-xs mb-3">Not ready for a call? Just say hi</p>
                 <div className="flex items-center gap-3">
                   <a
                     href="https://wa.me/919403612979?text=Hi%20Abhishek%2C%20I%20got%20your%20number%20from%20your%20website.%20Can%20we%20chat%3F"
@@ -268,13 +268,13 @@ export const Hero: React.FC = () => {
               className="inline-flex items-center px-4 py-2 rounded-full bg-primary/5 border border-primary/20 mb-6"
             >
               <Sparkles size={14} className="text-primary mr-2" />
-              <span className="text-sm text-text-secondary">Available for new projects</span>
+              <span className="text-sm text-text-secondary">Taking on new projects</span>
             </motion.div>
 
             <h1 className="font-sans text-4xl md:text-5xl lg:text-6xl leading-[1.1] mb-6 font-bold tracking-tight">
-              <span className="text-text-primary">I help brands and teams </span>
+              <span className="text-text-primary">You run the business. </span>
               <span className="italic text-text-secondary">
-                ship work they can trust.
+                I'll handle the tech.
               </span>
             </h1>
           </motion.div>
@@ -323,7 +323,7 @@ export const Hero: React.FC = () => {
               }}
               className="inline-flex items-center justify-center px-8 py-4 border border-border text-text-primary rounded-full font-medium transition-all hover:border-primary/50"
             >
-              See selected work
+              See my work
             </motion.button>
           </motion.div>
 
@@ -333,7 +333,7 @@ export const Hero: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
           >
-            <p className="text-text-muted text-sm mb-3">Not ready to meet yet? Send me a message</p>
+            <p className="text-text-muted text-sm mb-3">Not ready for a call? Just say hi</p>
             <div className="flex items-center gap-3">
               <motion.a
                 whileHover={{ scale: 1.1, y: -2 }}
@@ -417,7 +417,7 @@ export const Hero: React.FC = () => {
             ))}
           </div>
           <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-            <p className="text-[#64748b] text-xs mb-3">Trusted by teams from</p>
+            <p className="text-[#64748b] text-xs mb-3">Worked with</p>
             <div className="flex items-center justify-center gap-6">
               <img src="/logos/g2logo.jpg" alt="G2" className="h-6 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all" />
               <img src="/logos/cognizantlogo.jpeg" alt="Cognizant" className="h-6 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all" />

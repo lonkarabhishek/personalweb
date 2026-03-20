@@ -42,7 +42,7 @@ const barkitTools = [
   {
     name: 'KleepMe',
     tagline: 'Clipboard History',
-    description: 'Stores your last 20 clipboard items — text, images, and links. Pin favorites and search through history.',
+    description: 'Stores your last 20 clipboard items including text, images, and links. Pin favorites and search through history.',
     icon: Clipboard,
   },
   {
@@ -160,7 +160,7 @@ const ToolCard: React.FC<{ tool: typeof barkitTools[0]; index: number }> = ({ to
 
 export const BarkitPage: React.FC = () => {
   useEffect(() => {
-    document.title = 'BarKit — 7 Lightweight macOS Menu Bar Utilities | Abhishek Lonkar';
+    document.title = 'BarKit | 7 Lightweight macOS Menu Bar Utilities | Abhishek Lonkar';
     const meta = document.querySelector('meta[name="description"]');
     if (meta) {
       meta.setAttribute('content', 'BarKit is a suite of 7 free, open-source macOS menu bar utilities built with Swift. WiFiMon, DropShelf, CleanDock, TextGrab, QuickScrap, KleepMe, and Snapdeck.');
@@ -373,7 +373,7 @@ export const BarkitPage: React.FC = () => {
                   <h3 className="text-lg font-semibold text-[#e2e8f0]">Update anytime</h3>
                 </div>
                 <p className="text-[#8b9cad] text-sm">
-                  Run the same install command again — it replaces the old version with the latest release automatically.
+                  Just run the same install command again. It replaces the old version with the latest release automatically.
                 </p>
               </div>
             </FadeIn>

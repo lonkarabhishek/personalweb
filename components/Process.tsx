@@ -133,10 +133,10 @@ export const Process: React.FC = () => {
                     backgroundClip: 'text',
                   }}
                 >
-                  Process
+                  How It Works
                 </span>
                 <h2 className="font-sans text-3xl md:text-4xl text-text-primary font-bold tracking-tight">
-                  How I <span className="italic text-text-secondary">work</span>
+                  Simple <span className="italic text-text-secondary">process</span>
                 </h2>
               </div>
 
@@ -179,10 +179,10 @@ export const Process: React.FC = () => {
                       backgroundClip: 'text',
                     }}
                   >
-                    Process
+                    How It Works
                   </span>
                   <h2 className="font-sans text-2xl text-text-primary font-bold tracking-tight">
-                    How I <span className="italic text-[#64748b]">work</span>
+                    Simple <span className="italic text-[#64748b]">process</span>
                   </h2>
                 </div>
 

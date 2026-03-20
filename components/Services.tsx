@@ -40,9 +40,9 @@ export const Services: React.FC = () => {
               backgroundClip: 'text',
             }}
           >
-            Services
+            What I Do
           </span>
-          <h2 className="font-sans text-3xl md:text-4xl text-text-primary mb-8 md:mb-16 font-bold tracking-tight">What I <span className="italic text-[#64748b]">help with</span></h2>
+          <h2 className="font-sans text-3xl md:text-4xl text-text-primary mb-8 md:mb-16 font-bold tracking-tight">How I can <span className="italic text-[#64748b]">help you</span></h2>
           {isMobile && (
             <p className="text-[#64748b] text-sm mb-8 flex items-center justify-center">
               <ChevronLeft size={16} className="mr-1 animate-pulse" />

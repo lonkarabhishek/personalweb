@@ -30,9 +30,9 @@ export const Work: React.FC = () => {
             backgroundClip: 'text',
           }}
         >
-          Portfolio
+          My Work
         </span>
-        <h2 className="font-sans text-3xl md:text-4xl text-text-primary mb-16 font-bold tracking-tight">Selected <span className="italic text-[#64748b]">Work</span></h2>
+        <h2 className="font-sans text-3xl md:text-4xl text-text-primary mb-16 font-bold tracking-tight">Things I've <span className="italic text-[#64748b]">built</span></h2>
       </FadeIn>
 
       <div className="space-y-8 relative z-10">

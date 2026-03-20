@@ -38,7 +38,7 @@ const FailureChart: React.FC = () => {
       </div>
       <div className="flex justify-between mt-4 text-sm text-[#64748b]">
         <span>Websites analyzed</span>
-        <span className="font-semibold text-text-primary">8/10 underperforming</span>
+        <span className="font-semibold text-text-primary">8/10 not working well</span>
       </div>
     </div>
   );
@@ -87,7 +87,7 @@ const FunnelChart: React.FC = () => {
         ))}
       </div>
       <div className="mt-6 pt-4 border-t border-gray-200 text-center">
-        <span className="text-red-500 font-bold text-lg">96.8% revenue leaked</span>
+        <span className="text-red-500 font-bold text-lg">96.8% of visitors leave without buying</span>
       </div>
     </div>
   );
@@ -162,9 +162,9 @@ const GrowthChart: React.FC = () => {
 // Comparison metrics
 const ComparisonMetrics: React.FC = () => {
   const metrics = [
-    { label: 'Data-driven decisions', withData: 94, withoutData: 12 },
-    { label: 'Revenue optimization', withData: 78, withoutData: 23 },
-    { label: 'User experience clarity', withData: 89, withoutData: 31 },
+    { label: 'Smart business decisions', withData: 94, withoutData: 12 },
+    { label: 'Making more money', withData: 78, withoutData: 23 },
+    { label: 'Happy customers', withData: 89, withoutData: 31 },
   ];
 
   return (
@@ -220,20 +220,19 @@ const slides = [
   {
     number: '01',
     title: 'Most Websites',
-    titleAccent: 'Fail Quietly',
+    titleAccent: "Don't Work",
     content: (
       <div className="space-y-6">
         <p className="text-2xl md:text-3xl text-text-primary font-semibold leading-snug">
-          Data shows that 8 out of 10 websites never reach their business potential.
+          8 out of 10 business websites aren't bringing in the results they should.
         </p>
         <div className="space-y-2 text-lg md:text-xl text-[#64748b]">
-          <p>Not because they are slow.</p>
-          <p>Not because they look bad.</p>
-          <p className="text-text-primary font-medium">But because no one measures what actually matters.</p>
+          <p>They're not ugly. They're not slow.</p>
+          <p className="text-text-primary font-medium">They just don't know what's working and what's not.</p>
         </div>
         <div className="border-l-3 border-gray-300 pl-6 space-y-1 text-base md:text-lg text-[#64748b] italic">
-          <p>Pages are published. Traffic comes in.</p>
-          <p>And decisions are made on instinct.</p>
+          <p>People visit. Some buy, most don't.</p>
+          <p>And nobody knows why.</p>
         </div>
       </div>
     ),
@@ -241,18 +240,18 @@ const slides = [
   },
   {
     number: '02',
-    title: 'Data Changes',
-    titleAccent: 'the Story',
+    title: 'Knowing Your',
+    titleAccent: 'Numbers Helps',
     content: (
       <div className="space-y-6">
         <p className="text-xl md:text-2xl text-[#64748b]">
-          When you track behavior, patterns emerge:
+          When you actually track what people do on your site, you find out:
         </p>
         <div className="space-y-3">
           {[
-            { icon: '⏸', text: 'where users hesitate' },
-            { icon: '↘', text: 'where they drop off' },
-            { icon: '💧', text: 'where revenue is silently leaking' },
+            { icon: '⏸', text: 'where people get confused' },
+            { icon: '↘', text: 'where they leave' },
+            { icon: '💧', text: 'where you\'re losing money' },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/60 border border-gray-200">
               <span className="text-2xl">{item.icon}</span>
@@ -261,7 +260,7 @@ const slides = [
           ))}
         </div>
         <p className="text-xl md:text-2xl text-text-primary font-semibold pt-2">
-          Growth becomes a sequence of informed decisions.
+          Once you see the problem, fixing it is easy.
         </p>
       </div>
     ),
@@ -269,18 +268,18 @@ const slides = [
   },
   {
     number: '03',
-    title: 'The Difference Is',
-    titleAccent: 'Simple',
+    title: 'Guessing vs.',
+    titleAccent: 'Knowing',
     content: (
       <div className="space-y-6">
         <div className="space-y-2 text-xl md:text-2xl text-[#64748b]">
-          <p>Most people build websites.</p>
-          <p className="text-text-primary font-semibold">A few operate them.</p>
+          <p>Most people launch a website and hope for the best.</p>
+          <p className="text-text-primary font-semibold">Smart businesses actually measure what works.</p>
         </div>
         <div className="grid grid-cols-2 gap-4 pt-4">
           <div className="p-5 rounded-xl bg-gray-100 border border-gray-200">
             <p className="text-text-primary/40 line-through text-base md:text-lg">
-              "Does this look good?"
+              "I think this looks nice"
             </p>
           </div>
           <div
@@ -291,12 +290,12 @@ const slides = [
             }}
           >
             <p className="text-text-primary font-semibold text-base md:text-lg">
-              "Does this move business forward?"
+              "I know this is making us money"
             </p>
           </div>
         </div>
         <p className="text-2xl md:text-3xl text-text-primary font-bold pt-4">
-          That's where outcomes change.
+          That's the difference.
         </p>
       </div>
     ),
@@ -304,12 +303,12 @@ const slides = [
   },
   {
     number: '04',
-    title: 'What I',
-    titleAccent: 'Do',
+    title: 'I Make It',
+    titleAccent: 'Simple',
     content: (
       <div className="space-y-6">
         <p className="text-xl md:text-2xl text-text-primary font-medium leading-relaxed">
-          I turn raw data into clear stories — stories that explain what's happening, why it's happening, and what to do next.
+          I take your numbers and turn them into simple answers. What's happening, why, and what to do about it.
         </p>
         <div
           className="p-8 rounded-2xl"
@@ -319,7 +318,7 @@ const slides = [
           }}
         >
           <p className="text-lg md:text-xl text-[#64748b] mb-3">
-            So your website doesn't just exist on the internet.
+            Your website shouldn't just sit there looking pretty.
           </p>
           <p
             className="text-3xl md:text-4xl font-bold tracking-tight"
@@ -330,7 +329,7 @@ const slides = [
               backgroundClip: 'text',
             }}
           >
-            It works for you.
+            It should make you money.
           </p>
         </div>
       </div>
@@ -390,10 +389,10 @@ export const DataStorytelling: React.FC = () => {
                 backgroundClip: 'text',
               }}
             >
-              Data Storytelling
+              Why It Matters
             </span>
             <h2 className="font-sans text-2xl md:text-3xl text-text-primary font-bold tracking-tight">
-              The Story <span className="italic text-[#64748b]">Data Tells</span>
+              Your website should <span className="italic text-[#64748b]">make you money</span>
             </h2>
           </div>
 

@@ -120,7 +120,7 @@ export const Footer: React.FC = () => {
         <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-[#64748b]">
           <p>&copy; {year} Abhishek Lonkar. All rights reserved.</p>
           <p className="mt-2 md:mt-0 flex items-center">
-            Built with <Heart size={14} className="mx-1 text-pink-500" /> and reliability in mind.
+            Made with <Heart size={14} className="mx-1 text-pink-500" /> in India
           </p>
         </div>
       </div>
