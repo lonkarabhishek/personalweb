@@ -50,7 +50,7 @@ export const Recommendations: React.FC = () => {
         >
           What People Say
         </span>
-        <h2 className="font-sans text-3xl md:text-4xl text-[#6b7a8a] mb-16 font-bold tracking-tight">People I've <span className="italic text-[#9ba8b8]">worked with</span></h2>
+        <h2 className="font-sans text-3xl md:text-4xl text-[#6b7a8a] mb-16 font-bold tracking-tight">From leaders I've <span className="italic text-[#9ba8b8]">worked with</span></h2>
       </FadeIn>
 
       {/* Mobile Carousel */}

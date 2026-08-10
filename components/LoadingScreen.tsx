@@ -51,7 +51,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
                   </span>
                 </h1>
                 <p className="text-lg text-[#64748b] font-normal">
-                  It's good to see you.
+                  GTM & Revenue Ops Professional
                 </p>
               </div>
 
@@ -130,7 +130,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="text-xl text-[#64748b] font-normal"
               >
-                It's good to see you.
+                GTM & Revenue Ops Professional
               </motion.p>
             </motion.div>
 

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, Settings, User, Star, MessageSquare } from 'lucide-react';
+import { TrendingUp, Briefcase, User, BarChart3, Wrench, Linkedin } from 'lucide-react';
+import { siteContent } from '../content/site';
 
 const sections = [
-  { id: 'work', name: 'Work', icon: Briefcase },
-  { id: 'process', name: 'Process', icon: Settings },
-  { id: 'recommendations', name: 'Testimonials', icon: Star },
+  { id: 'capabilities', name: 'GTM Capabilities', icon: TrendingUp },
+  { id: 'impact', name: 'Impact', icon: BarChart3 },
+  { id: 'experience', name: 'Experience', icon: Briefcase },
+  { id: 'skills', name: 'Skills & Tools', icon: Wrench },
   { id: 'about', name: 'About', icon: User },
 ];
 
@@ -105,17 +107,14 @@ export const FloatingSideNav: React.FC = () => {
       {/* Divider */}
       <div className="w-6 h-px bg-border my-2" />
 
-      {/* Book a call quick action */}
-      <motion.button
+      {/* LinkedIn connect quick action */}
+      <motion.a
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
-        onClick={() => {
-          const bookingSection = document.querySelector('[class*="py-32"]');
-          if (bookingSection) {
-            bookingSection.scrollIntoView({ behavior: 'smooth' });
-          }
-        }}
+        href={siteContent.footer.linkedin}
+        target="_blank"
+        rel="noopener noreferrer"
         className="group relative flex items-center"
       >
         <motion.span
@@ -123,7 +122,7 @@ export const FloatingSideNav: React.FC = () => {
           whileHover={{ opacity: 1, x: 0 }}
           className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-white border border-border shadow-lg text-text-primary text-sm font-medium whitespace-nowrap pointer-events-none"
         >
-          Book a call
+          Connect on LinkedIn
         </motion.span>
 
         <motion.div
@@ -131,9 +130,9 @@ export const FloatingSideNav: React.FC = () => {
           whileTap={{ scale: 0.95 }}
           className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-accent-pink to-primary shadow-lg"
         >
-          <MessageSquare size={20} className="text-white" />
+          <Linkedin size={20} className="text-white" />
         </motion.div>
-      </motion.button>
+      </motion.a>
     </motion.div>
   );
 };
