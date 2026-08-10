@@ -40,6 +40,9 @@ export const Footer: React.FC = () => {
                 Abhishek Lonkar
               </span>
             </button>
+            <p className="text-sm text-[#64748b] leading-relaxed">
+              GTM & Revenue Operations Professional
+            </p>
             <div className="flex items-center text-[#64748b]">
               <MapPin size={16} className="mr-2 text-[#64748b]" />
               <span className="text-sm">{location}</span>
@@ -90,27 +93,31 @@ export const Footer: React.FC = () => {
                 backgroundClip: 'text',
               }}
             >
-              Navigation
+              Quick Links
             </h4>
             <div className="flex flex-col space-y-3">
-              <motion.button
-                whileHover={{ x: 4 }}
-                onClick={() => {
-                  const element = document.getElementById('work');
-                  if (element) element.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="text-[#64748b] hover:text-text-primary transition-colors text-left"
-              >
-                Work
-              </motion.button>
+              {[
+                { label: 'Capabilities', id: 'capabilities' },
+                { label: 'Impact', id: 'impact' },
+                { label: 'Experience', id: 'experience' },
+                { label: 'Skills', id: 'skills' },
+                { label: 'About', id: 'about' },
+              ].map((link) => (
+                <motion.button
+                  key={link.id}
+                  whileHover={{ x: 4 }}
+                  onClick={() => {
+                    const element = document.getElementById(link.id);
+                    if (element) element.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="text-[#64748b] hover:text-text-primary transition-colors text-left"
+                >
+                  {link.label}
+                </motion.button>
+              ))}
               <motion.div whileHover={{ x: 4 }}>
                 <Link to="/resume" className="text-[#64748b] hover:text-text-primary transition-colors">
                   Resume
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ x: 4 }}>
-                <Link to="/barkit" className="text-[#64748b] hover:text-text-primary transition-colors">
-                  BarKit
                 </Link>
               </motion.div>
             </div>

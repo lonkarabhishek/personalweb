@@ -1,26 +1,26 @@
 import React from 'react';
 import { Hero } from '../components/Hero';
-import { Services } from '../components/Services';
-import { Work } from '../components/Work';
-import { Process } from '../components/Process';
-import { DataStorytelling } from '../components/DataStorytelling';
+import { GTMCapabilities } from '../components/GTMCapabilities';
+import { ImpactMetrics } from '../components/ImpactMetrics';
+import { Experience } from '../components/Experience';
+import { SkillsTools } from '../components/SkillsTools';
 import { Recommendations } from '../components/Recommendations';
 import { About } from '../components/About';
 import { Companies } from '../components/Companies';
-import { Booking } from '../components/Booking';
+import { Contact } from '../components/Contact';
 
 export const HomePage: React.FC = () => {
   return (
     <div className="flex flex-col">
       <Hero />
-      <Services />
-      <Work />
-      <Process />
-      <DataStorytelling />
+      <GTMCapabilities />
+      <ImpactMetrics />
+      <Experience />
+      <SkillsTools />
       <Recommendations />
       <About />
       <Companies />
-      <Booking />
+      <Contact />
     </div>
   );
 };

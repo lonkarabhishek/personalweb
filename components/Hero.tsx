@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, Sparkles, Linkedin, Mail, MessageCircle, Calendar } from 'lucide-react';
+import { ArrowRight, Sparkles, Linkedin, Mail, Download, FileText } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { siteContent } from '../content/site';
 import { Section } from './ui/Layout';
-import { BookingModal } from './BookingModal';
 
 // Counter component for animated numbers
 const AnimatedCounter: React.FC<{ value: string; inView: boolean }> = ({ value, inView }) => {
   const [displayValue, setDisplayValue] = useState('0');
 
-  // Parse the original value to extract number and format
-  const cleanValue = value.replace(/,/g, ''); // Remove commas
+  const cleanValue = value.replace(/,/g, '');
   const numericValue = parseInt(cleanValue.replace(/\D/g, '')) || 0;
   const hasComma = value.includes(',');
   const suffix = cleanValue.match(/[+%]/) ? cleanValue.match(/[+%]/)?.[0] : '';
@@ -29,7 +27,6 @@ const AnimatedCounter: React.FC<{ value: string; inView: boolean }> = ({ value, 
     const timer = setInterval(() => {
       current += increment;
       if (current >= numericValue) {
-        // Format final number with comma if original had it
         const finalNum = hasComma ? numericValue.toLocaleString() : numericValue.toString();
         setDisplayValue(finalNum + suffix);
         clearInterval(timer);
@@ -48,7 +45,6 @@ const AnimatedCounter: React.FC<{ value: string; inView: boolean }> = ({ value, 
 
 export const Hero: React.FC = () => {
   const { headline, subheadline, stats } = siteContent.hero;
-  const [showBooking, setShowBooking] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileStatsInView, setMobileStatsInView] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -59,7 +55,6 @@ export const Hero: React.FC = () => {
     setIsMobile(window.innerWidth < 768);
   }, []);
 
-  // Mobile intersection observer
   useEffect(() => {
     if (!mobileStatsRef.current) return;
 
@@ -76,7 +71,7 @@ export const Hero: React.FC = () => {
     return () => observer.disconnect();
   }, [isMobile]);
 
-  // Mobile version - redesigned with top bar
+  // Mobile version
   if (isMobile) {
     return (
       <>
@@ -92,35 +87,37 @@ export const Hero: React.FC = () => {
                 alt="Abhishek Lonkar"
                 className="w-9 h-9 rounded-xl shadow-sm object-cover"
               />
-              <span className="font-semibold text-text-primary text-sm">Abhishek</span>
+              <span className="font-semibold text-text-primary text-sm">Abhishek Lonkar</span>
             </button>
-            <button
-              onClick={() => setShowBooking(true)}
+            <a
+              href={siteContent.footer.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium shadow-md active:scale-95 transition-transform"
               style={{
                 background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
               }}
             >
-              <Calendar size={14} />
-              Book Now
-            </button>
+              <Linkedin size={14} />
+              Connect
+            </a>
           </div>
         </div>
 
         <Section className="pt-20 pb-8 relative overflow-hidden">
           <div className="py-6">
             <div className="max-w-4xl relative z-10">
-              {/* Available badge */}
+              {/* Role badge */}
               <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary/5 border border-primary/20 mb-4">
                 <Sparkles size={12} className="text-primary mr-1.5" />
-                <span className="text-xs text-text-secondary">Taking on new projects</span>
+                <span className="text-xs text-text-secondary">GTM & Revenue Operations</span>
               </div>
 
               {/* Main headline */}
               <h1 className="font-sans text-3xl leading-[1.15] mb-5 font-bold tracking-tight">
-                <span className="text-text-primary">You run the business. </span>
+                <span className="text-text-primary">I help GTM teams </span>
                 <span className="italic text-text-secondary">
-                  I'll handle the tech.
+                  move faster, close bigger, and see clearer.
                 </span>
               </h1>
 
@@ -129,7 +126,7 @@ export const Hero: React.FC = () => {
                 {subheadline}
               </p>
 
-              {/* Stats Grid - Prominent placement */}
+              {/* Stats Grid */}
               <div ref={mobileStatsRef} className="mb-6">
                 <div className="grid grid-cols-2 gap-4">
                   {stats.map((stat: { number: string; label: string }, i: number) => (
@@ -154,54 +151,45 @@ export const Hero: React.FC = () => {
                 </div>
               </div>
 
-              {/* Trusted by */}
+              {/* Worked with */}
               <div className="mb-6 text-center">
-                <p className="text-[#64748b] text-xs mb-3">Worked with</p>
+                <p className="text-[#64748b] text-xs mb-3">Currently at</p>
                 <div className="flex items-center justify-center gap-5">
-                  <img src="/logos/g2logo.jpg" alt="G2" className="h-5 object-contain grayscale opacity-50" />
-                  <img src="/logos/cognizantlogo.jpeg" alt="Cognizant" className="h-5 object-contain grayscale opacity-50" />
-                  <img src="/logos/levislogo.png" alt="Levi's" className="h-5 object-contain grayscale opacity-50" />
+                  <img src="/logos/g2logo.jpg" alt="G2" className="h-6 object-contain" />
                 </div>
               </div>
 
               {/* CTA Buttons */}
               <div className="flex flex-col gap-3 mb-6">
-                <button
-                  onClick={() => setShowBooking(true)}
+                <a
+                  href={siteContent.footer.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-white active:scale-95 transition-transform shadow-lg"
                   style={{
                     background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
                   }}
                 >
                   <span className="flex items-center">
-                    Book a free call
+                    <Linkedin size={18} className="mr-2" />
+                    Connect on LinkedIn
                     <ArrowRight size={18} className="ml-2" />
                   </span>
-                </button>
-                <button
-                  onClick={() => {
-                    const element = document.getElementById('work');
-                    if (element) element.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                </a>
+                <a
+                  href="/Abhishek-Lonkar-21022026.pdf"
+                  download
                   className="inline-flex items-center justify-center px-8 py-4 border border-border text-text-primary rounded-full font-medium active:scale-95 transition-transform hover:bg-surface-secondary"
                 >
-                  See my work
-                </button>
+                  <Download size={18} className="mr-2" />
+                  Download Resume
+                </a>
               </div>
 
               {/* Alternative contact */}
               <div>
-                <p className="text-text-muted text-xs mb-3">Not ready for a call? Just say hi</p>
+                <p className="text-text-muted text-xs mb-3">Get in touch</p>
                 <div className="flex items-center gap-3">
-                  <a
-                    href="https://wa.me/919403612979?text=Hi%20Abhishek%2C%20I%20got%20your%20number%20from%20your%20website.%20Can%20we%20chat%3F"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 flex items-center justify-center text-[#25D366] active:scale-95 transition-transform"
-                    title="WhatsApp"
-                  >
-                    <MessageCircle size={18} />
-                  </a>
                   <a
                     href="https://www.linkedin.com/in/lonkarabhishek/"
                     target="_blank"
@@ -223,8 +211,6 @@ export const Hero: React.FC = () => {
             </div>
           </div>
         </Section>
-
-        <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
       </>
     );
   }
@@ -232,7 +218,7 @@ export const Hero: React.FC = () => {
   // Desktop version with animations
   return (
     <Section className="pt-32 md:pt-40 min-h-[100vh] flex flex-col justify-center relative overflow-hidden">
-      {/* Background elements - desktop only */}
+      {/* Background elements */}
       <div
         className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
         style={{
@@ -268,13 +254,13 @@ export const Hero: React.FC = () => {
               className="inline-flex items-center px-4 py-2 rounded-full bg-primary/5 border border-primary/20 mb-6"
             >
               <Sparkles size={14} className="text-primary mr-2" />
-              <span className="text-sm text-text-secondary">Taking on new projects</span>
+              <span className="text-sm text-text-secondary">GTM & Revenue Operations Professional</span>
             </motion.div>
 
             <h1 className="font-sans text-4xl md:text-5xl lg:text-6xl leading-[1.1] mb-6 font-bold tracking-tight">
-              <span className="text-text-primary">You run the business. </span>
+              <span className="text-text-primary">I help GTM teams </span>
               <span className="italic text-text-secondary">
-                I'll handle the tech.
+                move faster, close bigger, and see clearer.
               </span>
             </h1>
           </motion.div>
@@ -294,17 +280,20 @@ export const Hero: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.4, ease: [0.43, 0.13, 0.23, 0.96] }}
             className="flex flex-col sm:flex-row gap-4 mb-6"
           >
-            <motion.button
+            <motion.a
               whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(124, 58, 237, 0.3)' }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setShowBooking(true)}
+              href={siteContent.footer.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-white relative overflow-hidden group shadow-lg"
               style={{
                 background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
               }}
             >
               <span className="relative z-10 flex items-center">
-                Book a free call
+                <Linkedin size={18} className="mr-2" />
+                Connect on LinkedIn
                 <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </span>
               <motion.div
@@ -313,39 +302,27 @@ export const Hero: React.FC = () => {
                   background: 'linear-gradient(135deg, #0891b2, #db2777)',
                 }}
               />
-            </motion.button>
-            <motion.button
+            </motion.a>
+            <motion.a
               whileHover={{ scale: 1.05, backgroundColor: '#f8fafc' }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                const element = document.getElementById('work');
-                if (element) element.scrollIntoView({ behavior: 'smooth' });
-              }}
+              href="/Abhishek-Lonkar-21022026.pdf"
+              download
               className="inline-flex items-center justify-center px-8 py-4 border border-border text-text-primary rounded-full font-medium transition-all hover:border-primary/50"
             >
-              See my work
-            </motion.button>
+              <Download size={18} className="mr-2" />
+              Download Resume
+            </motion.a>
           </motion.div>
 
-          {/* Contact alternatives */}
+          {/* Contact links */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
           >
-            <p className="text-text-muted text-sm mb-3">Not ready for a call? Just say hi</p>
+            <p className="text-text-muted text-sm mb-3">Get in touch</p>
             <div className="flex items-center gap-3">
-              <motion.a
-                whileHover={{ scale: 1.1, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                href="https://wa.me/919403612979?text=Hi%20Abhishek%2C%20I%20got%20your%20number%20from%20your%20website.%20Can%20we%20chat%3F"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 flex items-center justify-center text-[#25D366] hover:bg-[#25D366]/20 hover:border-[#25D366]/50 transition-all"
-                title="WhatsApp"
-              >
-                <MessageCircle size={18} />
-              </motion.a>
               <motion.a
                 whileHover={{ scale: 1.1, y: -2 }}
                 whileTap={{ scale: 0.95 }}
@@ -417,17 +394,18 @@ export const Hero: React.FC = () => {
             ))}
           </div>
           <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-            <p className="text-[#64748b] text-xs mb-3">Worked with</p>
+            <p className="text-[#64748b] text-xs mb-3">Currently at</p>
             <div className="flex items-center justify-center gap-6">
-              <img src="/logos/g2logo.jpg" alt="G2" className="h-6 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all" />
-              <img src="/logos/cognizantlogo.jpeg" alt="Cognizant" className="h-6 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all" />
-              <img src="/logos/levislogo.png" alt="Levi's" className="h-6 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all" />
+              <img src="/logos/g2logo.jpg" alt="G2" className="h-8 object-contain hover:scale-110 transition-transform" />
+            </div>
+            <p className="text-[#64748b] text-xs mt-3">Previously at</p>
+            <div className="flex items-center justify-center gap-6 mt-2">
+              <img src="/logos/cognizantlogo.jpeg" alt="Cognizant" className="h-5 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all" />
+              <img src="/logos/levislogo.png" alt="Levi's" className="h-5 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all" />
             </div>
           </div>
         </motion.div>
       </div>
-
-      <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
     </Section>
   );
 };
