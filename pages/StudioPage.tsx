@@ -200,7 +200,7 @@ const ProjectRow: React.FC<{ project: typeof projects[0]; index: number }> = ({ 
         style={{ background: T.accentSoft }}
       />
 
-      <div className="relative py-8 md:py-12 px-2 md:px-6">
+      <div className="relative py-6 md:py-8 px-2 md:px-6">
         {/* Main row */}
         <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-0">
           {/* Number */}
@@ -280,6 +280,44 @@ const ProjectRow: React.FC<{ project: typeof projects[0]; index: number }> = ({ 
         </motion.div>
       </div>
     </motion.a>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SERVICE ROW (marquee on hover)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const ServiceRow: React.FC<{ label: string; index: number }> = ({ label, index }) => {
+  const [hovered, setHovered] = useState(false);
+  const repeated = Array(14).fill(label.toUpperCase()).join('   ·   ');
+
+  return (
+    <div
+      className="relative py-3 cursor-default overflow-hidden"
+      style={{ borderBottom: `1px solid ${T.line}` }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}>
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        animate={{ opacity: hovered ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        style={{ background: T.accentSoft }}
+      />
+      <div className="relative overflow-hidden">
+        <motion.div
+          animate={{ x: hovered ? [0, -500] : 0 }}
+          transition={hovered ? { duration: 12, repeat: Infinity, repeatType: 'loop', ease: 'linear' } : { duration: 0.3 }}
+          className="whitespace-nowrap"
+          style={{
+            fontFamily: F.mono,
+            fontSize: '11px',
+            letterSpacing: '0.08em',
+            color: hovered ? T.accent : T.textMuted,
+            transition: 'color 0.3s',
+          }}>
+          {hovered ? repeated : label.toUpperCase()}
+        </motion.div>
+      </div>
+    </div>
   );
 };
 
@@ -380,7 +418,7 @@ export const StudioPage: React.FC = () => {
 
       {/* ═══ HERO ═══ */}
       <section className="relative min-h-screen flex flex-col justify-between overflow-hidden"
-        style={{ padding: 'clamp(120px, 15vh, 200px) clamp(24px, 4vw, 64px) clamp(40px, 6vh, 80px)' }}>
+        style={{ padding: 'clamp(100px, 12vh, 160px) clamp(24px, 4vw, 64px) clamp(32px, 4vh, 56px)' }}>
 
         {/* Subtle warm radial */}
         <div className="absolute inset-0 pointer-events-none" style={{
@@ -394,7 +432,7 @@ export const StudioPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex items-center gap-3 mb-8 md:mb-12">
+            className="flex items-center gap-3 mb-6 md:mb-8">
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#22c55e' }} />
             <MonoLabel style={{ fontSize: '10px' }}>Available for projects</MonoLabel>
           </motion.div>
@@ -404,7 +442,7 @@ export const StudioPage: React.FC = () => {
             <LineReveal delay={0.1}>
               <h1 style={{
                 fontFamily: F.serif, fontWeight: 400,
-                fontSize: 'clamp(3.5rem, 13vw, 14rem)',
+                fontSize: 'clamp(3rem, 11vw, 11rem)',
                 lineHeight: 0.95, letterSpacing: '-0.03em', color: T.text,
               }}>
                 Abhishek
@@ -413,34 +451,54 @@ export const StudioPage: React.FC = () => {
             <LineReveal delay={0.2}>
               <h1 style={{
                 fontFamily: F.serif, fontWeight: 400, fontStyle: 'italic',
-                fontSize: 'clamp(3.5rem, 13vw, 14rem)',
+                fontSize: 'clamp(3rem, 11vw, 11rem)',
                 lineHeight: 0.95, letterSpacing: '-0.03em', color: T.text,
               }}>
                 Lonkar<span style={{ color: T.accent, fontStyle: 'normal' }}>.</span>
               </h1>
             </LineReveal>
           </div>
-        </motion.div>
 
-        {/* Bottom row */}
-        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8 mt-auto">
-          <Reveal delay={0.5}>
-            <p style={{
+          {/* Tagline right under the name */}
+          <Reveal delay={0.4}>
+            <p className="mt-6 md:mt-8" style={{
               fontFamily: F.sans, fontSize: 'clamp(15px, 1.2vw, 18px)',
-              color: T.textMuted, lineHeight: 1.7, maxWidth: '420px',
+              color: T.textMuted, lineHeight: 1.7, maxWidth: '480px',
             }}>
               Digital studio for websites, online stores, and growth.
               I design it, build it, and help you grow it.
             </p>
           </Reveal>
+        </motion.div>
 
-          <Reveal delay={0.6}>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ color: T.textFaint }}>
-              <ArrowDown size={20} />
-            </motion.div>
+        {/* Bottom: stats + scroll indicator */}
+        <div className="relative z-10 mt-auto">
+          <Reveal delay={0.5}>
+            <div className="flex flex-wrap items-end justify-between gap-6 pt-8" style={{ borderTop: `1px solid ${T.line}` }}>
+              <div className="flex flex-wrap gap-x-10 gap-y-4">
+                {[
+                  { value: '10+', label: 'Clients' },
+                  { value: '80K', label: 'Pinterest Views' },
+                  { value: '100+', label: 'Dashboards' },
+                  { value: '6+', label: 'Years Exp.' },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-baseline gap-2">
+                    <span style={{ fontFamily: F.serif, fontSize: 'clamp(1.4rem, 2.5vw, 2rem)', fontWeight: 400, color: T.text }}>
+                      {s.value}
+                    </span>
+                    <span className="uppercase" style={{ fontFamily: F.mono, fontSize: '9px', letterSpacing: '0.1em', color: T.textFaint }}>
+                      {s.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ color: T.textFaint }}>
+                <ArrowDown size={18} />
+              </motion.div>
+            </div>
           </Reveal>
         </div>
       </section>
@@ -486,16 +544,16 @@ export const StudioPage: React.FC = () => {
       </div>
 
       {/* ═══ STATEMENT ═══ */}
-      <section style={{ padding: 'clamp(80px, 12vw, 200px) clamp(24px, 4vw, 64px)' }}>
+      <section style={{ padding: 'clamp(48px, 6vw, 100px) clamp(24px, 4vw, 64px)' }}>
         <div className="max-w-[1600px] mx-auto">
           <Reveal>
-            <MonoLabel style={{ display: 'block', marginBottom: '40px', fontSize: '10px' }}>About the studio</MonoLabel>
+            <MonoLabel style={{ display: 'block', marginBottom: '24px', fontSize: '10px' }}>About the studio</MonoLabel>
           </Reveal>
           <div className="md:ml-auto md:max-w-4xl">
             <LineReveal>
               <p style={{
                 fontFamily: F.serif,
-                fontSize: 'clamp(1.5rem, 3.5vw, 3.2rem)',
+                fontSize: 'clamp(1.4rem, 3vw, 2.8rem)',
                 fontWeight: 400, fontStyle: 'italic',
                 lineHeight: 1.3, color: T.text, letterSpacing: '-0.01em',
               }}>
@@ -507,45 +565,17 @@ export const StudioPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══ STATS ═══ */}
-      <div style={{ borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
-        <div className="max-w-[1600px] mx-auto px-6 md:px-16 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-          {[
-            { value: '10+', label: 'Clients Served' },
-            { value: '80K', label: 'Pinterest Views' },
-            { value: '100+', label: 'Dashboards Built' },
-            { value: '6+', label: 'Years Experience' },
-          ].map((s, i) => (
-            <Reveal key={i} delay={i * 0.08}>
-              <div>
-                <span style={{
-                  fontFamily: F.serif, fontSize: 'clamp(2rem, 4vw, 3.5rem)',
-                  fontWeight: 400, color: T.text, lineHeight: 1,
-                }}>
-                  {s.value}
-                </span>
-                <span className="block mt-2 uppercase" style={{
-                  fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', color: T.textFaint,
-                }}>
-                  {s.label}
-                </span>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-
       {/* ═══ SELECTED WORK ═══ */}
-      <section id="work" style={{ padding: 'clamp(80px, 10vw, 160px) clamp(24px, 4vw, 64px)' }}>
+      <section id="work" style={{ padding: 'clamp(48px, 5vw, 80px) clamp(24px, 4vw, 64px)' }}>
         <div className="max-w-[1600px] mx-auto">
-          <div className="flex items-end justify-between mb-16 md:mb-24">
+          <div className="flex items-end justify-between mb-10 md:mb-16">
             <div>
               <Reveal>
                 <MonoLabel style={{ display: 'block', marginBottom: '16px', fontSize: '10px' }}>Selected work</MonoLabel>
               </Reveal>
               <LineReveal delay={0.1}>
                 <h2 style={{
-                  fontFamily: F.serif, fontSize: 'clamp(2.5rem, 6vw, 5.5rem)',
+                  fontFamily: F.serif, fontSize: 'clamp(2rem, 5vw, 4.5rem)',
                   fontWeight: 400, lineHeight: 1, letterSpacing: '-0.03em', color: T.text,
                 }}>
                   Projects
@@ -591,18 +621,18 @@ export const StudioPage: React.FC = () => {
 
       {/* ═══ SERVICES ═══ */}
       <section id="services" style={{
-        padding: 'clamp(80px, 10vw, 160px) clamp(24px, 4vw, 64px)',
+        padding: 'clamp(48px, 5vw, 80px) clamp(24px, 4vw, 64px)',
         borderTop: `1px solid ${T.line}`,
       }}>
         <div className="max-w-[1600px] mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-20 md:mb-28">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 md:mb-16">
             <div>
               <Reveal>
-                <MonoLabel style={{ display: 'block', marginBottom: '16px', fontSize: '10px' }}>What I do</MonoLabel>
+                <MonoLabel style={{ display: 'block', marginBottom: '12px', fontSize: '10px' }}>What I do</MonoLabel>
               </Reveal>
               <LineReveal delay={0.1}>
                 <h2 style={{
-                  fontFamily: F.serif, fontSize: 'clamp(2.5rem, 6vw, 5.5rem)',
+                  fontFamily: F.serif, fontSize: 'clamp(2rem, 5vw, 4.5rem)',
                   fontWeight: 400, lineHeight: 1, letterSpacing: '-0.03em', color: T.text,
                 }}>
                   Services
@@ -617,61 +647,46 @@ export const StudioPage: React.FC = () => {
             </Reveal>
           </div>
 
-          {/* Service rows */}
-          <div>
-            {services.map((svc, i) => (
-              <Reveal key={i} delay={i * 0.08}>
-                <div style={{ borderTop: `1px solid ${T.line}`, padding: 'clamp(32px, 4vw, 56px) 0' }}>
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
-                    {/* Left: number + title */}
-                    <div className="md:col-span-5 flex items-baseline gap-5">
-                      <span style={{
-                        fontFamily: F.serif, fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
-                        fontWeight: 400, color: T.textFaint, fontStyle: 'italic', lineHeight: 1,
-                      }}>
-                        {svc.num}
-                      </span>
-                      <h3 style={{
-                        fontFamily: F.sans, fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)',
-                        fontWeight: 500, color: T.text, letterSpacing: '-0.02em', lineHeight: 1.1,
-                      }}>
-                        {svc.title}
-                      </h3>
-                    </div>
-
-                    {/* Right: description + tags */}
-                    <div className="md:col-span-6 md:col-start-7">
-                      <p style={{
-                        fontFamily: F.sans, fontSize: '15px', color: T.textMuted,
-                        lineHeight: 1.7, marginBottom: '20px',
-                      }}>
-                        {svc.desc}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {svc.tags.map((tag, j) => (
-                          <span key={j} className="uppercase" style={{
-                            fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.08em',
-                            color: T.textFaint, padding: '5px 12px', border: `1px solid ${T.line}`,
-                          }}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+          {/* Service blocks with marquee sub-rows */}
+          <div className="space-y-12">
+            {services.map((svc, si) => (
+              <Reveal key={si} delay={si * 0.08}>
+                <div>
+                  <div className="flex items-baseline gap-5 mb-4" style={{ borderTop: `1px solid ${T.line}`, paddingTop: '24px' }}>
+                    <span style={{
+                      fontFamily: F.serif, fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)',
+                      fontWeight: 400, color: T.textFaint, fontStyle: 'italic', lineHeight: 1,
+                    }}>
+                      {svc.num}
+                    </span>
+                    <h3 style={{
+                      fontFamily: F.sans, fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
+                      fontWeight: 500, color: T.text, letterSpacing: '-0.02em', lineHeight: 1.1,
+                    }}>
+                      {svc.title}
+                    </h3>
+                  </div>
+                  <p className="mb-4 md:pl-[52px]" style={{ fontFamily: F.sans, fontSize: '14px', color: T.textMuted, lineHeight: 1.7, maxWidth: '500px' }}>
+                    {svc.desc}
+                  </p>
+                  {/* Sub-item rows with marquee hover */}
+                  <div className="md:pl-[52px]">
+                    {svc.tags.map((tag, ti) => (
+                      <ServiceRow key={ti} label={tag} index={ti} />
+                    ))}
                   </div>
                 </div>
               </Reveal>
             ))}
-            <div style={{ borderTop: `1px solid ${T.line}` }} />
           </div>
         </div>
       </section>
 
       {/* ═══ TESTIMONIALS ═══ */}
-      <section style={{ background: T.bgDark, padding: 'clamp(80px, 10vw, 160px) clamp(24px, 4vw, 64px)' }}>
+      <section style={{ background: T.bgDark, padding: 'clamp(48px, 5vw, 80px) clamp(24px, 4vw, 64px)' }}>
         <div className="max-w-[1600px] mx-auto">
           <Reveal>
-            <MonoLabel style={{ display: 'block', marginBottom: '60px', fontSize: '10px', color: T.textFaint }}>
+            <MonoLabel style={{ display: 'block', marginBottom: '32px', fontSize: '10px', color: T.textFaint }}>
               Kind words
             </MonoLabel>
           </Reveal>
@@ -737,7 +752,7 @@ export const StudioPage: React.FC = () => {
       </section>
 
       {/* ═══ ABOUT ═══ */}
-      <section id="about" style={{ padding: 'clamp(80px, 10vw, 160px) clamp(24px, 4vw, 64px)' }}>
+      <section id="about" style={{ padding: 'clamp(48px, 5vw, 80px) clamp(24px, 4vw, 64px)' }}>
         <div className="max-w-[1600px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
             {/* Left column */}
@@ -789,13 +804,13 @@ export const StudioPage: React.FC = () => {
 
       {/* ═══ CTA ═══ */}
       <section style={{
-        padding: 'clamp(100px, 14vw, 240px) clamp(24px, 4vw, 64px)',
+        padding: 'clamp(56px, 6vw, 100px) clamp(24px, 4vw, 64px)',
         borderTop: `1px solid ${T.line}`,
       }}>
         <div className="max-w-[1600px] mx-auto text-center">
           <LineReveal>
             <h2 style={{
-              fontFamily: F.serif, fontSize: 'clamp(3rem, 8vw, 8rem)',
+              fontFamily: F.serif, fontSize: 'clamp(2.5rem, 6vw, 6rem)',
               fontWeight: 400, lineHeight: 0.95, letterSpacing: '-0.03em', color: T.text,
             }}>
               Have a project?
@@ -803,7 +818,7 @@ export const StudioPage: React.FC = () => {
           </LineReveal>
           <LineReveal delay={0.1}>
             <h2 style={{
-              fontFamily: F.serif, fontSize: 'clamp(3rem, 8vw, 8rem)',
+              fontFamily: F.serif, fontSize: 'clamp(2.5rem, 6vw, 6rem)',
               fontWeight: 400, fontStyle: 'italic', lineHeight: 0.95,
               letterSpacing: '-0.03em', color: T.textFaint,
             }}>
@@ -813,7 +828,7 @@ export const StudioPage: React.FC = () => {
 
           <Reveal delay={0.2}>
             <button onClick={() => setShowBooking(true)}
-              className="mt-16 inline-flex items-center gap-3 group transition-all duration-300"
+              className="mt-10 inline-flex items-center gap-3 group transition-all duration-300"
               style={{
                 background: T.accent, color: '#fff', border: 'none', cursor: 'pointer',
                 fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -827,7 +842,7 @@ export const StudioPage: React.FC = () => {
           </Reveal>
 
           <Reveal delay={0.3}>
-            <div className="flex items-center justify-center gap-10 mt-14">
+            <div className="flex items-center justify-center gap-10 mt-8">
               {[
                 { label: 'Email', href: 'mailto:abhisheksoffice11@gmail.com' },
                 { label: 'LinkedIn', href: 'https://www.linkedin.com/in/lonkarabhishek/' },
@@ -853,7 +868,7 @@ export const StudioPage: React.FC = () => {
         overflow: 'hidden',
       }}>
         <div className="max-w-[1600px] mx-auto">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-20">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
             <div className="flex flex-wrap items-center gap-8">
               {[
                 { label: 'LinkedIn', href: 'https://www.linkedin.com/in/lonkarabhishek/' },
