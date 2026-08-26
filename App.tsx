@@ -52,7 +52,7 @@ const StudioApp: React.FC = () => {
   return (
     <>
       <AnimatePresence>
-        {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
+        {isLoading && <LoadingScreen variant="studio" onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
       {!isLoading && (
         <div className="min-h-screen flex flex-col font-sans">
