@@ -71,7 +71,7 @@ const projects = [
   },
   {
     title: 'JSB Foods',
-    desc: 'Clean, modern website for a food brand — built to showcase products and build trust with customers.',
+    desc: 'Clean, modern website for a food brand. Built to showcase products and build trust with customers.',
     link: 'https://jsb-foods.vercel.app',
     tag: 'Website',
   },
@@ -83,31 +83,31 @@ const projects = [
   },
   {
     title: 'Deft Chemistry',
-    desc: 'A refined web presence for a chemistry-focused brand — elegant, informative, and conversion-ready.',
+    desc: 'A refined web presence for a chemistry-focused brand. Elegant, informative, and built to convert.',
     link: 'https://deft-chemistry-redefined.vercel.app',
     tag: 'Website',
   },
   {
     title: 'The Nashik Kumbh',
-    desc: 'Multilingual website (EN/HI/MR) for Nashik Kumbh Mela 2027 — bathing dates, travel info, holy sites.',
+    desc: 'Multilingual website in English, Hindi, and Marathi for Nashik Kumbh Mela 2027. Covers bathing dates, travel info, and holy sites.',
     link: 'https://thenashikkumbh.com',
     tag: 'Multilingual · Live',
   },
   {
     title: 'SD Overseas',
-    desc: 'Professional website for an international trading company — built to establish global credibility.',
+    desc: 'Professional website for an international trading company. Built to establish global credibility.',
     link: 'https://sd-overseas.vercel.app/',
     tag: 'Website',
   },
   {
     title: 'BarKit',
-    desc: '7 handy Mac menu bar apps — clipboard history, screenshot manager, Wi-Fi monitor, and more.',
+    desc: '7 handy Mac menu bar apps. Clipboard history, screenshot manager, Wi-Fi monitor, and more.',
     link: 'https://workwithabhi.online/#/barkit',
     tag: 'Open Source',
   },
   {
     title: 'One Gram Jewelry',
-    desc: 'Online jewelry store in development — focused on making customers feel confident buying online.',
+    desc: 'Online jewelry store in development. Focused on making customers feel confident buying online.',
     tag: 'E-Commerce · Coming Soon',
   },
 ];
@@ -147,9 +147,6 @@ export const StudioPage: React.FC = () => {
             </div>
           </a>
           <div className="flex items-center gap-2 sm:gap-3">
-            <a href="https://workwithabhi.online" className="text-sm text-gray-500 hover:text-gray-900 transition-colors px-3 py-2 hidden sm:block">
-              Main Site
-            </a>
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               onClick={() => setShowBooking(true)}
               className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-colors">
@@ -177,7 +174,7 @@ export const StudioPage: React.FC = () => {
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}
             className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Websites, online stores, dashboards, and digital marketing. No tech headaches — just things that work and grow your business.
+            Websites, online stores, dashboards, and digital marketing. No tech headaches. Just things that work and grow your business.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }}
@@ -272,11 +269,11 @@ export const StudioPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { emoji: '🛒', title: 'Online Stores That Sell', desc: 'Fast, beautiful shops that work on every device. Payment, inventory, shipping — all handled.' },
+              { emoji: '🛒', title: 'Online Stores That Sell', desc: 'Fast, beautiful shops that work on every device. Payment, inventory, and shipping all handled.' },
               { emoji: '📊', title: 'Dashboards That Clarify', desc: '100+ dashboards built. I turn your data into decisions you can actually act on.' },
-              { emoji: '📌', title: 'Marketing That Reaches', desc: 'Pinterest, social, SEO — I help your brand get seen. 80k monthly views for one client.' },
+              { emoji: '📌', title: 'Marketing That Reaches', desc: 'Pinterest, social, SEO. I help your brand get seen. 80k monthly views for one client.' },
               { emoji: '🤝', title: 'Direct Communication', desc: "You talk to me, not a helpdesk. Something breaks? I fix it. No chasing, no waiting." },
-              { emoji: '🚀', title: 'Launch & Beyond', desc: "I don't disappear on launch day. Your success is my reputation — I stick around." },
+              { emoji: '🚀', title: 'Launch & Beyond', desc: "I don't disappear on launch day. Your success is my reputation. I stick around." },
               { emoji: '💡', title: 'Vague Idea? No Problem', desc: "Most people don't start with a perfect plan. I'll help you figure out what you actually need." },
             ].map((s, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
@@ -379,7 +376,7 @@ export const StudioPage: React.FC = () => {
           <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Have a project in mind?{' '}
-            <span className="text-gray-400">Let's talk — it's free.</span>
+            <span className="text-gray-400">Let's talk. It's free.</span>
           </motion.h2>
 
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
@@ -425,9 +422,6 @@ export const StudioPage: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-5 text-sm text-gray-400">
-            <a href="https://workwithabhi.online" className="hover:text-gray-900 transition-colors font-medium">
-              Main Site →
-            </a>
             <span>© {new Date().getFullYear()}</span>
           </div>
         </div>
