@@ -1,304 +1,529 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { ArrowUpRight, ArrowRight, Mail, Linkedin, Calendar, X, ExternalLink, Star } from 'lucide-react';
+import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight, ArrowUpRight, Mail, Linkedin, Calendar, X, Star } from 'lucide-react';
 
-/* ──────────────────────────── BOOKING MODAL ──────────────────────────── */
+/* ════════════════════════════════ TOKENS ════════════════════════════════ */
+const T = {
+  bg: '#faf9f5',
+  bgElevated: '#ffffff',
+  ink: '#141413',
+  text: '#141413',
+  textMuted: '#6b6b66',
+  textFaint: '#a3a29c',
+  accent: '#e63a0f',
+  accentSoft: '#fdece7',
+  line: 'rgba(20,20,19,0.10)',
+  overlay: 'rgba(20,20,19,0.04)',
+};
+
+const serif = "'Playfair Display', Georgia, serif";
+const sans = "'Inter', system-ui, sans-serif";
+const mono = "'Oxygen Mono', 'SF Mono', 'Fira Code', monospace";
+
+/* ════════════════════════════════ UTILS ════════════════════════════════ */
+const MonoLabel: React.FC<{ children: React.ReactNode; className?: string; style?: React.CSSProperties }> = ({ children, className = '', style }) => (
+  <span className={`uppercase tracking-[0.08em] ${className}`}
+    style={{ fontFamily: mono, fontSize: '12px', color: T.textMuted, ...style }}>
+    {children}
+  </span>
+);
+
+const Reveal: React.FC<{ children: React.ReactNode; delay?: number; className?: string }> = ({ children, delay = 0, className = '' }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 24 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-15%" }}
+    transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
+    className={className}>
+    {children}
+  </motion.div>
+);
+
+const LineReveal: React.FC<{ children: React.ReactNode; delay?: number; className?: string; style?: React.CSSProperties }> = ({ children, delay = 0, className = '', style }) => (
+  <div className={`overflow-hidden ${className}`}>
+    <motion.div
+      initial={{ y: '110%' }}
+      whileInView={{ y: '0%' }}
+      viewport={{ once: true, margin: "-15%" }}
+      transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
+      style={style}>
+      {children}
+    </motion.div>
+  </div>
+);
+
+/* ════════════════════════════════ BOOKING MODAL ════════════════════════════════ */
 const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => (
   <AnimatePresence>
     {isOpen && (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+        <div className="absolute inset-0" style={{ background: 'rgba(20,20,19,0.6)', backdropFilter: 'blur(8px)' }} />
         <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-4xl h-[80vh] rounded-2xl overflow-hidden shadow-2xl bg-white border border-gray-200"
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="relative w-full max-w-4xl h-[80vh] rounded-3xl overflow-hidden shadow-2xl"
+          style={{ background: T.bgElevated, border: `1px solid ${T.line}` }}
           onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center justify-between p-4 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
-                <Calendar size={20} className="text-white" />
+          <div className="flex items-center justify-between p-5" style={{ borderBottom: `1px solid ${T.line}` }}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: T.ink }}>
+                <Calendar size={18} color={T.bg} />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Book a Call</h3>
-                <p className="text-sm text-gray-500">Pick a time that works for you</p>
+                <h3 className="font-semibold" style={{ fontFamily: sans, color: T.text, fontSize: '15px' }}>Book a Call</h3>
+                <p style={{ fontFamily: sans, fontSize: '13px', color: T.textMuted }}>Pick a time that works</p>
               </div>
             </div>
-            <button onClick={onClose} className="p-2 rounded-xl text-gray-400 hover:text-gray-600 transition-colors">
-              <X size={20} />
+            <button onClick={onClose} className="w-10 h-10 rounded-2xl flex items-center justify-center transition-colors"
+              style={{ color: T.textFaint, background: T.overlay }}
+              onMouseEnter={e => e.currentTarget.style.background = T.accentSoft}
+              onMouseLeave={e => e.currentTarget.style.background = T.overlay}>
+              <X size={18} />
             </button>
           </div>
           <iframe src="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ3eFH-K6IQk-3avWVjGYP3Q-vfQZlAe9I-fYLdOobcFweup66Evk9dST6B_7YCz4Rj0cKxys5_o"
-            style={{ border: 0 }} width="100%" height="100%" title="Book" className="h-[calc(100%-80px)]" />
+            style={{ border: 0 }} width="100%" height="100%" title="Book" className="h-[calc(100%-76px)]" />
         </motion.div>
       </motion.div>
     )}
   </AnimatePresence>
 );
 
-/* ──────────────────────────── ANIMATED COUNTER ──────────────────────────── */
-const AnimatedCounter: React.FC<{ value: string; inView: boolean }> = ({ value, inView }) => {
-  const [display, setDisplay] = useState('0');
-  const clean = value.replace(/,/g, '');
-  const num = parseInt(clean.replace(/\D/g, '')) || 0;
-  const hasComma = value.includes(',');
-  const suffix = clean.match(/[+%kK]/)?.[0] || '';
-
-  useEffect(() => {
-    if (!inView) { setDisplay('0'); return; }
-    const steps = 30;
-    const inc = num / steps;
-    let cur = 0;
-    const t = setInterval(() => {
-      cur += inc;
-      if (cur >= num) { setDisplay((hasComma ? num.toLocaleString() : num.toString()) + suffix); clearInterval(t); }
-      else { const n = Math.floor(cur); setDisplay((hasComma ? n.toLocaleString() : n.toString()) + suffix); }
-    }, 1200 / steps);
-    return () => clearInterval(t);
-  }, [inView, num, hasComma, suffix]);
-
-  return <>{display}</>;
-};
-
-/* ──────────────────────────── DATA ──────────────────────────── */
+/* ════════════════════════════════ DATA ════════════════════════════════ */
 const projects = [
   {
     title: 'Haddu Clothing',
-    desc: 'Premium online fashion store with full e-commerce, inventory management, and payment integration.',
+    category: 'E-Commerce',
+    desc: 'Online fashion store with end-to-end e-commerce. Inventory, payments, shipping, all set up and running.',
     highlight: '80k monthly views on Pinterest',
     highlightLink: 'https://pin.it/71a3yvH2u',
     link: 'https://www.hadduclothing.com/',
-    tag: 'E-Commerce + Marketing',
+    client: 'Haddu',
   },
   {
     title: 'JSB Foods',
-    desc: 'Clean, modern website for a food brand. Built to showcase products and build trust with customers.',
+    category: 'Website',
+    desc: 'Clean, modern website for a food brand. Built to showcase products and build customer trust.',
     link: 'https://jsb-foods.vercel.app',
-    tag: 'Website',
+    client: 'JSB Foods',
   },
   {
     title: 'TapTurf',
-    desc: 'Sports venue booking platform that makes finding and reserving a turf near you dead simple.',
+    category: 'Web App',
+    desc: 'Sports venue booking platform. Find a turf, pick a time, book it. Simple as that.',
     link: 'https://tapturf.in/',
-    tag: 'Web App',
+    client: 'TapTurf',
   },
   {
     title: 'Deft Chemistry',
-    desc: 'A refined web presence for a chemistry-focused brand. Elegant, informative, and built to convert.',
+    category: 'Website',
+    desc: 'Web presence for a chemistry brand. Elegant, informative, and built to convert visitors into customers.',
     link: 'https://deft-chemistry-redefined.vercel.app',
-    tag: 'Website',
+    client: 'Deft Chemistry',
   },
   {
     title: 'The Nashik Kumbh',
-    desc: 'Multilingual website in English, Hindi, and Marathi for Nashik Kumbh Mela 2027. Covers bathing dates, travel info, and holy sites.',
+    category: 'Multilingual',
+    desc: 'Website for Nashik Kumbh Mela 2027 in English, Hindi, and Marathi. Bathing dates, travel info, holy sites.',
     link: 'https://thenashikkumbh.com',
-    tag: 'Multilingual · Live',
+    client: 'Nashik Kumbh',
   },
   {
     title: 'SD Overseas',
-    desc: 'Professional website for an international trading company. Built to establish global credibility.',
+    category: 'Website',
+    desc: 'Website for an international trading company. Professional presence built for global credibility.',
     link: 'https://sd-overseas.vercel.app/',
-    tag: 'Website',
-  },
-  {
-    title: 'BarKit',
-    desc: '7 handy Mac menu bar apps. Clipboard history, screenshot manager, Wi-Fi monitor, and more.',
-    link: 'https://workwithabhi.online/#/barkit',
-    tag: 'Open Source',
-  },
-  {
-    title: 'One Gram Jewelry',
-    desc: 'Online jewelry store in development. Focused on making customers feel confident buying online.',
-    tag: 'E-Commerce · Coming Soon',
+    client: 'SD Overseas',
   },
 ];
 
-const stats = [
-  { value: '10+', label: 'Clients' },
-  { value: '80k', label: 'Pinterest Views' },
-  { value: '100+', label: 'Dashboards' },
-  { value: '6+', label: 'Years' },
+const services = [
+  {
+    num: '01',
+    title: 'Web Development',
+    items: ['LANDING PAGES', 'BUSINESS WEBSITES', 'WEB APPLICATIONS', 'MULTILINGUAL SITES', 'RESPONSIVE DESIGN'],
+  },
+  {
+    num: '02',
+    title: 'E-Commerce',
+    items: ['ONLINE STORES', 'PAYMENT INTEGRATION', 'INVENTORY SYSTEMS', 'PRODUCT CATALOGS', 'SHIPPING SETUP'],
+  },
+  {
+    num: '03',
+    title: 'Growth & Analytics',
+    items: ['PINTEREST MARKETING', 'SEO OPTIMIZATION', 'DASHBOARD BUILDS', 'DATA VISUALIZATION', 'SOCIAL STRATEGY'],
+  },
 ];
 
-/* ──────────────────────────── PAGE ──────────────────────────── */
+const clients = [
+  { name: 'G2', logo: '/logos/g2logo.jpg' },
+  { name: 'Cognizant', logo: '/logos/cognizantlogo.jpeg' },
+  { name: "Levi's", logo: '/logos/levislogo.png' },
+  { name: 'Haddu', logo: '/logos/haddulogo.webp' },
+  { name: 'Nurturing Green', logo: '/logos/nurturinggreenlogo.png' },
+  { name: 'KIST', logo: '/logos/KIST_Logo.jpg' },
+];
+
+/* ════════════════════════════════ MARQUEE ════════════════════════════════ */
+const Marquee: React.FC<{ items: typeof clients; speed?: number }> = ({ items, speed = 25 }) => {
+  const doubled = [...items, ...items];
+  return (
+    <div className="relative overflow-hidden py-10" style={{ borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
+      <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: `linear-gradient(to right, ${T.bg}, transparent)` }} />
+      <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: `linear-gradient(to left, ${T.bg}, transparent)` }} />
+      <div className="overflow-hidden">
+        <div className="flex items-center gap-16 animate-studio-marquee" style={{ width: 'max-content' }}>
+          {doubled.map((c, i) => (
+            <div key={i} className="flex items-center gap-4 flex-shrink-0">
+              <img src={c.logo} alt={c.name} className="w-10 h-10 rounded-xl object-contain" style={{ filter: 'grayscale(1)', opacity: 0.5 }} />
+              <span style={{ fontFamily: mono, fontSize: '12px', letterSpacing: '0.08em', color: T.textFaint, textTransform: 'uppercase' }}>{c.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════ SERVICE ROW ════════════════════════════════ */
+const ServiceRow: React.FC<{ label: string; index: number }> = ({ label, index }) => {
+  const [hovered, setHovered] = useState(false);
+  const repeated = Array(12).fill(label).join('   •   ');
+
+  return (
+    <Reveal delay={index * 0.04}>
+      <div
+        className="relative py-4 cursor-default overflow-hidden transition-all"
+        style={{ borderBottom: `1px solid ${T.line}` }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}>
+        <div className="overflow-hidden">
+          <motion.div
+            animate={{ x: hovered ? '-10%' : '0%' }}
+            transition={{ duration: 20, repeat: Infinity, repeatType: 'loop', ease: 'linear' }}
+            className="whitespace-nowrap"
+            style={{
+              fontFamily: mono,
+              fontSize: '13px',
+              letterSpacing: '0.08em',
+              color: hovered ? T.accent : T.textMuted,
+              transition: 'color 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+            }}>
+            {repeated}
+          </motion.div>
+        </div>
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          animate={{ opacity: hovered ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+          style={{ background: T.accentSoft }}
+        />
+      </div>
+    </Reveal>
+  );
+};
+
+/* ════════════════════════════════ PAGE ════════════════════════════════ */
 export const StudioPage: React.FC = () => {
   const [showBooking, setShowBooking] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const statsInView = useInView(statsRef, { once: true, margin: "-50px" });
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 40);
+    const h = () => setScrolled(window.scrollY > 80);
     window.addEventListener('scroll', h);
     return () => window.removeEventListener('scroll', h);
   }, []);
 
   return (
-    <div className="bg-white text-gray-900 min-h-screen" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ background: T.bg, color: T.text, minHeight: '100vh', fontFamily: sans }}>
 
-      {/* ─── NAV ─── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm' : ''}`}>
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            className="flex items-center gap-3">
-            <img src="/favicon.png" alt="AL" className="w-9 h-9 rounded-xl object-cover shadow-sm" />
-            <div className="hidden sm:block">
-              <span className="font-semibold text-sm text-gray-900 block leading-tight">Abhishek Lonkar</span>
-              <span className="text-[11px] text-gray-400 tracking-wide uppercase">Digital Studio</span>
-            </div>
+      {/* ═══ STYLES ═══ */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Oxygen+Mono&display=swap');
+        @keyframes studioMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-studio-marquee { animation: studioMarquee 25s linear infinite; }
+        .animate-studio-marquee:hover { animation-play-state: paused; }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-studio-marquee { animation: none; }
+        }
+      `}</style>
+
+      {/* ═══ NAV ═══ */}
+      <motion.nav
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+        style={{
+          background: scrolled ? `${T.bg}ee` : 'transparent',
+          backdropFilter: scrolled ? 'blur(20px)' : 'none',
+          borderBottom: scrolled ? `1px solid ${T.line}` : '1px solid transparent',
+        }}>
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-5 flex items-center justify-between">
+          <a href="#" onClick={e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            className="flex items-center gap-3 group">
+            <img src="/favicon.png" alt="AL" className="w-8 h-8 rounded-xl object-cover" />
+            <motion.span
+              animate={{ opacity: scrolled ? 0 : 1, x: scrolled ? -10 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="hidden sm:block font-semibold tracking-tight"
+              style={{ fontFamily: sans, fontSize: '15px', color: T.text }}>
+              Abhishek Lonkar
+            </motion.span>
           </a>
-          <div className="flex items-center gap-2 sm:gap-3">
+
+          <div className="flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-6">
+              {['WORK', 'SERVICES', 'ABOUT'].map(label => (
+                <a key={label} href={`#${label.toLowerCase()}`}
+                  className="transition-colors"
+                  style={{ fontFamily: mono, fontSize: '12px', letterSpacing: '0.08em', color: T.textMuted }}
+                  onMouseEnter={e => e.currentTarget.style.color = T.text}
+                  onMouseLeave={e => e.currentTarget.style.color = T.textMuted}>
+                  {label}
+                </a>
+              ))}
+            </div>
+
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               onClick={() => setShowBooking(true)}
-              className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-colors">
-              Book a Call
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full transition-colors"
+              style={{ background: T.ink, color: T.bg, fontFamily: mono, fontSize: '12px', letterSpacing: '0.08em' }}>
+              <span style={{ color: T.accent, fontSize: '16px', lineHeight: 1 }}>*</span>
+              START A PROJECT
             </motion.button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* ─── HERO ─── */}
-      <section className="pt-32 sm:pt-40 pb-20 sm:pb-28 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 mb-8">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
-              <span className="text-sm text-emerald-700 font-medium">Available for new projects</span>
+      {/* ═══ HERO ═══ */}
+      <section className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 pt-32 pb-20 overflow-hidden">
+        {/* Warm gradient bg */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: `radial-gradient(ellipse 80% 60% at 70% 30%, rgba(230,58,15,0.04) 0%, transparent 70%),
+                       radial-gradient(ellipse 60% 50% at 20% 70%, rgba(230,180,120,0.06) 0%, transparent 70%)`,
+        }} />
+
+        <div className="max-w-[1400px] mx-auto w-full relative z-10">
+          <Reveal>
+            <div className="flex items-center gap-3 mb-12">
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#22c55e' }} />
+              <MonoLabel>Available for new projects</MonoLabel>
             </div>
-          </motion.div>
+          </Reveal>
 
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-[2.5rem] sm:text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-6">
-            I build websites & stores{' '}
-            <span className="text-gray-400">for businesses that want things done right.</span>
-          </motion.h1>
+          <div className="mb-16">
+            <LineReveal>
+              <h1 style={{ fontFamily: serif, fontWeight: 400, fontSize: 'clamp(2.8rem, 8vw, 7.5rem)', lineHeight: 1.05, letterSpacing: '-0.02em', color: T.text }}>
+                I design and build
+              </h1>
+            </LineReveal>
+            <LineReveal delay={0.08}>
+              <h1 style={{ fontFamily: serif, fontWeight: 400, fontSize: 'clamp(2.8rem, 8vw, 7.5rem)', lineHeight: 1.05, letterSpacing: '-0.02em', color: T.text }}>
+                digital experiences<span style={{ color: T.accent }}>.</span>
+              </h1>
+            </LineReveal>
+          </div>
 
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Websites, online stores, dashboards, and digital marketing. No tech headaches. Just things that work and grow your business.
-          </motion.p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+            <Reveal delay={0.2}>
+              <p className="max-w-lg leading-relaxed" style={{ fontFamily: sans, fontSize: '18px', color: T.textMuted, lineHeight: 1.7 }}>
+                Websites, online stores, dashboards, and digital marketing
+                for businesses that want things done right. No fluff, no middlemen.
+                Just work that performs.
+              </p>
+            </Reveal>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-              onClick={() => setShowBooking(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-gray-900 text-white font-medium rounded-full hover:bg-gray-800 transition-colors group">
-              <Calendar size={18} className="mr-2" />
-              Book a free call
-              <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </motion.button>
-            <a href="#work"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border border-gray-200 text-gray-700 font-medium rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all">
-              See my work
-            </a>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div ref={statsRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.6 }}
-            className="grid grid-cols-4 gap-4 sm:gap-8 mt-16 sm:mt-20 max-w-xl mx-auto">
-            {stats.map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
-                  <AnimatedCounter value={s.value} inView={statsInView} />
-                </div>
-                <div className="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider mt-1">{s.label}</div>
+            <Reveal delay={0.3}>
+              <div className="flex items-center gap-4">
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  onClick={() => setShowBooking(true)}
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full group"
+                  style={{ background: T.accent, color: '#fff', fontFamily: mono, fontSize: '12px', letterSpacing: '0.08em' }}>
+                  BOOK A FREE CALL
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </motion.button>
+                <a href="#work"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full transition-colors"
+                  style={{ border: `1px solid ${T.line}`, fontFamily: mono, fontSize: '12px', letterSpacing: '0.08em', color: T.textMuted }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = T.text; e.currentTarget.style.color = T.text; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = T.line; e.currentTarget.style.color = T.textMuted; }}>
+                  SEE WORK
+                </a>
               </div>
-            ))}
-          </motion.div>
+            </Reveal>
+          </div>
+
+          {/* Stats row */}
+          <Reveal delay={0.4}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 pt-10" style={{ borderTop: `1px solid ${T.line}` }}>
+              {[
+                { value: '10+', label: 'CLIENTS' },
+                { value: '80K', label: 'PINTEREST VIEWS' },
+                { value: '100+', label: 'DASHBOARDS BUILT' },
+                { value: '6+', label: 'YEARS EXPERIENCE' },
+              ].map((s, i) => (
+                <div key={i}>
+                  <div style={{ fontFamily: serif, fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: T.text, lineHeight: 1.1 }}>
+                    {s.value}
+                  </div>
+                  <MonoLabel className="mt-2 block" style={{ fontSize: '11px', color: T.textFaint }}>{s.label}</MonoLabel>
+                </div>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ─── WORK ─── */}
-      <section id="work" className="py-20 sm:py-28 px-6 bg-gray-50/70">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">Selected Work</h2>
-            <p className="text-gray-500 text-lg">Real projects, real clients, real results.</p>
-          </motion.div>
+      {/* ═══ CLIENT MARQUEE ═══ */}
+      <Marquee items={clients} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {/* ═══ STATEMENT ═══ */}
+      <section className="py-32 md:py-44 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="md:ml-auto md:max-w-3xl">
+            <LineReveal>
+              <p style={{ fontFamily: sans, fontSize: 'clamp(1.5rem, 3.5vw, 3rem)', fontWeight: 400, lineHeight: 1.25, color: T.text, letterSpacing: '-0.01em' }}>
+                I help businesses show up online the right way. From idea to launch, I handle the design, the code, and the marketing so you can focus on what you do best.
+              </p>
+            </LineReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FEATURED WORK ═══ */}
+      <section id="work" className="py-24 md:py-32 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <Reveal>
+            <div className="flex items-end justify-between mb-20">
+              <div>
+                <span style={{ fontFamily: serif, fontSize: 'clamp(1.2rem, 2vw, 2rem)', fontWeight: 400, color: T.textFaint, fontStyle: 'italic' }}>
+                  Featured work
+                </span>
+                <h2 className="mt-2" style={{ fontFamily: sans, fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 500, lineHeight: 1.05, letterSpacing: '-0.02em', color: T.text }}>
+                  Selected<br />Projects
+                </h2>
+              </div>
+              <MonoLabel className="hidden md:block pb-2" style={{ color: T.textFaint }}>
+                {String(projects.length).padStart(2, '0')} PROJECTS
+              </MonoLabel>
+            </div>
+          </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {projects.map((p, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className="bg-white rounded-2xl p-7 sm:p-8 border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all h-full flex flex-col group">
-                  <div className="flex items-start justify-between mb-4">
-                    <span className="text-[11px] font-medium uppercase tracking-wider text-gray-400 px-3 py-1 rounded-full bg-gray-50 border border-gray-100">
-                      {p.tag}
-                    </span>
-                    <span className="text-3xl font-extralight text-gray-200 leading-none">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
+              <Reveal key={i} delay={i * 0.06}>
+                <motion.a
+                  href={p.link} target="_blank" rel="noopener noreferrer"
+                  whileHover={{ y: -8 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="block rounded-3xl overflow-hidden group cursor-pointer"
+                  style={{ background: T.bgElevated, border: `1px solid ${T.line}` }}>
+
+                  {/* Card header */}
+                  <div className="p-8 pb-0">
+                    <div className="flex items-center justify-between mb-6">
+                      <MonoLabel>{p.category}</MonoLabel>
+                      <span style={{ fontFamily: serif, fontSize: '48px', fontWeight: 400, color: T.line, lineHeight: 1 }}>
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                    </div>
+
+                    <h3 className="mb-3" style={{ fontFamily: sans, fontSize: 'clamp(1.3rem, 2vw, 1.8rem)', fontWeight: 600, color: T.text, letterSpacing: '-0.01em' }}>
+                      {p.title}
+                    </h3>
+                    <p className="mb-6" style={{ fontSize: '15px', lineHeight: 1.7, color: T.textMuted }}>
+                      {p.desc}
+                    </p>
+
+                    {p.highlight && (
+                      <a href={p.highlightLink} target="_blank" rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 transition-colors"
+                        style={{ background: T.accentSoft, border: `1px solid rgba(230,58,15,0.15)` }}>
+                        <Star size={13} className="fill-current" style={{ color: T.accent }} />
+                        <span style={{ fontFamily: mono, fontSize: '11px', letterSpacing: '0.05em', color: T.accent }}>{p.highlight.toUpperCase()}</span>
+                      </a>
+                    )}
                   </div>
 
-                  <h3 className="text-xl font-bold tracking-tight text-gray-900 mb-2">{p.title}</h3>
-                  <p className="text-gray-500 leading-relaxed mb-4 flex-grow">{p.desc}</p>
+                  {/* Card footer */}
+                  <div className="px-8 py-5 flex items-center justify-between" style={{ borderTop: `1px solid ${T.line}` }}>
+                    <MonoLabel style={{ color: T.textFaint }}>{p.client}</MonoLabel>
+                    <div className="flex items-center gap-2 transition-colors"
+                      style={{ fontFamily: mono, fontSize: '12px', letterSpacing: '0.08em', color: T.textMuted }}>
+                      <span className="group-hover:hidden">VIEW</span>
+                      <span className="hidden group-hover:inline" style={{ color: T.accent }}>VISIT SITE</span>
+                      <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </div>
+                  </div>
+                </motion.a>
+              </Reveal>
+            ))}
+          </div>
 
-                  {p.highlight && (
-                    <a href={p.highlightLink} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 mb-4 group/hl hover:bg-amber-100 transition-colors">
-                      <Star size={14} className="text-amber-500 fill-amber-500" />
-                      <span className="text-sm font-medium text-amber-800">{p.highlight}</span>
-                      <ArrowUpRight size={14} className="text-amber-500 group-hover/hl:translate-x-0.5 group-hover/hl:-translate-y-0.5 transition-transform" />
-                    </a>
-                  )}
+          {/* More work bar */}
+          <Reveal delay={0.2}>
+            <a href="https://workwithabhi.online/#/barkit"
+              className="mt-10 flex items-center justify-between px-8 py-6 rounded-2xl group transition-colors"
+              style={{ background: T.accent, color: '#fff' }}>
+              <span style={{ fontFamily: mono, fontSize: '13px', letterSpacing: '0.08em' }}>SEE ALL WORK</span>
+              <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+            </a>
+          </Reveal>
+        </div>
+      </section>
 
-                  {p.link ? (
-                    <a href={p.link} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors mt-auto">
-                      Visit site <ArrowUpRight size={15} className="ml-1 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                    </a>
-                  ) : (
-                    <span className="text-sm text-gray-400 mt-auto">Coming soon</span>
-                  )}
-                </motion.div>
-              </motion.div>
+      {/* ═══ SERVICES ═══ */}
+      <section id="services" className="py-24 md:py-32 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <Reveal>
+            <span style={{ fontFamily: serif, fontSize: 'clamp(1.2rem, 2vw, 2rem)', fontWeight: 400, color: T.textFaint, fontStyle: 'italic' }}>
+              What I do
+            </span>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <p className="max-w-2xl mt-6 mb-20" style={{ fontFamily: sans, fontSize: 'clamp(1.1rem, 2vw, 1.4rem)', lineHeight: 1.7, color: T.textMuted }}>
+              I work directly with you. No account managers, no tickets, no waiting.
+              You tell me what you need, I figure out the best way to do it, and I build it properly.
+            </p>
+          </Reveal>
+
+          <div className="space-y-20">
+            {services.map((svc, si) => (
+              <div key={si}>
+                <Reveal>
+                  <div className="flex items-baseline gap-6 mb-8">
+                    <span style={{ fontFamily: serif, fontSize: 'clamp(2rem, 5vw, 4rem)', fontWeight: 400, color: T.textFaint, lineHeight: 1 }}>
+                      {svc.num}
+                    </span>
+                    <h3 style={{ fontFamily: sans, fontSize: 'clamp(2rem, 5vw, 4rem)', fontWeight: 500, letterSpacing: '-0.02em', color: T.text, lineHeight: 1 }}>
+                      {svc.title}
+                    </h3>
+                  </div>
+                </Reveal>
+                <div style={{ borderTop: `1px solid ${T.line}` }}>
+                  {svc.items.map((item, ii) => (
+                    <ServiceRow key={ii} label={item} index={ii} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── WHAT YOU GET ─── */}
-      <section className="py-20 sm:py-28 px-6">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">What You Get</h2>
-            <p className="text-gray-500 text-lg">No middlemen, no tickets, no drama.</p>
-          </motion.div>
+      {/* ═══ TESTIMONIALS ═══ */}
+      <section className="py-24 md:py-32 px-6 md:px-12" style={{ background: T.ink }}>
+        <div className="max-w-[1400px] mx-auto">
+          <Reveal>
+            <span style={{ fontFamily: serif, fontSize: 'clamp(1.2rem, 2vw, 2rem)', fontWeight: 400, color: T.textFaint, fontStyle: 'italic' }}>
+              Kind words
+            </span>
+          </Reveal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[
-              { emoji: '🛒', title: 'Online Stores That Sell', desc: 'Fast, beautiful shops that work on every device. Payment, inventory, and shipping all handled.' },
-              { emoji: '📊', title: 'Dashboards That Clarify', desc: '100+ dashboards built. I turn your data into decisions you can actually act on.' },
-              { emoji: '📌', title: 'Marketing That Reaches', desc: 'Pinterest, social, SEO. I help your brand get seen. 80k monthly views for one client.' },
-              { emoji: '🤝', title: 'Direct Communication', desc: "You talk to me, not a helpdesk. Something breaks? I fix it. No chasing, no waiting." },
-              { emoji: '🚀', title: 'Launch & Beyond', desc: "I don't disappear on launch day. Your success is my reputation. I stick around." },
-              { emoji: '💡', title: 'Vague Idea? No Problem', desc: "Most people don't start with a perfect plan. I'll help you figure out what you actually need." },
-            ].map((s, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.06 }}>
-                <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className="p-7 rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all h-full bg-white">
-                  <span className="text-3xl mb-4 block">{s.emoji}</span>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{s.title}</h3>
-                  <p className="text-gray-500 leading-relaxed">{s.desc}</p>
-                </motion.div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── TESTIMONIALS ─── */}
-      <section className="py-20 sm:py-28 px-6 bg-gray-50/70">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">What People Say</h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
             {[
               {
                 name: 'Syed Rahman',
@@ -311,118 +536,161 @@ export const StudioPage: React.FC = () => {
                 text: "One of our most impactful collaborations was the overhaul of ARR waterfall reporting. His work improved visibility for senior leadership and supported better forecasting.",
               },
             ].map((t, i) => (
-              <motion.a key={i} href="https://www.linkedin.com/in/lonkarabhishek/details/recommendations/"
-                target="_blank" rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className="bg-white p-8 rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all h-full cursor-pointer group">
-                  <div className="flex items-center gap-1 mb-5">
+              <Reveal key={i} delay={i * 0.1}>
+                <a href="https://www.linkedin.com/in/lonkarabhishek/details/recommendations/"
+                  target="_blank" rel="noopener noreferrer"
+                  className="block p-10 rounded-3xl transition-all group cursor-pointer"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: `1px solid rgba(255,255,255,0.08)` }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+                  <div className="flex items-center gap-1 mb-8">
                     {[...Array(5)].map((_, j) => (
-                      <Star key={j} size={14} className="text-amber-400 fill-amber-400" />
+                      <Star key={j} size={14} className="fill-current" style={{ color: T.accent }} />
                     ))}
                   </div>
-                  <p className="text-gray-600 leading-relaxed mb-6 italic text-lg">"{t.text}"</p>
-                  <div className="flex items-center justify-between pt-5 border-t border-gray-100">
+                  <p className="italic mb-10" style={{ fontFamily: serif, fontSize: '20px', lineHeight: 1.7, color: T.bg }}>
+                    "{t.text}"
+                  </p>
+                  <div className="flex items-center justify-between pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                     <div>
-                      <p className="font-semibold text-gray-900">{t.name}</p>
-                      <p className="text-sm text-gray-400">{t.role}</p>
+                      <p className="font-semibold" style={{ fontFamily: sans, fontSize: '15px', color: T.bg }}>{t.name}</p>
+                      <MonoLabel style={{ color: T.textFaint, fontSize: '11px' }}>{t.role}</MonoLabel>
                     </div>
-                    <ArrowUpRight size={16} className="text-gray-300 group-hover:text-gray-500 transition-colors" />
+                    <ArrowUpRight size={16} style={{ color: T.textFaint }} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
-                </motion.div>
-              </motion.a>
+                </a>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── COMPANIES MARQUEE ─── */}
-      <section className="py-14 overflow-hidden border-y border-gray-100">
-        <div className="text-center mb-8">
-          <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">Worked with & Trusted by</p>
-        </div>
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent" />
-          <div className="overflow-hidden">
-            <div className="flex items-center gap-10 animate-studio-marquee" style={{ width: 'max-content' }}>
-              {[...Array(2)].flatMap(() => [
-                { name: 'G2', logo: '/logos/g2logo.jpg' },
-                { name: 'Cognizant', logo: '/logos/cognizantlogo.jpeg' },
-                { name: "Levi's", logo: '/logos/levislogo.png' },
-                { name: 'Haddu', logo: '/logos/haddulogo.webp' },
-                { name: 'Nurturing Green', logo: '/logos/nurturinggreenlogo.png' },
-                { name: 'KIST', logo: '/logos/KIST_Logo.jpg' },
-                { name: 'EDC', logo: '/logos/entrepreneurship_development_cell_vit_logo.jpeg' },
-              ]).map((c, i) => (
-                <div key={i} className="flex-shrink-0 flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 border border-gray-100">
-                  <img src={c.logo} alt={c.name} className="w-8 h-8 rounded-lg object-contain" />
-                  <span className="text-sm font-medium text-gray-500 whitespace-nowrap">{c.name}</span>
-                </div>
-              ))}
+      {/* ═══ ABOUT ═══ */}
+      <section id="about" className="py-24 md:py-32 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+            <div>
+              <Reveal>
+                <span style={{ fontFamily: serif, fontSize: 'clamp(1.2rem, 2vw, 2rem)', fontWeight: 400, color: T.textFaint, fontStyle: 'italic' }}>
+                  About
+                </span>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <h2 className="mt-4" style={{ fontFamily: sans, fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.1, color: T.text }}>
+                  Abhishek Lonkar
+                </h2>
+              </Reveal>
+              <Reveal delay={0.15}>
+                <MonoLabel className="mt-3 block">PUNE, INDIA</MonoLabel>
+              </Reveal>
+            </div>
+            <div>
+              <Reveal delay={0.1}>
+                <p className="mb-6" style={{ fontSize: '17px', lineHeight: 1.8, color: T.textMuted }}>
+                  I started as an engineer, building systems, writing code, and figuring out how things connect.
+                  That taught me to think clearly and build things that actually work.
+                </p>
+              </Reveal>
+              <Reveal delay={0.15}>
+                <p className="mb-6" style={{ fontSize: '17px', lineHeight: 1.8, color: T.textMuted }}>
+                  Then I joined G2, one of the biggest software review platforms, where I went from crunching data
+                  to helping teams make better decisions. I learned that building things is only half the job.
+                  Building the right things is what matters.
+                </p>
+              </Reveal>
+              <Reveal delay={0.2}>
+                <p style={{ fontSize: '17px', lineHeight: 1.8, color: T.textMuted }}>
+                  Today, I do both. I build websites and online stores for businesses, and I help teams
+                  make sense of their data. Whether it is a storefront or a dashboard, the goal is always the same:
+                  make it work, keep it simple, and earn your trust.
+                </p>
+              </Reveal>
             </div>
           </div>
         </div>
-        <style>{`
-          @keyframes studioMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-          .animate-studio-marquee { animation: studioMarquee 22s linear infinite; }
-          .animate-studio-marquee:hover { animation-play-state: paused; }
-        `}</style>
       </section>
 
-      {/* ─── CTA ─── */}
-      <section className="py-24 sm:py-32 px-6 text-center">
-        <div className="max-w-3xl mx-auto">
-          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
-            Have a project in mind?{' '}
-            <span className="text-gray-400">Let's talk. It's free.</span>
-          </motion.h2>
+      {/* ═══ CTA ═══ */}
+      <section className="py-32 md:py-44 px-6 md:px-12" style={{ borderTop: `1px solid ${T.line}` }}>
+        <div className="max-w-[1400px] mx-auto text-center">
+          <LineReveal>
+            <h2 style={{ fontFamily: serif, fontSize: 'clamp(2.5rem, 7vw, 6rem)', fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.02em', color: T.text }}>
+              Have a project?
+            </h2>
+          </LineReveal>
+          <LineReveal delay={0.08}>
+            <h2 style={{ fontFamily: serif, fontSize: 'clamp(2.5rem, 7vw, 6rem)', fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.02em', color: T.textFaint, fontStyle: 'italic' }}>
+              Let's see it through<span style={{ color: T.accent }}>.</span>
+            </h2>
+          </LineReveal>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-10">
+          <Reveal delay={0.2}>
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               onClick={() => setShowBooking(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-gray-900 text-white font-medium rounded-full hover:bg-gray-800 transition-colors group">
-              <Calendar size={18} className="mr-2" />
-              Book a free call
-              <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+              className="mt-16 inline-flex items-center gap-3 px-10 py-5 rounded-full group"
+              style={{ background: T.accent, color: '#fff', fontFamily: mono, fontSize: '13px', letterSpacing: '0.08em' }}>
+              <span style={{ fontSize: '18px', lineHeight: 1 }}>*</span>
+              START A PROJECT
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </motion.button>
-          </motion.div>
+          </Reveal>
 
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
-            className="flex items-center justify-center gap-4 mt-8">
-            <a href="https://wa.me/919403612979?text=Hi%20Abhishek%2C%20I%20visited%20your%20studio%20site.%20Can%20we%20chat%3F"
-              target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-              WhatsApp
-            </a>
-            <span className="text-gray-300">·</span>
-            <a href="mailto:abhisheksoffice11@gmail.com" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
-              <Mail size={16} /> Email
-            </a>
-            <span className="text-gray-300">·</span>
-            <a href="https://www.linkedin.com/in/lonkarabhishek/" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
-              <Linkedin size={16} /> LinkedIn
-            </a>
-          </motion.div>
+          <Reveal delay={0.3}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mt-16">
+              {[
+                { icon: <Mail size={16} />, label: 'EMAIL', href: 'mailto:abhisheksoffice11@gmail.com' },
+                { icon: <Linkedin size={16} />, label: 'LINKEDIN', href: 'https://www.linkedin.com/in/lonkarabhishek/' },
+                { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>, label: 'WHATSAPP', href: 'https://wa.me/919403612979?text=Hi%20Abhishek%2C%20I%20visited%20your%20studio%20site.%20Can%20we%20chat%3F' },
+              ].map((c, i) => (
+                <a key={i} href={c.href} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 transition-colors"
+                  style={{ color: T.textMuted, fontFamily: mono, fontSize: '12px', letterSpacing: '0.08em' }}
+                  onMouseEnter={e => e.currentTarget.style.color = T.text}
+                  onMouseLeave={e => e.currentTarget.style.color = T.textMuted}>
+                  {c.icon}
+                  {c.label}
+                </a>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ─── FOOTER ─── */}
-      <footer className="py-10 px-6 border-t border-gray-100">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src="/favicon.png" alt="AL" className="w-7 h-7 rounded-lg object-cover" />
-            <div>
-              <span className="font-semibold text-sm text-gray-900">Abhishek Lonkar</span>
-              <span className="text-xs text-gray-400 ml-2">Pune, India</span>
+      {/* ═══ FOOTER ═══ */}
+      <footer className="px-6 md:px-12 pt-12 pb-8 overflow-hidden" style={{ borderTop: `1px solid ${T.line}` }}>
+        <div className="max-w-[1400px] mx-auto">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-16">
+            <div className="flex flex-wrap gap-6">
+              {[
+                { label: 'LINKEDIN', href: 'https://www.linkedin.com/in/lonkarabhishek/' },
+                { label: 'EMAIL', href: 'mailto:abhisheksoffice11@gmail.com' },
+                { label: 'WHATSAPP', href: 'https://wa.me/919403612979' },
+              ].map((l, i) => (
+                <a key={i} href={l.href} target="_blank" rel="noopener noreferrer"
+                  className="transition-colors"
+                  style={{ fontFamily: mono, fontSize: '12px', letterSpacing: '0.08em', color: T.textMuted }}
+                  onMouseEnter={e => e.currentTarget.style.color = T.text}
+                  onMouseLeave={e => e.currentTarget.style.color = T.textMuted}>
+                  {l.label}
+                </a>
+              ))}
             </div>
+            <MonoLabel style={{ color: T.textFaint }}>&copy; {new Date().getFullYear()}</MonoLabel>
           </div>
-          <div className="flex items-center gap-5 text-sm text-gray-400">
-            <span>© {new Date().getFullYear()}</span>
+
+          {/* Oversized wordmark */}
+          <div className="relative h-[12vw] md:h-[10vw] overflow-hidden">
+            <div className="absolute bottom-0 left-0 right-0 translate-y-[30%] text-center select-none pointer-events-none"
+              style={{
+                fontFamily: serif,
+                fontWeight: 400,
+                fontSize: 'clamp(5rem, 14vw, 14rem)',
+                lineHeight: 1,
+                color: T.line,
+                letterSpacing: '-0.03em',
+              }}>
+              Abhishek Lonkar
+            </div>
           </div>
         </div>
       </footer>
