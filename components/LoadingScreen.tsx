@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+export const LoadingScreen: React.FC<{ onComplete: () => void; variant?: 'main' | 'studio' }> = ({ onComplete, variant = 'main' }) => {
   const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -29,6 +29,13 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
     return () => clearInterval(timer);
   }, [onComplete, isMobile]);
 
+  const isStudio = variant === 'studio';
+  const subtitle = isStudio ? 'Digital Studio' : 'GTM & Revenue Ops Professional';
+  const gradientStyle = isStudio
+    ? { background: '#111', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }
+    : { background: 'linear-gradient(135deg, #7c3aed 0%, #0891b2 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' };
+  const barGradient = isStudio ? 'linear-gradient(90deg, #111, #555)' : 'linear-gradient(90deg, #7c3aed, #0891b2)';
+
   // Simple mobile version
   if (isMobile) {
     return (
@@ -39,19 +46,12 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
               <div className="mb-4">
                 <h1 className="text-3xl font-sans font-bold text-text-primary mb-3 tracking-tight">
                   Hi, I'm{' '}
-                  <span
-                    style={{
-                      background: 'linear-gradient(135deg, #7c3aed 0%, #0891b2 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                    }}
-                  >
+                  <span style={gradientStyle as any}>
                     Abhishek
                   </span>
                 </h1>
                 <p className="text-lg text-[#64748b] font-normal">
-                  GTM & Revenue Ops Professional
+                  {subtitle}
                 </p>
               </div>
 
@@ -63,7 +63,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
                   className="absolute inset-y-0 left-0 rounded-full transition-all duration-200"
                   style={{
                     width: `${Math.min(progress, 100)}%`,
-                    background: 'linear-gradient(90deg, #7c3aed, #0891b2)',
+                    background: barGradient,
                   }}
                 />
               </div>
@@ -82,27 +82,31 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-purple-50 to-cyan-50"
+          className={`fixed inset-0 z-[100] flex items-center justify-center overflow-hidden ${isStudio ? 'bg-white' : 'bg-gradient-to-br from-white via-purple-50 to-cyan-50'}`}
         >
           {/* Background orbs */}
-          <div
-            className="absolute w-[500px] h-[500px] rounded-full opacity-30"
-            style={{
-              background: 'radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%)',
-              top: '-20%',
-              left: '-10%',
-              filter: 'blur(40px)',
-            }}
-          />
-          <div
-            className="absolute w-[400px] h-[400px] rounded-full opacity-30"
-            style={{
-              background: 'radial-gradient(circle, rgba(8, 145, 178, 0.2) 0%, transparent 70%)',
-              bottom: '-20%',
-              right: '-10%',
-              filter: 'blur(40px)',
-            }}
-          />
+          {!isStudio && (
+            <>
+              <div
+                className="absolute w-[500px] h-[500px] rounded-full opacity-30"
+                style={{
+                  background: 'radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%)',
+                  top: '-20%',
+                  left: '-10%',
+                  filter: 'blur(40px)',
+                }}
+              />
+              <div
+                className="absolute w-[400px] h-[400px] rounded-full opacity-30"
+                style={{
+                  background: 'radial-gradient(circle, rgba(8, 145, 178, 0.2) 0%, transparent 70%)',
+                  bottom: '-20%',
+                  right: '-10%',
+                  filter: 'blur(40px)',
+                }}
+              />
+            </>
+          )}
 
           <div className="relative z-10 flex flex-col items-center text-center px-6">
             <motion.div
@@ -113,14 +117,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
             >
               <h1 className="text-5xl font-sans font-bold text-text-primary mb-3 tracking-tight">
                 Hi, I'm{' '}
-                <span
-                  style={{
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #0891b2 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
+                <span style={gradientStyle as any}>
                   Abhishek
                 </span>
               </h1>
@@ -130,7 +127,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="text-xl text-[#64748b] font-normal"
               >
-                GTM & Revenue Ops Professional
+                {subtitle}
               </motion.p>
             </motion.div>
 
@@ -147,8 +144,8 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="absolute inset-y-0 left-0 rounded-full"
                 style={{
-                  background: 'linear-gradient(90deg, #7c3aed, #0891b2)',
-                  boxShadow: '0 0 20px rgba(124, 58, 237, 0.3)',
+                  background: barGradient,
+                  boxShadow: isStudio ? '0 0 20px rgba(0, 0, 0, 0.1)' : '0 0 20px rgba(124, 58, 237, 0.3)',
                 }}
               />
             </motion.div>
