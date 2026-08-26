@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { HomePage } from './pages/HomePage';
 import { ResumePage } from './pages/ResumePage';
 import { BarkitPage } from './pages/BarkitPage';
+import { StudioPage } from './pages/StudioPage';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { LoadingScreen } from './components/LoadingScreen';
@@ -20,7 +21,7 @@ const ScrollToTop = () => {
 // Separated content component to use useLocation inside HashRouter context
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const isStandalonePage = location.pathname === '/resume' || location.pathname === '/barkit';
+  const isStandalonePage = location.pathname === '/resume' || location.pathname === '/barkit' || location.pathname === '/studio';
 
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-primary/30 gradient-bg">
@@ -32,10 +33,11 @@ const AppContent: React.FC = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/resume" element={<ResumePage />} />
             <Route path="/barkit" element={<BarkitPage />} />
+            <Route path="/studio" element={<StudioPage />} />
           </Routes>
         </AnimatePresence>
       </main>
-      <Footer />
+      {!isStandalonePage && <Footer />}
     </div>
   );
 };
