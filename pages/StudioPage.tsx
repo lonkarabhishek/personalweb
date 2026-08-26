@@ -3,6 +3,20 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { ArrowUpRight, ArrowDown, Mail, Linkedin, Calendar, X, Star } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
+   MOBILE DETECTION
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const useIsMobile = () => {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return mobile;
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    DESIGN TOKENS
    ═══════════════════════════════════════════════════════════════════════════════ */
 const T = {
@@ -40,25 +54,29 @@ const Reveal: React.FC<{ children: React.ReactNode; delay?: number; className?: 
   <motion.div
     initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-8%' }}
+    viewport={{ once: true, margin: '10%' }}
     transition={{ duration: 1.1, delay, ease: [0.25, 1, 0.5, 1] }}
     className={className}>
     {children}
   </motion.div>
 );
 
-const LineReveal: React.FC<{ children: React.ReactNode; delay?: number; className?: string; style?: React.CSSProperties }> = ({ children, delay = 0, className = '', style }) => (
-  <div className={`overflow-hidden ${className}`}>
-    <motion.div
-      initial={{ y: '110%' }}
-      whileInView={{ y: '0%' }}
-      viewport={{ once: true, margin: '-8%' }}
-      transition={{ duration: 1.4, delay, ease: [0.16, 1, 0.3, 1] }}
-      style={style}>
-      {children}
-    </motion.div>
-  </div>
-);
+const LineReveal: React.FC<{ children: React.ReactNode; delay?: number; className?: string; style?: React.CSSProperties }> = ({ children, delay = 0, className = '', style }) => {
+  // On mobile Safari, whileInView + overflow-hidden can fail for hero elements.
+  // Use whileInView for scroll-triggered sections, but elements already in the viewport will still animate.
+  return (
+    <div className={`overflow-hidden ${className}`}>
+      <motion.div
+        initial={{ y: '110%' }}
+        whileInView={{ y: '0%' }}
+        viewport={{ once: true, margin: '20%' }}
+        transition={{ duration: 1.4, delay, ease: [0.16, 1, 0.3, 1] }}
+        style={style}>
+        {children}
+      </motion.div>
+    </div>
+  );
+};
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DATA
@@ -327,10 +345,12 @@ const ServiceRow: React.FC<{ label: string; index: number }> = ({ label, index }
 export const StudioPage: React.FC = () => {
   const [showBooking, setShowBooking] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const isMobile = useIsMobile();
 
   const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 700], [0, 150]);
-  const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
+  // Disable parallax on mobile — it causes content to disappear on touch scroll
+  const heroY = useTransform(scrollY, [0, 700], isMobile ? [0, 0] : [0, 150]);
+  const heroOpacity = useTransform(scrollY, [0, 500], isMobile ? [1, 1] : [1, 0]);
 
   useEffect(() => {
     document.title = 'Abhishek Lonkar Studio';
@@ -417,8 +437,8 @@ export const StudioPage: React.FC = () => {
       </motion.nav>
 
       {/* ═══ HERO ═══ */}
-      <section className="relative min-h-screen flex flex-col justify-between overflow-hidden"
-        style={{ padding: 'clamp(100px, 12vh, 160px) clamp(24px, 4vw, 64px) clamp(32px, 4vh, 56px)' }}>
+      <section className={`relative flex flex-col justify-between overflow-hidden ${isMobile ? '' : 'min-h-screen'}`}
+        style={{ padding: isMobile ? '100px 24px 32px' : 'clamp(100px, 12vh, 160px) clamp(24px, 4vw, 64px) clamp(32px, 4vh, 56px)' }}>
 
         {/* Subtle warm radial */}
         <div className="absolute inset-0 pointer-events-none" style={{
@@ -437,26 +457,34 @@ export const StudioPage: React.FC = () => {
             <MonoLabel style={{ fontSize: '10px' }}>Available for projects</MonoLabel>
           </motion.div>
 
-          {/* Giant name */}
+          {/* Giant name — uses animate (not whileInView) to guarantee render on mobile */}
           <div className="max-w-[1600px]">
-            <LineReveal delay={0.1}>
-              <h1 style={{
-                fontFamily: F.serif, fontWeight: 400,
-                fontSize: 'clamp(3rem, 11vw, 11rem)',
-                lineHeight: 0.95, letterSpacing: '-0.03em', color: T.text,
-              }}>
+            <div className="overflow-hidden">
+              <motion.h1
+                initial={{ y: '110%' }}
+                animate={{ y: '0%' }}
+                transition={{ duration: 1.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  fontFamily: F.serif, fontWeight: 400,
+                  fontSize: 'clamp(3rem, 11vw, 11rem)',
+                  lineHeight: 0.95, letterSpacing: '-0.03em', color: T.text,
+                }}>
                 Abhishek
-              </h1>
-            </LineReveal>
-            <LineReveal delay={0.2}>
-              <h1 style={{
-                fontFamily: F.serif, fontWeight: 400, fontStyle: 'italic',
-                fontSize: 'clamp(3rem, 11vw, 11rem)',
-                lineHeight: 0.95, letterSpacing: '-0.03em', color: T.text,
-              }}>
+              </motion.h1>
+            </div>
+            <div className="overflow-hidden">
+              <motion.h1
+                initial={{ y: '110%' }}
+                animate={{ y: '0%' }}
+                transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  fontFamily: F.serif, fontWeight: 400, fontStyle: 'italic',
+                  fontSize: 'clamp(3rem, 11vw, 11rem)',
+                  lineHeight: 0.95, letterSpacing: '-0.03em', color: T.text,
+                }}>
                 Lonkar<span style={{ color: T.accent, fontStyle: 'normal' }}>.</span>
-              </h1>
-            </LineReveal>
+              </motion.h1>
+            </div>
           </div>
 
           {/* Tagline right under the name */}
@@ -472,7 +500,7 @@ export const StudioPage: React.FC = () => {
         </motion.div>
 
         {/* Bottom: stats + scroll indicator */}
-        <div className="relative z-10 mt-auto">
+        <div className={`relative z-10 ${isMobile ? 'mt-10' : 'mt-auto'}`}>
           <Reveal delay={0.5}>
             <div className="flex flex-wrap items-end justify-between gap-6 pt-8" style={{ borderTop: `1px solid ${T.line}` }}>
               <div className="flex flex-wrap gap-x-10 gap-y-4">
