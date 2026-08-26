@@ -9,6 +9,9 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { LoadingScreen } from './components/LoadingScreen';
 
+// Detect if we're on the studio subdomain
+const isStudioSubdomain = window.location.hostname === 'studio.workwithabhi.online';
+
 // Scroll to top on route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -42,7 +45,26 @@ const AppContent: React.FC = () => {
   );
 };
 
-const App: React.FC = () => {
+// Studio-only app for the subdomain — renders StudioPage directly
+const StudioApp: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <>
+      <AnimatePresence>
+        {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
+      </AnimatePresence>
+      {!isLoading && (
+        <div className="min-h-screen flex flex-col font-sans">
+          <StudioPage />
+        </div>
+      )}
+    </>
+  );
+};
+
+// Main site app with HashRouter
+const MainApp: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
@@ -57,6 +79,11 @@ const App: React.FC = () => {
       )}
     </>
   );
+};
+
+// Route to the right app based on subdomain
+const App: React.FC = () => {
+  return isStudioSubdomain ? <StudioApp /> : <MainApp />;
 };
 
 export default App;

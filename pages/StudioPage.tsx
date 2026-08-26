@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ArrowUpRight, ExternalLink, Sparkles, Lock, Globe, Mail, Linkedin, Calendar, X, ChevronDown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+
 
 /* ──────────────────────────── PALETTE ──────────────────────────── */
 const C = {
@@ -443,9 +443,9 @@ const SelectedWork: React.FC = () => {
                     )}
 
                     {project.internalRoute ? (
-                      <Link to={project.internalRoute} className="inline-flex items-center font-medium text-sm" style={{ color: C.gold }}>
+                      <a href={`https://workwithabhi.online/#${project.internalRoute}`} className="inline-flex items-center font-medium text-sm" style={{ color: C.gold }}>
                         {project.linkText} <ArrowRight size={16} className="ml-1" />
-                      </Link>
+                      </a>
                     ) : project.link ? (
                       <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center font-medium text-sm" style={{ color: C.gold }}>
                         {project.linkText} <ArrowUpRight size={16} className="ml-1" />
@@ -742,7 +742,7 @@ const StudioFooter: React.FC = () => (
         <div className="flex items-center gap-6 text-sm" style={{ color: C.creamDim }}>
           <a href="mailto:abhisheksoffice11@gmail.com" className="hover:opacity-80 transition-opacity">Email</a>
           <a href="https://www.linkedin.com/in/lonkarabhishek/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">LinkedIn</a>
-          <Link to="/" className="hover:opacity-80 transition-opacity" style={{ color: C.gold }}>Main Site →</Link>
+          <a href="https://workwithabhi.online" className="hover:opacity-80 transition-opacity" style={{ color: C.gold }}>Main Site →</a>
         </div>
       </div>
       <div className="mt-8 pt-6 text-center text-xs" style={{ borderTop: `1px solid ${C.border}`, color: C.creamDim }}>
