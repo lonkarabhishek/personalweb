@@ -158,6 +158,7 @@ const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
    ═══════════════════════════════════════════════════════════════════════════════ */
 const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   const [hover, setHover] = useState(false);
+  const [shotOk, setShotOk] = useState(true);
   const isAccent = p.tone === 'accent';
   const isDark = p.tone === 'dark';
   const panelBg = isAccent ? T.accent : isDark ? T.dark : T.bgAlt;
@@ -165,6 +166,8 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   const barBg = isAccent ? 'rgba(255,255,255,0.12)' : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(20,20,15,0.05)';
   const dot = isAccent || isDark ? 'rgba(255,255,255,0.4)' : 'rgba(20,20,15,0.22)';
   const urlColor = isAccent || isDark ? 'rgba(255,255,255,0.7)' : T.muted;
+  // Live website thumbnail rendered by WordPress mShots (loads in the visitor's browser).
+  const shot = `https://s.wordpress.com/mshots/v1/${encodeURIComponent(p.link)}?w=1000&h=750`;
 
   return (
     <motion.a href={p.link} target="_blank" rel="noopener noreferrer"
@@ -173,23 +176,33 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
       {/* Preview panel with browser chrome */}
       <div className="relative overflow-hidden" style={{ background: panelBg, aspectRatio: '16 / 10' }}>
         {/* browser bar */}
-        <div className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4" style={{ height: '40px', background: barBg }}>
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center gap-2 px-4" style={{ height: '40px', background: barBg }}>
           <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
           <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
           <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
           <span className="ml-2 truncate" style={{ fontFamily: F.mono, fontSize: '11px', color: urlColor }}>{p.domain}</span>
         </div>
-        {/* wordmark */}
-        <div className="absolute inset-0 flex items-center justify-center px-6" style={{ paddingTop: '40px' }}>
+        {/* wordmark fallback (shown until/unless the live thumbnail loads) */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center px-6" style={{ paddingTop: '40px' }}>
           <motion.span animate={{ scale: hover ? 1.04 : 1 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="text-center" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', letterSpacing: '-0.03em', lineHeight: 1.05, color: onPanel }}>
             {p.title}
           </motion.span>
         </div>
+        {/* live website thumbnail */}
+        {shotOk && (
+          <motion.img
+            src={shot} alt={`${p.title} website preview`} loading="lazy"
+            onError={() => setShotOk(false)}
+            animate={{ scale: hover ? 1.03 : 1 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute left-0 w-full z-10"
+            style={{ top: '40px', height: 'calc(100% - 40px)', objectFit: 'cover', objectPosition: 'top center' }}
+          />
+        )}
         {/* visit chip */}
-        <motion.div className="absolute bottom-4 right-4 flex items-center gap-1.5"
+        <motion.div className="absolute bottom-4 right-4 z-20 flex items-center gap-1.5"
           animate={{ opacity: hover ? 1 : 0, y: hover ? 0 : 6 }} transition={{ duration: 0.35 }}
-          style={{ background: onPanel, color: panelBg, padding: '7px 12px', fontFamily: F.mono, fontSize: '11px' }}>
+          style={{ background: '#fff', color: T.text, padding: '7px 12px', fontFamily: F.mono, fontSize: '11px', boxShadow: '0 4px 16px rgba(0,0,0,0.18)' }}>
           Visit <ArrowUpRight size={13} />
         </motion.div>
       </div>
