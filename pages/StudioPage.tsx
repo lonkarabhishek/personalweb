@@ -31,17 +31,23 @@ const F = {
    DATA
    ═══════════════════════════════════════════════════════════════════════════════ */
 const projects = [
-  { n: '01', title: 'Haddu Clothing', kind: 'E-Commerce', year: '2024', link: 'https://www.hadduclothing.com/',
+  { n: '01', title: 'Haddu Clothing', kind: 'E-Commerce', year: '2026', tone: 'dark',
+    link: 'https://www.hadduclothing.com/', domain: 'hadduclothing.com',
     desc: 'A full fashion store built from scratch. Catalog, payments, inventory, shipping, and a Pinterest engine doing 80k views a month.' },
-  { n: '02', title: 'JSB Foods', kind: 'Brand Site', year: '2024', link: 'https://jsb-foods.vercel.app',
+  { n: '02', title: 'JSB Foods', kind: 'Brand Site', year: '2026', tone: 'accent',
+    link: 'https://jsb-foods.vercel.app', domain: 'jsb-foods.com',
     desc: 'A clean, modern site for a food company. Product showcase, brand story, and trust built into every page.' },
-  { n: '03', title: 'TapTurf', kind: 'Web App', year: '2023', link: 'https://tapturf.in/',
+  { n: '03', title: 'TapTurf', kind: 'Web App', year: '2026', tone: 'light',
+    link: 'https://tapturf.in/', domain: 'tapturf.in',
     desc: 'A sports venue booking platform. Find a turf, pick a slot, book it. Fast and simple end to end.' },
-  { n: '04', title: 'Deft Chemistry', kind: 'Brand Site', year: '2023', link: 'https://deft-chemistry-redefined.vercel.app',
+  { n: '04', title: 'Deft Chemistry', kind: 'Brand Site', year: '2025', tone: 'accent',
+    link: 'https://deft-chemistry-redefined.vercel.app', domain: 'deftchemistry.com',
     desc: 'An elegant web presence for a chemistry brand. Informative, credible, and built to convert.' },
-  { n: '05', title: 'The Nashik Kumbh', kind: 'Multilingual', year: '2024', link: 'https://thenashikkumbh.com',
+  { n: '05', title: 'The Nashik Kumbh', kind: 'Multilingual', year: '2026', tone: 'dark',
+    link: 'https://thenashikkumbh.com', domain: 'thenashikkumbh.com',
     desc: 'A trilingual site for Kumbh Mela 2027 in English, Hindi, and Marathi. Bathing dates, travel, and holy sites.' },
-  { n: '06', title: 'SD Overseas', kind: 'Brand Site', year: '2023', link: 'https://sd-overseas.vercel.app/',
+  { n: '06', title: 'SD Overseas', kind: 'Brand Site', year: '2025', tone: 'light',
+    link: 'https://sd-overseas.vercel.app/', domain: 'sdoverseas.com',
     desc: 'A professional web presence for an international trading company. Built for global credibility.' },
 ];
 
@@ -148,51 +154,58 @@ const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
 );
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   WORK ROW
+   WORK CARD (branded preview + always-visible detail)
    ═══════════════════════════════════════════════════════════════════════════════ */
-const WorkRow: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
+const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   const [hover, setHover] = useState(false);
+  const isAccent = p.tone === 'accent';
+  const isDark = p.tone === 'dark';
+  const panelBg = isAccent ? T.accent : isDark ? T.dark : T.bgAlt;
+  const onPanel = isAccent || isDark ? '#fff' : T.text;
+  const barBg = isAccent ? 'rgba(255,255,255,0.12)' : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(20,20,15,0.05)';
+  const dot = isAccent || isDark ? 'rgba(255,255,255,0.4)' : 'rgba(20,20,15,0.22)';
+  const urlColor = isAccent || isDark ? 'rgba(255,255,255,0.7)' : T.muted;
+
   return (
     <motion.a href={p.link} target="_blank" rel="noopener noreferrer"
-      className="group block relative"
-      style={{ borderTop: `1px solid ${T.line}` }}
+      className="group block"
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-      <div className="relative grid grid-cols-12 items-center gap-3 py-6 md:py-7">
-        <span className="col-span-2 md:col-span-1" style={{ fontFamily: F.mono, fontSize: '12px', color: hover ? T.accent : T.faint, transition: 'color 0.3s' }}>
-          {p.n}
-        </span>
-        <div className="col-span-10 md:col-span-6">
-          <motion.h3
-            animate={{ x: hover ? 14 : 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              fontFamily: F.display, fontWeight: 600,
-              fontSize: 'clamp(1.7rem, 4.4vw, 3.4rem)', lineHeight: 1.02,
-              letterSpacing: '-0.03em', color: hover ? T.accent : T.text, transition: 'color 0.3s',
-            }}>
+      {/* Preview panel with browser chrome */}
+      <div className="relative overflow-hidden" style={{ background: panelBg, aspectRatio: '16 / 10' }}>
+        {/* browser bar */}
+        <div className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4" style={{ height: '40px', background: barBg }}>
+          <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
+          <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
+          <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
+          <span className="ml-2 truncate" style={{ fontFamily: F.mono, fontSize: '11px', color: urlColor }}>{p.domain}</span>
+        </div>
+        {/* wordmark */}
+        <div className="absolute inset-0 flex items-center justify-center px-6" style={{ paddingTop: '40px' }}>
+          <motion.span animate={{ scale: hover ? 1.04 : 1 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', letterSpacing: '-0.03em', lineHeight: 1.05, color: onPanel }}>
             {p.title}
-          </motion.h3>
+          </motion.span>
         </div>
-        <div className="hidden md:block md:col-span-3" style={{ fontFamily: F.sans, fontSize: '14px', color: T.muted }}>
-          {p.kind}
-        </div>
-        <div className="col-span-12 md:col-span-2 flex items-center justify-between md:justify-end gap-4">
-          <span className="md:hidden" style={{ fontFamily: F.sans, fontSize: '13px', color: T.muted }}>{p.kind}</span>
-          <span style={{ fontFamily: F.mono, fontSize: '12px', color: T.faint }}>{p.year}</span>
-          <motion.div animate={{ x: hover ? 3 : 0, y: hover ? -3 : 0 }} transition={{ duration: 0.4 }}
-            style={{ color: hover ? T.accent : T.faint, transition: 'color 0.3s' }}>
-            <ArrowUpRight size={22} />
-          </motion.div>
-        </div>
+        {/* visit chip */}
+        <motion.div className="absolute bottom-4 right-4 flex items-center gap-1.5"
+          animate={{ opacity: hover ? 1 : 0, y: hover ? 0 : 6 }} transition={{ duration: 0.35 }}
+          style={{ background: onPanel, color: panelBg, padding: '7px 12px', fontFamily: F.mono, fontSize: '11px' }}>
+          Visit <ArrowUpRight size={13} />
+        </motion.div>
       </div>
-      <motion.div initial={false}
-        animate={{ height: hover ? 'auto' : 0, opacity: hover ? 1 : 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="overflow-hidden">
-        <p className="pb-6 md:pl-[8.333%]" style={{ fontFamily: F.sans, fontSize: '15px', color: T.muted, lineHeight: 1.6, maxWidth: '640px' }}>
-          {p.desc}
-        </p>
-      </motion.div>
+      {/* meta */}
+      <div className="flex items-center justify-between mt-4" style={{ borderTop: `1px solid ${T.line}`, paddingTop: '14px' }}>
+        <span style={{ fontFamily: F.mono, fontSize: '12px', letterSpacing: '0.02em', color: hover ? T.accent : T.muted, transition: 'color 0.3s' }}>
+          {p.kind} · {p.year}
+        </span>
+        <motion.span animate={{ x: hover ? 3 : 0, y: hover ? -3 : 0 }} transition={{ duration: 0.35 }}
+          style={{ color: hover ? T.accent : T.faint, transition: 'color 0.3s' }}>
+          <ArrowUpRight size={18} />
+        </motion.span>
+      </div>
+      <p className="mt-3" style={{ fontFamily: F.sans, fontSize: '14px', color: T.muted, lineHeight: 1.6 }}>
+        {p.desc}
+      </p>
     </motion.a>
   );
 };
@@ -322,20 +335,21 @@ export const StudioPage: React.FC = () => {
             <div className="mt-8 md:mt-10 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
               <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}
                 style={{ fontFamily: F.sans, fontSize: 'clamp(16px, 1.3vw, 19px)', color: T.muted, lineHeight: 1.6, maxWidth: '46ch' }}>
-                A one-person digital studio. I design, build, and grow websites and online stores for businesses that want to be taken seriously.
+                A small digital studio. We design, build, and grow websites and online stores for businesses that want to be taken seriously.
               </motion.p>
 
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex items-center gap-4 flex-shrink-0">
+                className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0 w-full sm:w-auto">
                 <button onClick={() => setShowBooking(true)}
-                  className="flex items-center gap-2.5"
-                  style={{ fontFamily: F.sans, fontSize: '15px', fontWeight: 500, color: '#fff', background: T.accent, padding: '15px 26px', border: 'none', cursor: 'pointer' }}
+                  className="flex items-center justify-center gap-2.5 w-full sm:w-auto"
+                  style={{ fontFamily: F.sans, fontSize: '15px', fontWeight: 500, color: '#fff', background: T.accent, padding: '16px 26px', border: 'none', cursor: 'pointer' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = T.text)}
                   onMouseLeave={(e) => (e.currentTarget.style.background = T.accent)}>
                   Let's talk <ArrowRight size={17} />
                 </button>
                 <button onClick={() => scrollTo('work')}
-                  style={{ fontFamily: F.sans, fontSize: '15px', color: T.text, background: 'none', border: `1px solid ${T.line}`, padding: '15px 26px', cursor: 'pointer' }}
+                  className="flex items-center justify-center w-full sm:w-auto"
+                  style={{ fontFamily: F.sans, fontSize: '15px', color: T.text, background: 'none', border: `1px solid ${T.line}`, padding: '16px 26px', cursor: 'pointer' }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.text; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.line; }}>
                   See the work
@@ -367,21 +381,11 @@ export const StudioPage: React.FC = () => {
                 Selected work
               </h2>
             </Reveal>
-            <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 md:gap-y-16">
               {projects.map((p) => (
-                <Reveal key={p.n} y={20}><WorkRow p={p} /></Reveal>
+                <Reveal key={p.n} y={24}><WorkCard p={p} /></Reveal>
               ))}
-              <div style={{ borderTop: `1px solid ${T.line}` }} />
             </div>
-            <Reveal>
-              <a href="https://workwithabhi.online/#/barkit" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-10"
-                style={{ fontFamily: F.sans, fontSize: '15px', color: T.text }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = T.accent)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = T.text)}>
-                See everything <ArrowUpRight size={16} />
-              </a>
-            </Reveal>
           </div>
         </section>
 
@@ -396,7 +400,7 @@ export const StudioPage: React.FC = () => {
               </Reveal>
               <Reveal delay={0.1}>
                 <p style={{ fontFamily: F.sans, fontSize: '15px', color: T.muted, lineHeight: 1.6, maxWidth: '40ch' }}>
-                  You work with me directly. No account managers, no tickets. You say what you need, I build it properly.
+                  You work with me directly, backed by a small team. No account managers, no tickets. You say what you need, we build it properly.
                 </p>
               </Reveal>
             </div>
@@ -465,10 +469,9 @@ export const StudioPage: React.FC = () => {
                     <p style={{ fontFamily: F.display, fontWeight: 500, fontSize: 'clamp(1.3rem, 2vw, 1.9rem)', lineHeight: 1.4, letterSpacing: '-0.015em', color: T.onDark }}>
                       {t.text}
                     </p>
-                    <div className="flex items-center gap-3 mt-7">
-                      <span style={{ fontFamily: F.sans, fontSize: '14px', fontWeight: 500, color: T.onDark }}>{t.name}</span>
-                      <span style={{ width: '4px', height: '4px', borderRadius: '9999px', background: T.onDarkFaint }} />
-                      <span style={{ fontFamily: F.sans, fontSize: '14px', color: T.onDarkMuted }}>{t.role}</span>
+                    <div className="mt-7">
+                      <span className="block" style={{ fontFamily: F.sans, fontSize: '14px', fontWeight: 500, color: T.onDark }}>{t.name}</span>
+                      <span className="block mt-1" style={{ fontFamily: F.sans, fontSize: '14px', color: T.onDarkMuted }}>{t.role}</span>
                     </div>
                   </a>
                 </Reveal>
@@ -484,7 +487,7 @@ export const StudioPage: React.FC = () => {
               </Reveal>
               <Reveal delay={0.08}>
                 <button onClick={() => setShowBooking(true)}
-                  className="inline-flex items-center gap-2.5 mt-9"
+                  className="inline-flex items-center justify-center gap-2.5 mt-9 w-full sm:w-auto"
                   style={{ fontFamily: F.sans, fontSize: '16px', fontWeight: 500, color: '#fff', background: T.accent, padding: '17px 38px', border: 'none', cursor: 'pointer' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#fff', e.currentTarget.style.color = T.dark)}
                   onMouseLeave={(e) => (e.currentTarget.style.background = T.accent, e.currentTarget.style.color = '#fff')}>
