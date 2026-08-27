@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Calendar, X } from 'lucide-react';
 
@@ -260,236 +260,11 @@ const ServiceTile: React.FC<{ s: typeof services[0]; className?: string }> = ({ 
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   WORK 3D (PlayCanvas) — interactive project carousel. Drag to spin, click to open.
-   Lazy-loaded, code-split, degrades gracefully to the grid below.
-   ═══════════════════════════════════════════════════════════════════════════════ */
-const openExternal = (url: string) => { try { window.open(url, '_blank', 'noopener,noreferrer'); } catch (e) {} };
-
-// true on >=1024px viewports; used to mount the 3D carousel only on desktop
-const useIsDesktop = () => {
-  const [desktop, setDesktop] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
-    const on = () => setDesktop(mq.matches);
-    on();
-    mq.addEventListener?.('change', on);
-    return () => mq.removeEventListener?.('change', on);
-  }, []);
-  return desktop;
-};
-
-const wrapLines = (ctx: CanvasRenderingContext2D, text: string, maxW: number): string[] => {
-  const words = text.split(' ');
-  const lines: string[] = [];
-  let line = '';
-  for (const w of words) {
-    const test = line ? line + ' ' + w : w;
-    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; }
-    else line = test;
-  }
-  if (line) lines.push(line);
-  return lines.slice(0, 2);
-};
-
-const Work3D: React.FC<{ onOpen: (url: string) => void }> = ({ onOpen }) => {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
-  useEffect(() => {
-    let cancelled = false;
-    let cleanup = () => {};
-    (async () => {
-      try {
-        const pc: any = await import('playcanvas');
-        const el = wrapRef.current;
-        if (cancelled || !el) return;
-        const canvas = document.createElement('canvas');
-        canvas.style.width = '100%'; canvas.style.height = '100%'; canvas.style.display = 'block';
-        canvas.style.cursor = 'grab'; canvas.style.touchAction = 'pan-y';
-        el.appendChild(canvas);
-
-        const app = new pc.Application(canvas, { graphicsDeviceOptions: { alpha: true, antialias: true } });
-        app.graphicsDevice.maxPixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-        app.setCanvasFillMode(pc.FILLMODE_NONE);
-        app.setCanvasResolution(pc.RESOLUTION_AUTO);
-
-        const camera = new pc.Entity('camera');
-        camera.addComponent('camera', { clearColor: new pc.Color(0, 0, 0, 0), fov: 46 });
-        camera.setPosition(0, 0, 5.6);
-        camera.lookAt(0, 0, 0);
-        app.root.addChild(camera);
-
-        const CVW = 640, CVH = 462, BAR = 58;
-        // draw one project card into ctx x — with a website screenshot if provided, else name-only
-        const drawCard = (x: CanvasRenderingContext2D, p: typeof projects[0], img: HTMLImageElement | null) => {
-          const bg = p.tone === 'accent' ? '#1f3aff' : p.tone === 'dark' ? '#0e0e0c' : '#e7e6e1';
-          const fg = p.tone === 'light' ? '#141413' : '#ffffff';
-          const mut = p.tone === 'light' ? 'rgba(20,20,15,0.5)' : 'rgba(255,255,255,0.6)';
-          x.setTransform(1, 0, 0, 1, 0, 0);
-          x.clearRect(0, 0, CVW, CVH);
-          // the plane maps this texture rotated 180deg, so pre-rotate to compensate
-          x.translate(CVW, CVH); x.rotate(Math.PI);
-          x.fillStyle = bg; x.fillRect(0, 0, CVW, CVH);
-          if (img) {
-            // cover-fit the screenshot into the body, top-aligned
-            const bw = CVW, bh = CVH - BAR, ir = img.naturalWidth / img.naturalHeight, br = bw / bh;
-            let sw = img.naturalWidth, sh = img.naturalHeight, sx = 0, sy = 0;
-            if (ir > br) { sw = img.naturalHeight * br; sx = (img.naturalWidth - sw) / 2; }
-            else { sh = img.naturalWidth / br; sy = 0; }
-            x.drawImage(img, sx, sy, sw, sh, 0, BAR, bw, bh);
-            const g = x.createLinearGradient(0, CVH - 160, 0, CVH);
-            g.addColorStop(0, 'rgba(10,10,8,0)'); g.addColorStop(1, 'rgba(10,10,8,0.9)');
-            x.fillStyle = g; x.fillRect(0, CVH - 160, CVW, 160);
-          }
-          // browser bar
-          x.fillStyle = img ? 'rgba(10,10,8,0.82)' : (p.tone === 'light' ? 'rgba(20,20,15,0.05)' : 'rgba(255,255,255,0.10)');
-          x.fillRect(0, 0, CVW, BAR);
-          x.fillStyle = img ? 'rgba(255,255,255,0.4)' : (p.tone === 'light' ? 'rgba(20,20,15,0.22)' : 'rgba(255,255,255,0.4)');
-          [30, 58, 86].forEach((cx) => { x.beginPath(); x.arc(cx, 29, 7, 0, Math.PI * 2); x.fill(); });
-          x.fillStyle = img ? 'rgba(255,255,255,0.62)' : mut; x.font = '22px "Space Mono", monospace'; x.textBaseline = 'middle';
-          x.fillText(p.domain, 122, 30);
-          // title + meta
-          const tCol = img ? '#ffffff' : fg;
-          const mCol = img ? 'rgba(255,255,255,0.66)' : mut;
-          x.textBaseline = 'alphabetic';
-          if (img) {
-            x.fillStyle = tCol; x.font = '600 44px "Bricolage Grotesque","Space Grotesk",sans-serif';
-            x.fillText(p.title, 36, CVH - 62);
-            x.fillStyle = mCol; x.font = '20px "Space Mono", monospace';
-            x.fillText(p.kind.toUpperCase() + '  ·  ' + p.year, 36, CVH - 30);
-          } else {
-            x.fillStyle = tCol; x.font = '600 60px "Bricolage Grotesque","Space Grotesk",sans-serif';
-            const lines = wrapLines(x, p.title, CVW - 80);
-            let ty = lines.length > 1 ? 232 : 268;
-            for (const ln of lines) { x.fillText(ln, 40, ty); ty += 64; }
-            x.fillStyle = mCol; x.font = '22px "Space Mono", monospace';
-            x.fillText(p.kind.toUpperCase() + '  ·  ' + p.year, 40, CVH - 44);
-            x.fillStyle = tCol; x.font = '30px "Space Mono", monospace';
-            x.fillText('↗', CVW - 62, CVH - 40);
-          }
-        };
-        // create a card texture (name-only), then async-load the live screenshot and refresh
-        const makeTex = (p: typeof projects[0]) => {
-          const cv = document.createElement('canvas'); cv.width = CVW; cv.height = CVH;
-          const x = cv.getContext('2d')!;
-          drawCard(x, p, null);
-          const tex = new pc.Texture(app.graphicsDevice, { width: CVW, height: CVH, mipmaps: true });
-          tex.magFilter = pc.FILTER_LINEAR; tex.minFilter = pc.FILTER_LINEAR_MIPMAP_LINEAR;
-          tex.addressU = pc.ADDRESS_CLAMP_TO_EDGE; tex.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
-          tex.setSource(cv);
-          const img = new Image();
-          img.crossOrigin = 'anonymous'; // if the CORS load fails we keep the name-only card
-          img.onload = () => { if (img.naturalWidth > 1) { try { drawCard(x, p, img); tex.setSource(cv); tex.upload(); } catch (e) {} } };
-          // WebGL textures need a CORS-enabled source, so route the mShots screenshot through wsrv.nl (adds CORS headers)
-          const shot = `https://s.wordpress.com/mshots/v1/${encodeURIComponent(p.link)}?w=${CVW}&h=${CVH}`;
-          img.src = `https://wsrv.nl/?url=${encodeURIComponent(shot)}&w=${CVW}&h=${CVH}&fit=cover&a=top&output=jpg`;
-          return tex;
-        };
-
-        const N = projects.length;
-        const anglePer = (Math.PI * 2) / N;
-        const R = 3.35;
-        const CW = 2.6, CH = CW * 462 / 640;
-        const ring = new pc.Entity('ring');
-        app.root.addChild(ring);
-
-        const cards: any[] = [];
-        const a: number[] = [];
-        for (let i = 0; i < N; i++) {
-          const ang = i * anglePer;
-          a.push(ang);
-          const mat = new pc.StandardMaterial();
-          mat.useLighting = false;
-          mat.emissiveMap = makeTex(projects[i]);
-          mat.emissive = new pc.Color(1, 1, 1);
-          mat.emissiveTint = true;
-          mat.update();
-          const card = new pc.Entity('card' + i);
-          card.addComponent('render', { type: 'plane' });
-          if (card.render) card.render.material = mat;
-          // upright, facing outward (radial +Z)
-          const qx = new pc.Quat().setFromAxisAngle(pc.Vec3.RIGHT, -90);
-          const qy = new pc.Quat().setFromAxisAngle(pc.Vec3.UP, (ang * 180) / Math.PI);
-          card.setLocalRotation(qy.clone().mul(qx));
-          card.setLocalPosition(R * Math.sin(ang), 0, R * Math.cos(ang));
-          card.setLocalScale(CW, 1, CH);
-          ring.addChild(card);
-          cards.push(card);
-        }
-
-        // interaction state
-        let rot = 0, inertia = 0, autoSpin = reduce ? 0 : 0.12, engaged = false;
-        let dragging = false, lastX = 0, movedPx = 0;
-        const activeIndex = () => (((Math.round(-rot / anglePer)) % N) + N) % N;
-
-        const onDown = (e: PointerEvent) => {
-          dragging = true; engaged = true; lastX = e.clientX; movedPx = 0; inertia = 0;
-          canvas.style.cursor = 'grabbing'; canvas.setPointerCapture?.(e.pointerId);
-        };
-        const onMove = (e: PointerEvent) => {
-          if (!dragging) return;
-          const dx = e.clientX - lastX; lastX = e.clientX; movedPx += Math.abs(dx);
-          const d = dx * 0.006; rot += d; inertia = d;
-        };
-        const onUp = (e: PointerEvent) => {
-          if (!dragging) return;
-          dragging = false; canvas.style.cursor = 'grab';
-          if (movedPx < 6) { const url = projects[activeIndex()].link; if (url) onOpen(url); }
-        };
-        canvas.addEventListener('pointerdown', onDown);
-        canvas.addEventListener('pointermove', onMove);
-        canvas.addEventListener('pointerup', onUp);
-        canvas.addEventListener('pointerleave', onUp);
-
-        app.on('update', (dt: number) => {
-          if (!dragging) {
-            if (!engaged) rot += autoSpin * dt;
-            else {
-              rot += inertia; inertia *= 0.92;
-              if (Math.abs(inertia) < 0.0015) {
-                const target = Math.round(rot / anglePer) * anglePer;
-                rot += (target - rot) * Math.min(1, dt * 4);
-              }
-            }
-          }
-          ring.setLocalEulerAngles(0, (rot * 180) / Math.PI, 0);
-          for (let i = 0; i < N; i++) {
-            const f = Math.max(0, Math.cos(a[i] + rot));
-            const s = 1 + 0.18 * f;
-            cards[i].setLocalScale(CW * s, 1, CH * s);
-          }
-        });
-
-        const resize = () => { const c = wrapRef.current; if (c) app.resizeCanvas(c.clientWidth, c.clientHeight); };
-        resize();
-        const ro = new ResizeObserver(resize);
-        ro.observe(el);
-        app.start();
-
-        cleanup = () => {
-          canvas.removeEventListener('pointerdown', onDown);
-          canvas.removeEventListener('pointermove', onMove);
-          canvas.removeEventListener('pointerup', onUp);
-          canvas.removeEventListener('pointerleave', onUp);
-          ro.disconnect();
-          try { app.destroy(); } catch (e) {}
-          if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
-        };
-      } catch (e) {
-        /* WebGL/engine unavailable: the grid below is the fallback */
-      }
-    })();
-    return () => { cancelled = true; cleanup(); };
-  }, [reduce, onOpen]);
-  return <div ref={wrapRef} className="w-full h-full" aria-hidden />;
-};
-
-/* ═══════════════════════════════════════════════════════════════════════════════
    STUDIO PAGE
    ═══════════════════════════════════════════════════════════════════════════════ */
 export const StudioPage: React.FC = () => {
   const [showBooking, setShowBooking] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const isDesktop = useIsDesktop();
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 40));
 
@@ -547,8 +322,8 @@ export const StudioPage: React.FC = () => {
         </motion.nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="relative flex items-center overflow-hidden" style={{ minHeight: '100svh', padding: '96px clamp(20px, 4vw, 40px) 40px' }}>
-          <div className="max-w-[1500px] mx-auto w-full relative" style={{ zIndex: 10 }}>
+        <section className="relative flex items-center" style={{ minHeight: '100svh', padding: '96px clamp(20px, 4vw, 40px) 40px' }}>
+          <div className="max-w-[1500px] mx-auto w-full">
             {/* availability: single real status indicator */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }}
               className="flex items-center gap-2.5 mb-8 md:mb-10">
@@ -615,33 +390,15 @@ export const StudioPage: React.FC = () => {
         <section id="work" style={{ padding: 'clamp(64px, 8vw, 130px) clamp(20px, 4vw, 40px)', scrollMarginTop: '68px' }}>
           <div className="max-w-[1500px] mx-auto">
             <Reveal>
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8 md:mb-10">
-                <h2 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2rem, 5vw, 4rem)', lineHeight: 1, letterSpacing: '-0.035em' }}>
-                  Selected work
-                </h2>
-                {isDesktop && (
-                  <span style={{ fontFamily: F.mono, fontSize: '12px', letterSpacing: '0.06em', color: T.faint, textTransform: 'uppercase' }}>
-                    Drag to spin · click to open
-                  </span>
-                )}
-              </div>
+              <h2 className="mb-10 md:mb-14" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2rem, 5vw, 4rem)', lineHeight: 1, letterSpacing: '-0.035em' }}>
+                Selected work
+              </h2>
             </Reveal>
-            {/* interactive 3D project carousel — desktop only; mobile uses the grid below */}
-            {isDesktop && (
-              <Reveal y={20}>
-                <div className="w-full" style={{ height: 'clamp(300px, 46vh, 500px)' }}>
-                  <Work3D onOpen={openExternal} />
-                </div>
-              </Reveal>
-            )}
-            {/* preview grid: shown on mobile/tablet (desktop uses the 3D carousel above) */}
-            {!isDesktop && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 md:gap-y-16">
-                {projects.map((p) => (
-                  <Reveal key={p.n} y={24}><WorkCard p={p} /></Reveal>
-                ))}
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 md:gap-y-16">
+              {projects.map((p) => (
+                <Reveal key={p.n} y={24}><WorkCard p={p} /></Reveal>
+              ))}
+            </div>
           </div>
         </section>
 
