@@ -11,18 +11,18 @@ export const LoadingScreen: React.FC<{ onComplete: () => void; variant?: 'main' 
   }, []);
 
   useEffect(() => {
-    const increment = isMobile ? 15 : 8;
-    const interval = isMobile ? 80 : 100;
+    // paced so the whole intro (fill + curtain) lands around 1.5s
+    const interval = 70;
 
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
           setIsExiting(true);
-          setTimeout(onComplete, isMobile ? 300 : 500);
+          setTimeout(onComplete, 200);
           return 100;
         }
-        return prev + Math.random() * increment + 4;
+        return prev + Math.random() * 7 + 7;
       });
     }, interval);
 
@@ -44,7 +44,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void; variant?: 'main' 
           <motion.div
             initial={{ y: 0 }}
             exit={{ y: '-100%' }}
-            transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 0.55, ease: [0.76, 0, 0.24, 1] }}
             className="fixed inset-0 z-[100] overflow-hidden"
             style={{ background: D.bg, color: D.fg }}
           >

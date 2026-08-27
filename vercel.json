@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!assets/|.*\\.).*)",
+      "has": [{ "type": "host", "value": "studio.workwithabhi.online" }],
+      "destination": "/studio.html"
+    }
+  ]
+}
