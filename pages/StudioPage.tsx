@@ -260,9 +260,25 @@ const ServiceTile: React.FC<{ s: typeof services[0]; className?: string }> = ({ 
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   HERO 3D (PlayCanvas) — lazy-loaded, code-split, degrades gracefully
+   WORK 3D (PlayCanvas) — interactive project carousel. Drag to spin, click to open.
+   Lazy-loaded, code-split, degrades gracefully to the grid below.
    ═══════════════════════════════════════════════════════════════════════════════ */
-const Hero3D: React.FC = () => {
+const openExternal = (url: string) => { try { window.open(url, '_blank', 'noopener,noreferrer'); } catch (e) {} };
+
+const wrapLines = (ctx: CanvasRenderingContext2D, text: string, maxW: number): string[] => {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; }
+    else line = test;
+  }
+  if (line) lines.push(line);
+  return lines.slice(0, 2);
+};
+
+const Work3D: React.FC<{ onOpen: (url: string) => void }> = ({ onOpen }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   useEffect(() => {
@@ -275,6 +291,7 @@ const Hero3D: React.FC = () => {
         if (cancelled || !el) return;
         const canvas = document.createElement('canvas');
         canvas.style.width = '100%'; canvas.style.height = '100%'; canvas.style.display = 'block';
+        canvas.style.cursor = 'grab'; canvas.style.touchAction = 'pan-y';
         el.appendChild(canvas);
 
         const app = new pc.Application(canvas, { graphicsDeviceOptions: { alpha: true, antialias: true } });
@@ -283,45 +300,119 @@ const Hero3D: React.FC = () => {
         app.setCanvasResolution(pc.RESOLUTION_AUTO);
 
         const camera = new pc.Entity('camera');
-        camera.addComponent('camera', { clearColor: new pc.Color(0, 0, 0, 0), fov: 42 });
-        camera.setPosition(0, 0, 7);
+        camera.addComponent('camera', { clearColor: new pc.Color(0, 0, 0, 0), fov: 46 });
+        camera.setPosition(0, 0, 5.6);
+        camera.lookAt(0, 0, 0);
         app.root.addChild(camera);
 
-        const key = new pc.Entity('key');
-        key.addComponent('light', { type: 'directional', color: new pc.Color(1, 1, 1), intensity: 1.05 });
-        key.setEulerAngles(35, 25, 0);
-        app.root.addChild(key);
-
-        const accent = new pc.Entity('accent');
-        accent.addComponent('light', { type: 'directional', color: new pc.Color(0.12, 0.23, 1), intensity: 2.4 });
-        accent.setEulerAngles(-28, -132, 0);
-        app.root.addChild(accent);
-
-        const mat = new pc.StandardMaterial();
-        mat.useMetalness = true;
-        mat.metalness = 0.4;
-        mat.gloss = 0.55;
-        mat.diffuse = new pc.Color(0.09, 0.09, 0.085);
-        mat.update();
-
-        const obj = new pc.Entity('shape');
-        obj.addComponent('render', { type: 'torus' });
-        if (obj.render) obj.render.material = mat;
-        obj.setLocalScale(1.5, 1.5, 1.5);
-        app.root.addChild(obj);
-
-        let tx = 0, ty = 0, mx = 0, my = 0, ry = 0, rx = 0;
-        const onMove = (e: PointerEvent) => {
-          tx = (e.clientX / window.innerWidth) * 2 - 1;
-          ty = (e.clientY / window.innerHeight) * 2 - 1;
+        // build a canvas-drawn texture for one project card
+        const makeTex = (p: typeof projects[0]) => {
+          const w = 640, h = 462;
+          const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+          const x = cv.getContext('2d')!;
+          // the plane maps this texture rotated 180deg, so pre-rotate the canvas to compensate
+          x.translate(w, h); x.rotate(Math.PI);
+          const bg = p.tone === 'accent' ? '#1f3aff' : p.tone === 'dark' ? '#0e0e0c' : '#e7e6e1';
+          const fg = p.tone === 'light' ? '#141413' : '#ffffff';
+          const mut = p.tone === 'light' ? 'rgba(20,20,15,0.5)' : 'rgba(255,255,255,0.6)';
+          x.fillStyle = bg; x.fillRect(0, 0, w, h);
+          // browser bar
+          x.fillStyle = p.tone === 'light' ? 'rgba(20,20,15,0.05)' : 'rgba(255,255,255,0.10)';
+          x.fillRect(0, 0, w, 62);
+          x.fillStyle = p.tone === 'light' ? 'rgba(20,20,15,0.22)' : 'rgba(255,255,255,0.4)';
+          [30, 58, 86].forEach((cx) => { x.beginPath(); x.arc(cx, 31, 7, 0, Math.PI * 2); x.fill(); });
+          x.fillStyle = mut; x.font = '22px "Space Mono", monospace'; x.textBaseline = 'middle';
+          x.fillText(p.domain, 122, 32);
+          // title (up to 2 lines)
+          x.fillStyle = fg; x.textBaseline = 'alphabetic';
+          x.font = '600 60px "Bricolage Grotesque","Space Grotesk",sans-serif';
+          const lines = wrapLines(x, p.title, w - 80);
+          let ty = lines.length > 1 ? 232 : 268;
+          for (const ln of lines) { x.fillText(ln, 40, ty); ty += 64; }
+          // meta + arrow
+          x.fillStyle = mut; x.font = '22px "Space Mono", monospace'; x.textBaseline = 'alphabetic';
+          x.fillText(p.kind.toUpperCase() + '  ·  ' + p.year, 40, h - 44);
+          x.fillStyle = fg; x.font = '30px "Space Mono", monospace';
+          x.fillText('↗', w - 62, h - 40);
+          const tex = new pc.Texture(app.graphicsDevice, { width: w, height: h, mipmaps: true });
+          tex.magFilter = pc.FILTER_LINEAR; tex.minFilter = pc.FILTER_LINEAR_MIPMAP_LINEAR;
+          tex.addressU = pc.ADDRESS_CLAMP_TO_EDGE; tex.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
+          tex.setSource(cv);
+          return tex;
         };
-        window.addEventListener('pointermove', onMove);
+
+        const N = projects.length;
+        const anglePer = (Math.PI * 2) / N;
+        const R = 3.35;
+        const CW = 2.6, CH = CW * 462 / 640;
+        const ring = new pc.Entity('ring');
+        app.root.addChild(ring);
+
+        const cards: any[] = [];
+        const a: number[] = [];
+        for (let i = 0; i < N; i++) {
+          const ang = i * anglePer;
+          a.push(ang);
+          const mat = new pc.StandardMaterial();
+          mat.useLighting = false;
+          mat.emissiveMap = makeTex(projects[i]);
+          mat.emissive = new pc.Color(1, 1, 1);
+          mat.emissiveTint = true;
+          mat.update();
+          const card = new pc.Entity('card' + i);
+          card.addComponent('render', { type: 'plane' });
+          if (card.render) card.render.material = mat;
+          // upright, facing outward (radial +Z)
+          const qx = new pc.Quat().setFromAxisAngle(pc.Vec3.RIGHT, -90);
+          const qy = new pc.Quat().setFromAxisAngle(pc.Vec3.UP, (ang * 180) / Math.PI);
+          card.setLocalRotation(qy.clone().mul(qx));
+          card.setLocalPosition(R * Math.sin(ang), 0, R * Math.cos(ang));
+          card.setLocalScale(CW, 1, CH);
+          ring.addChild(card);
+          cards.push(card);
+        }
+
+        // interaction state
+        let rot = 0, inertia = 0, autoSpin = reduce ? 0 : 0.12, engaged = false;
+        let dragging = false, lastX = 0, movedPx = 0;
+        const activeIndex = () => (((Math.round(-rot / anglePer)) % N) + N) % N;
+
+        const onDown = (e: PointerEvent) => {
+          dragging = true; engaged = true; lastX = e.clientX; movedPx = 0; inertia = 0;
+          canvas.style.cursor = 'grabbing'; canvas.setPointerCapture?.(e.pointerId);
+        };
+        const onMove = (e: PointerEvent) => {
+          if (!dragging) return;
+          const dx = e.clientX - lastX; lastX = e.clientX; movedPx += Math.abs(dx);
+          const d = dx * 0.006; rot += d; inertia = d;
+        };
+        const onUp = (e: PointerEvent) => {
+          if (!dragging) return;
+          dragging = false; canvas.style.cursor = 'grab';
+          if (movedPx < 6) { const url = projects[activeIndex()].link; if (url) onOpen(url); }
+        };
+        canvas.addEventListener('pointerdown', onDown);
+        canvas.addEventListener('pointermove', onMove);
+        canvas.addEventListener('pointerup', onUp);
+        canvas.addEventListener('pointerleave', onUp);
 
         app.on('update', (dt: number) => {
-          mx += (tx - mx) * Math.min(1, dt * 3);
-          my += (ty - my) * Math.min(1, dt * 3);
-          if (!reduce) { ry += dt * 22; rx += dt * 9; }
-          obj.setLocalEulerAngles(rx + my * 14, ry + mx * 22, 0);
+          if (!dragging) {
+            if (!engaged) rot += autoSpin * dt;
+            else {
+              rot += inertia; inertia *= 0.92;
+              if (Math.abs(inertia) < 0.0015) {
+                const target = Math.round(rot / anglePer) * anglePer;
+                rot += (target - rot) * Math.min(1, dt * 4);
+              }
+            }
+          }
+          ring.setLocalEulerAngles(0, (rot * 180) / Math.PI, 0);
+          for (let i = 0; i < N; i++) {
+            const f = Math.max(0, Math.cos(a[i] + rot));
+            const s = 1 + 0.18 * f;
+            cards[i].setLocalScale(CW * s, 1, CH * s);
+          }
         });
 
         const resize = () => { const c = wrapRef.current; if (c) app.resizeCanvas(c.clientWidth, c.clientHeight); };
@@ -331,17 +422,20 @@ const Hero3D: React.FC = () => {
         app.start();
 
         cleanup = () => {
-          window.removeEventListener('pointermove', onMove);
+          canvas.removeEventListener('pointerdown', onDown);
+          canvas.removeEventListener('pointermove', onMove);
+          canvas.removeEventListener('pointerup', onUp);
+          canvas.removeEventListener('pointerleave', onUp);
           ro.disconnect();
           try { app.destroy(); } catch (e) {}
           if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
         };
       } catch (e) {
-        /* WebGL or engine unavailable: hero simply has no 3D object */
+        /* WebGL/engine unavailable: the grid below is the fallback */
       }
     })();
     return () => { cancelled = true; cleanup(); };
-  }, [reduce]);
+  }, [reduce, onOpen]);
   return <div ref={wrapRef} className="w-full h-full" aria-hidden />;
 };
 
@@ -409,10 +503,6 @@ export const StudioPage: React.FC = () => {
 
         {/* ═══ HERO ═══ */}
         <section className="relative flex items-center overflow-hidden" style={{ minHeight: '100svh', padding: '96px clamp(20px, 4vw, 40px) 40px' }}>
-          {/* 3D object in the hero's upper-right negative space (large screens only) */}
-          <div className="hidden lg:block absolute pointer-events-none" style={{ top: '7%', height: '44%', right: 'clamp(0px, 3vw, 70px)', width: '38%', zIndex: 1 }}>
-            <Hero3D />
-          </div>
           <div className="max-w-[1500px] mx-auto w-full relative" style={{ zIndex: 10 }}>
             {/* availability: single real status indicator */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }}
@@ -480,9 +570,20 @@ export const StudioPage: React.FC = () => {
         <section id="work" style={{ padding: 'clamp(64px, 8vw, 130px) clamp(20px, 4vw, 40px)', scrollMarginTop: '68px' }}>
           <div className="max-w-[1500px] mx-auto">
             <Reveal>
-              <h2 className="mb-10 md:mb-14" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2rem, 5vw, 4rem)', lineHeight: 1, letterSpacing: '-0.035em' }}>
-                Selected work
-              </h2>
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8 md:mb-10">
+                <h2 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2rem, 5vw, 4rem)', lineHeight: 1, letterSpacing: '-0.035em' }}>
+                  Selected work
+                </h2>
+                <span style={{ fontFamily: F.mono, fontSize: '12px', letterSpacing: '0.06em', color: T.faint, textTransform: 'uppercase' }}>
+                  Drag to spin · click to open
+                </span>
+              </div>
+            </Reveal>
+            {/* interactive 3D project carousel (falls back to the grid if WebGL is unavailable) */}
+            <Reveal y={20}>
+              <div className="w-full mb-16 md:mb-24" style={{ height: 'clamp(300px, 44vh, 480px)' }}>
+                <Work3D onOpen={openExternal} />
+              </div>
             </Reveal>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 md:gap-y-16">
               {projects.map((p) => (
