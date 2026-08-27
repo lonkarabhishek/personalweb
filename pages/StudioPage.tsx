@@ -265,6 +265,19 @@ const ServiceTile: React.FC<{ s: typeof services[0]; className?: string }> = ({ 
    ═══════════════════════════════════════════════════════════════════════════════ */
 const openExternal = (url: string) => { try { window.open(url, '_blank', 'noopener,noreferrer'); } catch (e) {} };
 
+// true on >=1024px viewports; used to mount the 3D carousel only on desktop
+const useIsDesktop = () => {
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const on = () => setDesktop(mq.matches);
+    on();
+    mq.addEventListener?.('change', on);
+    return () => mq.removeEventListener?.('change', on);
+  }, []);
+  return desktop;
+};
+
 const wrapLines = (ctx: CanvasRenderingContext2D, text: string, maxW: number): string[] => {
   const words = text.split(' ');
   const lines: string[] = [];
@@ -305,39 +318,70 @@ const Work3D: React.FC<{ onOpen: (url: string) => void }> = ({ onOpen }) => {
         camera.lookAt(0, 0, 0);
         app.root.addChild(camera);
 
-        // build a canvas-drawn texture for one project card
-        const makeTex = (p: typeof projects[0]) => {
-          const w = 640, h = 462;
-          const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-          const x = cv.getContext('2d')!;
-          // the plane maps this texture rotated 180deg, so pre-rotate the canvas to compensate
-          x.translate(w, h); x.rotate(Math.PI);
+        const CVW = 640, CVH = 462, BAR = 58;
+        // draw one project card into ctx x — with a website screenshot if provided, else name-only
+        const drawCard = (x: CanvasRenderingContext2D, p: typeof projects[0], img: HTMLImageElement | null) => {
           const bg = p.tone === 'accent' ? '#1f3aff' : p.tone === 'dark' ? '#0e0e0c' : '#e7e6e1';
           const fg = p.tone === 'light' ? '#141413' : '#ffffff';
           const mut = p.tone === 'light' ? 'rgba(20,20,15,0.5)' : 'rgba(255,255,255,0.6)';
-          x.fillStyle = bg; x.fillRect(0, 0, w, h);
+          x.setTransform(1, 0, 0, 1, 0, 0);
+          x.clearRect(0, 0, CVW, CVH);
+          // the plane maps this texture rotated 180deg, so pre-rotate to compensate
+          x.translate(CVW, CVH); x.rotate(Math.PI);
+          x.fillStyle = bg; x.fillRect(0, 0, CVW, CVH);
+          if (img) {
+            // cover-fit the screenshot into the body, top-aligned
+            const bw = CVW, bh = CVH - BAR, ir = img.naturalWidth / img.naturalHeight, br = bw / bh;
+            let sw = img.naturalWidth, sh = img.naturalHeight, sx = 0, sy = 0;
+            if (ir > br) { sw = img.naturalHeight * br; sx = (img.naturalWidth - sw) / 2; }
+            else { sh = img.naturalWidth / br; sy = 0; }
+            x.drawImage(img, sx, sy, sw, sh, 0, BAR, bw, bh);
+            const g = x.createLinearGradient(0, CVH - 160, 0, CVH);
+            g.addColorStop(0, 'rgba(10,10,8,0)'); g.addColorStop(1, 'rgba(10,10,8,0.9)');
+            x.fillStyle = g; x.fillRect(0, CVH - 160, CVW, 160);
+          }
           // browser bar
-          x.fillStyle = p.tone === 'light' ? 'rgba(20,20,15,0.05)' : 'rgba(255,255,255,0.10)';
-          x.fillRect(0, 0, w, 62);
-          x.fillStyle = p.tone === 'light' ? 'rgba(20,20,15,0.22)' : 'rgba(255,255,255,0.4)';
-          [30, 58, 86].forEach((cx) => { x.beginPath(); x.arc(cx, 31, 7, 0, Math.PI * 2); x.fill(); });
-          x.fillStyle = mut; x.font = '22px "Space Mono", monospace'; x.textBaseline = 'middle';
-          x.fillText(p.domain, 122, 32);
-          // title (up to 2 lines)
-          x.fillStyle = fg; x.textBaseline = 'alphabetic';
-          x.font = '600 60px "Bricolage Grotesque","Space Grotesk",sans-serif';
-          const lines = wrapLines(x, p.title, w - 80);
-          let ty = lines.length > 1 ? 232 : 268;
-          for (const ln of lines) { x.fillText(ln, 40, ty); ty += 64; }
-          // meta + arrow
-          x.fillStyle = mut; x.font = '22px "Space Mono", monospace'; x.textBaseline = 'alphabetic';
-          x.fillText(p.kind.toUpperCase() + '  ·  ' + p.year, 40, h - 44);
-          x.fillStyle = fg; x.font = '30px "Space Mono", monospace';
-          x.fillText('↗', w - 62, h - 40);
-          const tex = new pc.Texture(app.graphicsDevice, { width: w, height: h, mipmaps: true });
+          x.fillStyle = img ? 'rgba(10,10,8,0.82)' : (p.tone === 'light' ? 'rgba(20,20,15,0.05)' : 'rgba(255,255,255,0.10)');
+          x.fillRect(0, 0, CVW, BAR);
+          x.fillStyle = img ? 'rgba(255,255,255,0.4)' : (p.tone === 'light' ? 'rgba(20,20,15,0.22)' : 'rgba(255,255,255,0.4)');
+          [30, 58, 86].forEach((cx) => { x.beginPath(); x.arc(cx, 29, 7, 0, Math.PI * 2); x.fill(); });
+          x.fillStyle = img ? 'rgba(255,255,255,0.62)' : mut; x.font = '22px "Space Mono", monospace'; x.textBaseline = 'middle';
+          x.fillText(p.domain, 122, 30);
+          // title + meta
+          const tCol = img ? '#ffffff' : fg;
+          const mCol = img ? 'rgba(255,255,255,0.66)' : mut;
+          x.textBaseline = 'alphabetic';
+          if (img) {
+            x.fillStyle = tCol; x.font = '600 44px "Bricolage Grotesque","Space Grotesk",sans-serif';
+            x.fillText(p.title, 36, CVH - 62);
+            x.fillStyle = mCol; x.font = '20px "Space Mono", monospace';
+            x.fillText(p.kind.toUpperCase() + '  ·  ' + p.year, 36, CVH - 30);
+          } else {
+            x.fillStyle = tCol; x.font = '600 60px "Bricolage Grotesque","Space Grotesk",sans-serif';
+            const lines = wrapLines(x, p.title, CVW - 80);
+            let ty = lines.length > 1 ? 232 : 268;
+            for (const ln of lines) { x.fillText(ln, 40, ty); ty += 64; }
+            x.fillStyle = mCol; x.font = '22px "Space Mono", monospace';
+            x.fillText(p.kind.toUpperCase() + '  ·  ' + p.year, 40, CVH - 44);
+            x.fillStyle = tCol; x.font = '30px "Space Mono", monospace';
+            x.fillText('↗', CVW - 62, CVH - 40);
+          }
+        };
+        // create a card texture (name-only), then async-load the live screenshot and refresh
+        const makeTex = (p: typeof projects[0]) => {
+          const cv = document.createElement('canvas'); cv.width = CVW; cv.height = CVH;
+          const x = cv.getContext('2d')!;
+          drawCard(x, p, null);
+          const tex = new pc.Texture(app.graphicsDevice, { width: CVW, height: CVH, mipmaps: true });
           tex.magFilter = pc.FILTER_LINEAR; tex.minFilter = pc.FILTER_LINEAR_MIPMAP_LINEAR;
           tex.addressU = pc.ADDRESS_CLAMP_TO_EDGE; tex.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
           tex.setSource(cv);
+          const img = new Image();
+          img.crossOrigin = 'anonymous'; // if the CORS load fails we keep the name-only card
+          img.onload = () => { if (img.naturalWidth > 1) { try { drawCard(x, p, img); tex.setSource(cv); tex.upload(); } catch (e) {} } };
+          // WebGL textures need a CORS-enabled source, so route the mShots screenshot through wsrv.nl (adds CORS headers)
+          const shot = `https://s.wordpress.com/mshots/v1/${encodeURIComponent(p.link)}?w=${CVW}&h=${CVH}`;
+          img.src = `https://wsrv.nl/?url=${encodeURIComponent(shot)}&w=${CVW}&h=${CVH}&fit=cover&a=top&output=jpg`;
           return tex;
         };
 
@@ -445,6 +489,7 @@ const Work3D: React.FC<{ onOpen: (url: string) => void }> = ({ onOpen }) => {
 export const StudioPage: React.FC = () => {
   const [showBooking, setShowBooking] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const isDesktop = useIsDesktop();
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 40));
 
@@ -574,17 +619,21 @@ export const StudioPage: React.FC = () => {
                 <h2 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2rem, 5vw, 4rem)', lineHeight: 1, letterSpacing: '-0.035em' }}>
                   Selected work
                 </h2>
-                <span style={{ fontFamily: F.mono, fontSize: '12px', letterSpacing: '0.06em', color: T.faint, textTransform: 'uppercase' }}>
-                  Drag to spin · click to open
-                </span>
+                {isDesktop && (
+                  <span style={{ fontFamily: F.mono, fontSize: '12px', letterSpacing: '0.06em', color: T.faint, textTransform: 'uppercase' }}>
+                    Drag to spin · click to open
+                  </span>
+                )}
               </div>
             </Reveal>
-            {/* interactive 3D project carousel (falls back to the grid if WebGL is unavailable) */}
-            <Reveal y={20}>
-              <div className="w-full mb-16 md:mb-24" style={{ height: 'clamp(300px, 44vh, 480px)' }}>
-                <Work3D onOpen={openExternal} />
-              </div>
-            </Reveal>
+            {/* interactive 3D project carousel — desktop only; mobile uses the grid below */}
+            {isDesktop && (
+              <Reveal y={20}>
+                <div className="w-full mb-16 md:mb-24" style={{ height: 'clamp(300px, 44vh, 480px)' }}>
+                  <Work3D onOpen={openExternal} />
+                </div>
+              </Reveal>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 md:gap-y-16">
               {projects.map((p) => (
                 <Reveal key={p.n} y={24}><WorkCard p={p} /></Reveal>
