@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Calendar, X } from 'lucide-react';
 
@@ -260,6 +260,92 @@ const ServiceTile: React.FC<{ s: typeof services[0]; className?: string }> = ({ 
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════════
+   HERO 3D (PlayCanvas) — lazy-loaded, code-split, degrades gracefully
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const Hero3D: React.FC = () => {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    let cancelled = false;
+    let cleanup = () => {};
+    (async () => {
+      try {
+        const pc: any = await import('playcanvas');
+        const el = wrapRef.current;
+        if (cancelled || !el) return;
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%'; canvas.style.height = '100%'; canvas.style.display = 'block';
+        el.appendChild(canvas);
+
+        const app = new pc.Application(canvas, { graphicsDeviceOptions: { alpha: true, antialias: true } });
+        app.graphicsDevice.maxPixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        app.setCanvasFillMode(pc.FILLMODE_NONE);
+        app.setCanvasResolution(pc.RESOLUTION_AUTO);
+
+        const camera = new pc.Entity('camera');
+        camera.addComponent('camera', { clearColor: new pc.Color(0, 0, 0, 0), fov: 42 });
+        camera.setPosition(0, 0, 7);
+        app.root.addChild(camera);
+
+        const key = new pc.Entity('key');
+        key.addComponent('light', { type: 'directional', color: new pc.Color(1, 1, 1), intensity: 1.05 });
+        key.setEulerAngles(35, 25, 0);
+        app.root.addChild(key);
+
+        const accent = new pc.Entity('accent');
+        accent.addComponent('light', { type: 'directional', color: new pc.Color(0.12, 0.23, 1), intensity: 2.4 });
+        accent.setEulerAngles(-28, -132, 0);
+        app.root.addChild(accent);
+
+        const mat = new pc.StandardMaterial();
+        mat.useMetalness = true;
+        mat.metalness = 0.4;
+        mat.gloss = 0.55;
+        mat.diffuse = new pc.Color(0.09, 0.09, 0.085);
+        mat.update();
+
+        const obj = new pc.Entity('shape');
+        obj.addComponent('render', { type: 'torus' });
+        if (obj.render) obj.render.material = mat;
+        obj.setLocalScale(1.5, 1.5, 1.5);
+        app.root.addChild(obj);
+
+        let tx = 0, ty = 0, mx = 0, my = 0, ry = 0, rx = 0;
+        const onMove = (e: PointerEvent) => {
+          tx = (e.clientX / window.innerWidth) * 2 - 1;
+          ty = (e.clientY / window.innerHeight) * 2 - 1;
+        };
+        window.addEventListener('pointermove', onMove);
+
+        app.on('update', (dt: number) => {
+          mx += (tx - mx) * Math.min(1, dt * 3);
+          my += (ty - my) * Math.min(1, dt * 3);
+          if (!reduce) { ry += dt * 22; rx += dt * 9; }
+          obj.setLocalEulerAngles(rx + my * 14, ry + mx * 22, 0);
+        });
+
+        const resize = () => { const c = wrapRef.current; if (c) app.resizeCanvas(c.clientWidth, c.clientHeight); };
+        resize();
+        const ro = new ResizeObserver(resize);
+        ro.observe(el);
+        app.start();
+
+        cleanup = () => {
+          window.removeEventListener('pointermove', onMove);
+          ro.disconnect();
+          try { app.destroy(); } catch (e) {}
+          if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+        };
+      } catch (e) {
+        /* WebGL or engine unavailable: hero simply has no 3D object */
+      }
+    })();
+    return () => { cancelled = true; cleanup(); };
+  }, [reduce]);
+  return <div ref={wrapRef} className="w-full h-full" aria-hidden />;
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    STUDIO PAGE
    ═══════════════════════════════════════════════════════════════════════════════ */
 export const StudioPage: React.FC = () => {
@@ -322,8 +408,12 @@ export const StudioPage: React.FC = () => {
         </motion.nav>
 
         {/* ═══ HERO ═══ */}
-        <section className="relative flex items-center" style={{ minHeight: '100svh', padding: '96px clamp(20px, 4vw, 40px) 40px' }}>
-          <div className="max-w-[1500px] mx-auto w-full">
+        <section className="relative flex items-center overflow-hidden" style={{ minHeight: '100svh', padding: '96px clamp(20px, 4vw, 40px) 40px' }}>
+          {/* 3D object in the hero's upper-right negative space (large screens only) */}
+          <div className="hidden lg:block absolute pointer-events-none" style={{ top: '7%', height: '44%', right: 'clamp(0px, 3vw, 70px)', width: '38%', zIndex: 1 }}>
+            <Hero3D />
+          </div>
+          <div className="max-w-[1500px] mx-auto w-full relative" style={{ zIndex: 10 }}>
             {/* availability: single real status indicator */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }}
               className="flex items-center gap-2.5 mb-8 md:mb-10">
