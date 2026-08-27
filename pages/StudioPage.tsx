@@ -629,16 +629,19 @@ export const StudioPage: React.FC = () => {
             {/* interactive 3D project carousel — desktop only; mobile uses the grid below */}
             {isDesktop && (
               <Reveal y={20}>
-                <div className="w-full mb-16 md:mb-24" style={{ height: 'clamp(300px, 44vh, 480px)' }}>
+                <div className="w-full" style={{ height: 'clamp(300px, 46vh, 500px)' }}>
                   <Work3D onOpen={openExternal} />
                 </div>
               </Reveal>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 md:gap-y-16">
-              {projects.map((p) => (
-                <Reveal key={p.n} y={24}><WorkCard p={p} /></Reveal>
-              ))}
-            </div>
+            {/* preview grid: shown on mobile/tablet (desktop uses the 3D carousel above) */}
+            {!isDesktop && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 md:gap-y-16">
+                {projects.map((p) => (
+                  <Reveal key={p.n} y={24}><WorkCard p={p} /></Reveal>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
