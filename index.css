@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #ffffff;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #7c3aed 0%, #0891b2 50%, #db2777 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Light gradient background */
+.gradient-bg {
+  background: linear-gradient(-45deg, #ffffff, #f8fafc, #f0f9ff, #faf5ff);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+/* Card styles */
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Optimize animations on mobile */
+@media (max-width: 768px) {
+  .gradient-bg {
+    animation: none;
+    background: #ffffff;
+  }
+}
+
+/* Subtle shadow effects */
+.shadow-primary {
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.15);
+}
+.shadow-accent {
+  box-shadow: 0 4px 20px rgba(8, 145, 178, 0.15);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #7c3aed, #0891b2);
+  border-radius: 4px;
+}
+
+/* Keyframes referenced by raw CSS classes above (kept explicit so they exist
+   even when the matching animate-* utility isn't emitted by Tailwind) */
+@keyframes gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}

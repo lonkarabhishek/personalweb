@@ -31,22 +31,22 @@ const F = {
    DATA
    ═══════════════════════════════════════════════════════════════════════════════ */
 const projects = [
-  { n: '01', title: 'Haddu Clothing', kind: 'E-Commerce', year: '2026', tone: 'dark',
+  { n: '01', title: 'Haddu Clothing', kind: 'E-Commerce', year: '2026', tone: 'dark', preview: false,
     link: 'https://www.hadduclothing.com/', domain: 'hadduclothing.com',
     desc: 'A full fashion store built from scratch. Catalog, payments, inventory, shipping, and a Pinterest engine doing 80k views a month.' },
-  { n: '02', title: 'JSB Foods', kind: 'Brand Site', year: '2026', tone: 'accent',
+  { n: '02', title: 'JSB Foods', kind: 'Brand Site', year: '2026', tone: 'accent', preview: true,
     link: 'https://jsb-foods.vercel.app', domain: 'jsb-foods.com',
     desc: 'A clean, modern site for a food company. Product showcase, brand story, and trust built into every page.' },
-  { n: '03', title: 'TapTurf', kind: 'Web App', year: '2026', tone: 'light',
+  { n: '03', title: 'TapTurf', kind: 'Web App', year: '2026', tone: 'light', preview: false,
     link: 'https://tapturf.in/', domain: 'tapturf.in',
     desc: 'A sports venue booking platform. Find a turf, pick a slot, book it. Fast and simple end to end.' },
-  { n: '04', title: 'Deft Chemistry', kind: 'Brand Site', year: '2025', tone: 'accent',
+  { n: '04', title: 'Deft Chemistry', kind: 'Brand Site', year: '2025', tone: 'accent', preview: true,
     link: 'https://deft-chemistry-redefined.vercel.app', domain: 'deftchemistry.com',
     desc: 'An elegant web presence for a chemistry brand. Informative, credible, and built to convert.' },
-  { n: '05', title: 'The Nashik Kumbh', kind: 'Multilingual', year: '2026', tone: 'dark',
+  { n: '05', title: 'The Nashik Kumbh', kind: 'Multilingual', year: '2026', tone: 'dark', preview: false,
     link: 'https://thenashikkumbh.com', domain: 'thenashikkumbh.com',
     desc: 'A trilingual site for Kumbh Mela 2027 in English, Hindi, and Marathi. Bathing dates, travel, and holy sites.' },
-  { n: '06', title: 'SD Overseas', kind: 'Brand Site', year: '2025', tone: 'light',
+  { n: '06', title: 'SD Overseas', kind: 'Brand Site', year: '2025', tone: 'light', preview: true,
     link: 'https://sd-overseas.vercel.app/', domain: 'sdoverseas.com',
     desc: 'A professional web presence for an international trading company. Built for global credibility.' },
 ];
@@ -181,6 +181,11 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
           <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
           <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
           <span className="ml-2 truncate" style={{ fontFamily: F.mono, fontSize: '11px', color: urlColor }}>{p.domain}</span>
+          {p.preview && (
+            <span className="ml-auto flex-shrink-0 uppercase" style={{ fontFamily: F.mono, fontSize: '9px', letterSpacing: '0.08em', color: urlColor, border: `1px solid ${dot}`, padding: '2px 6px', borderRadius: '3px' }}>
+              Live preview
+            </span>
+          )}
         </div>
         {/* wordmark fallback (shown until/unless the live thumbnail loads) */}
         <div className="absolute inset-0 z-0 flex items-center justify-center px-6" style={{ paddingTop: '40px' }}>
@@ -373,15 +378,22 @@ export const StudioPage: React.FC = () => {
         </section>
 
         {/* ═══ LOGO MARQUEE (the one marquee) ═══ */}
-        <div className="relative overflow-hidden py-6" style={{ borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
-          <div className="flex" style={{ width: 'max-content' }}>
-            <div className="flex items-center studio-marquee">
-              {[...clients, ...clients].map((c, i) => (
-                <div key={i} className="flex items-center gap-3 flex-shrink-0" style={{ paddingRight: '64px' }}>
-                  <img src={c.logo} alt={c.name} className="w-7 h-7 object-contain" style={{ filter: 'grayscale(1)', opacity: 0.55 }} />
-                  <span style={{ fontFamily: F.sans, fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)', fontWeight: 500, color: T.faint, whiteSpace: 'nowrap' }}>{c.name}</span>
-                </div>
-              ))}
+        <div style={{ borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
+          <div className="max-w-[1500px] mx-auto px-5 md:px-10 pt-5">
+            <span className="uppercase" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.14em', color: T.faint }}>
+              Experience across
+            </span>
+          </div>
+          <div className="relative overflow-hidden pb-6 pt-4">
+            <div className="flex" style={{ width: 'max-content' }}>
+              <div className="flex items-center studio-marquee">
+                {[...clients, ...clients].map((c, i) => (
+                  <div key={i} className="flex items-center gap-3 flex-shrink-0" style={{ paddingRight: '64px' }}>
+                    <img src={c.logo} alt={c.name} className="w-7 h-7 object-contain" style={{ filter: 'grayscale(1)', opacity: 0.55 }} />
+                    <span style={{ fontFamily: F.sans, fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)', fontWeight: 500, color: T.faint, whiteSpace: 'nowrap' }}>{c.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
