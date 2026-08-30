@@ -89,8 +89,8 @@ const clients = [
 ];
 
 const featuredTestimonial = {
-  text: "He doesn't just build a website from scratch. He adds his own perspective and elements that genuinely surprise you. Whether it's 3D structures and chemistry bond formulas for a chemical brand, or a quirky, fun site for a B2C brand, he adapts the work to the brand and its audience. His understanding of what he does goes far beyond what you would normally expect.",
-  name: 'Saumya Bagga', role: 'Owner, Deft Chemistry & JSB Foods',
+  text: "They don't just build a website from scratch. They add their own perspective and elements that genuinely surprise you. Whether it's 3D structures and chemistry bond formulas for a chemical brand, or a quirky, fun site for a B2C brand, they adapt the work to the brand and its audience. Their understanding of what they do goes far beyond what you would normally expect.",
+  name: 'Saumya Bagga', role: 'Owner, JSB Foods',
 };
 
 const testimonials = [
@@ -309,8 +309,8 @@ export const StudioPage: React.FC = () => {
           style={{ background: scrolled ? 'rgba(237,236,232,0.82)' : 'transparent', backdropFilter: scrolled ? 'blur(16px)' : 'none', borderBottom: scrolled ? `1px solid ${T.line}` : '1px solid transparent' }}>
           <div className="max-w-[1500px] mx-auto px-5 md:px-10 flex items-center justify-between" style={{ height: '68px' }}>
             <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex items-center gap-2.5">
-              <img src="/favicon.png" alt="Abhishek Lonkar" className="w-7 h-7 object-cover" />
-              <span style={{ fontFamily: F.mono, fontSize: '13px', letterSpacing: '0.02em', color: T.text }}>Abhishek Lonkar</span>
+              <img src="/favicon.png" alt="Abhishek Lonkar Studio" className="w-7 h-7 object-cover" />
+              <span style={{ fontFamily: F.mono, fontSize: '13px', letterSpacing: '0.02em', color: T.text }}>Abhishek Lonkar Studio</span>
             </a>
             <div className="flex items-center gap-2 md:gap-7">
               <div className="hidden md:flex items-center gap-7">
