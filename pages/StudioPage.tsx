@@ -88,11 +88,18 @@ const clients = [
   { name: 'KIST', logo: '/logos/KIST_Logo.jpg' },
 ];
 
+const featuredTestimonial = {
+  text: "He doesn't just build a website from scratch. He adds his own perspective and elements that genuinely surprise you. Whether it's 3D structures and chemistry bond formulas for a chemical brand, or a quirky, fun site for a B2C brand, he adapts the work to the brand and its audience. His understanding of what he does goes far beyond what you would normally expect.",
+  name: 'Saumya Bagga', role: 'Owner, Deft Chemistry & JSB Foods',
+};
+
 const testimonials = [
   { text: 'He took real ownership and became a trusted partner. Strong work ethic, genuine curiosity, and he lifted the whole team.',
-    name: 'Syed Rahman', role: 'GTM Ops & Analytics, 6sense' },
+    name: 'Syed Rahman', role: 'GTM Ops & Analytics, 6sense',
+    link: 'https://www.linkedin.com/in/lonkarabhishek/details/recommendations/' },
   { text: 'He rebuilt our ARR waterfall reporting. It gave leadership visibility they never had and made forecasting far more reliable.',
-    name: 'Mitch Osborne', role: 'Director of Business Systems, G2' },
+    name: 'Mitch Osborne', role: 'Director of Business Systems, G2',
+    link: 'https://www.linkedin.com/in/lonkarabhishek/details/recommendations/' },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -487,20 +494,37 @@ export const StudioPage: React.FC = () => {
         <section style={{ background: T.dark, color: T.onDark }}>
           <div className="max-w-[1500px] mx-auto px-5 md:px-10" style={{ paddingTop: 'clamp(64px, 8vw, 120px)', paddingBottom: 'clamp(48px, 5vw, 72px)' }}>
             {/* testimonials */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 pb-16 md:pb-24" style={{ borderBottom: `1px solid ${T.lineDark}` }}>
-              {testimonials.map((t, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <a href="https://www.linkedin.com/in/lonkarabhishek/details/recommendations/" target="_blank" rel="noopener noreferrer" className="block group">
-                    <p style={{ fontFamily: F.display, fontWeight: 500, fontSize: 'clamp(1.3rem, 2vw, 1.9rem)', lineHeight: 1.4, letterSpacing: '-0.015em', color: T.onDark }}>
-                      {t.text}
-                    </p>
-                    <div className="mt-7">
-                      <span className="block" style={{ fontFamily: F.sans, fontSize: '14px', fontWeight: 500, color: T.onDark }}>{t.name}</span>
-                      <span className="block mt-1" style={{ fontFamily: F.sans, fontSize: '14px', color: T.onDarkMuted }}>{t.role}</span>
-                    </div>
-                  </a>
-                </Reveal>
-              ))}
+            <div className="pb-16 md:pb-24" style={{ borderBottom: `1px solid ${T.lineDark}` }}>
+              {/* featured client testimonial */}
+              <Reveal>
+                <figure className="pb-12 md:pb-16 mb-12 md:mb-16" style={{ borderBottom: `1px solid ${T.lineDark}` }}>
+                  <span style={{ fontFamily: F.display, fontWeight: 600, fontSize: '3rem', lineHeight: 0.6, color: T.accent }}>&ldquo;</span>
+                  <blockquote className="mt-2" style={{ fontFamily: F.display, fontWeight: 500, fontSize: 'clamp(1.4rem, 2.6vw, 2.4rem)', lineHeight: 1.4, letterSpacing: '-0.02em', color: T.onDark, maxWidth: '1000px' }}>
+                    {featuredTestimonial.text}
+                  </blockquote>
+                  <figcaption className="mt-8 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                    <span style={{ fontFamily: F.sans, fontSize: '15px', fontWeight: 500, color: T.onDark }}>{featuredTestimonial.name}</span>
+                    <span className="hidden sm:block" style={{ width: '4px', height: '4px', borderRadius: '9999px', background: T.onDarkFaint }} />
+                    <span style={{ fontFamily: F.sans, fontSize: '15px', color: T.onDarkMuted }}>{featuredTestimonial.role}</span>
+                  </figcaption>
+                </figure>
+              </Reveal>
+              {/* supporting testimonials */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+                {testimonials.map((t, i) => (
+                  <Reveal key={i} delay={i * 0.1}>
+                    <a href={t.link} target="_blank" rel="noopener noreferrer" className="block group">
+                      <p style={{ fontFamily: F.display, fontWeight: 500, fontSize: 'clamp(1.2rem, 1.7vw, 1.6rem)', lineHeight: 1.4, letterSpacing: '-0.015em', color: T.onDark }}>
+                        {t.text}
+                      </p>
+                      <div className="mt-6">
+                        <span className="block" style={{ fontFamily: F.sans, fontSize: '14px', fontWeight: 500, color: T.onDark }}>{t.name}</span>
+                        <span className="block mt-1" style={{ fontFamily: F.sans, fontSize: '14px', color: T.onDarkMuted }}>{t.role}</span>
+                      </div>
+                    </a>
+                  </Reveal>
+                ))}
+              </div>
             </div>
 
             {/* CTA */}
