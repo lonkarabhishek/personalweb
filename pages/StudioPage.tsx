@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion';
-import { ArrowUpRight, ArrowRight, Calendar, X } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, Calendar, X, Play } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -272,6 +272,58 @@ const ServiceTile: React.FC<{ s: typeof services[0]; className?: string }> = ({ 
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════════
+   VIDEO EMBED — click-to-play facade (loads the YouTube player only on click)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const demoVideos = [
+  { id: 'LVILy1s_G3w', title: 'Deft Chemistry', kind: 'Brand website walkthrough' },
+];
+
+const VideoEmbed: React.FC<{ v: typeof demoVideos[0] }> = ({ v }) => {
+  const [playing, setPlaying] = useState(false);
+  const [thumb, setThumb] = useState(`https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg`);
+  return (
+    <div className="relative w-full overflow-hidden" style={{ aspectRatio: '16 / 9', background: T.dark, border: `1px solid ${T.line}` }}>
+      {playing ? (
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+          title={`${v.title} demo`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          loading="lazy"
+          className="absolute inset-0 w-full h-full"
+          style={{ border: 0 }}
+        />
+      ) : (
+        <button
+          onClick={() => setPlaying(true)}
+          aria-label={`Play the ${v.title} demo`}
+          className="group absolute inset-0 w-full h-full"
+          style={{ cursor: 'pointer', border: 'none', padding: 0, background: T.dark }}>
+          <img
+            src={thumb}
+            onError={() => setThumb(`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`)}
+            alt={`${v.title} demo`}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: 0.82 }}
+          />
+          <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(10,10,8,0.15), rgba(10,10,8,0.45))' }} />
+          <motion.span
+            className="absolute left-1/2 top-1/2 flex items-center justify-center"
+            style={{ transform: 'translate(-50%,-50%)', width: 'clamp(64px, 8vw, 92px)', height: 'clamp(64px, 8vw, 92px)', borderRadius: '9999px', background: T.accent, boxShadow: '0 10px 40px rgba(31,58,255,0.45)' }}
+            whileHover={{ scale: 1.08 }}
+            transition={{ duration: 0.3 }}>
+            <Play size={30} color="#fff" style={{ marginLeft: 4 }} className="fill-current" />
+          </motion.span>
+          <span className="absolute left-5 bottom-5 flex items-center gap-2" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)' }}>
+            <span style={{ width: 7, height: 7, borderRadius: 9999, background: T.accent }} /> Watch demo
+          </span>
+        </button>
+      )}
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    STUDIO PAGE
    ═══════════════════════════════════════════════════════════════════════════════ */
 export const StudioPage: React.FC = () => {
@@ -418,6 +470,34 @@ export const StudioPage: React.FC = () => {
                 <Reveal key={p.n} y={24}><WorkCard p={p} /></Reveal>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* ═══ WORK IN MOTION (video) ═══ */}
+        <section style={{ padding: 'clamp(64px, 8vw, 130px) clamp(20px, 4vw, 40px)', borderTop: `1px solid ${T.line}` }}>
+          <div className="max-w-[1500px] mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 md:mb-12">
+              <Reveal>
+                <h2 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2rem, 5vw, 4rem)', lineHeight: 1, letterSpacing: '-0.035em' }}>
+                  Work in motion
+                </h2>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p style={{ fontFamily: F.sans, fontSize: '15px', color: T.muted, lineHeight: 1.6, maxWidth: '38ch' }}>
+                  A closer look at the details. Here is a walkthrough of the Deft Chemistry brand website.
+                </p>
+              </Reveal>
+            </div>
+            <Reveal y={24}>
+              <VideoEmbed v={demoVideos[0]} />
+              <div className="flex items-center gap-3 mt-4">
+                <span style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.05rem, 1.5vw, 1.3rem)', letterSpacing: '-0.02em', color: T.text }}>
+                  {demoVideos[0].title}
+                </span>
+                <span style={{ width: '4px', height: '4px', borderRadius: '9999px', background: T.faint }} />
+                <span style={{ fontFamily: F.mono, fontSize: '12px', color: T.muted }}>{demoVideos[0].kind}</span>
+              </div>
+            </Reveal>
           </div>
         </section>
 
