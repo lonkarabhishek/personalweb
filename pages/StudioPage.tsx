@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Calendar, X, Play } from 'lucide-react';
 import { AgentBuild } from '../components/AgentBuild';
+import { StudioAgent } from '../components/StudioAgent';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -663,11 +664,14 @@ export const StudioPage: React.FC = () => {
 
       <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
 
-      {/* replay the live build */}
+      {/* the studio's own agent — launcher sits bottom-right */}
+      {!building && <StudioAgent onBook={() => setShowBooking(true)} />}
+
+      {/* replay the live build — bottom-left, clear of the agent launcher */}
       {!building && (
         <button
           onClick={() => setBuilding(true)}
-          className="fixed bottom-4 right-4 z-40 flex items-center gap-2 group"
+          className="fixed bottom-4 left-4 z-40 flex items-center gap-2 group"
           title="Replay the live build"
           style={{ background: 'rgba(14,14,12,0.9)', color: '#fff', border: 'none', padding: '9px 14px', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
           <span style={{ width: 7, height: 7, borderRadius: 9999, background: T.accent }} />
