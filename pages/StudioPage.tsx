@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Calendar, X, Play } from 'lucide-react';
+import { AgentBuild } from '../components/AgentBuild';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -334,10 +335,16 @@ export const StudioPage: React.FC = () => {
 
   useEffect(() => { document.title = 'Abhishek Lonkar Studio'; }, []);
 
+  // "agents build the page live" intro — plays on load, replayable via the badge
+  const [building, setBuilding] = useState(true);
+
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
     <div style={{ background: T.bg, color: T.text, minHeight: '100vh', fontFamily: F.sans }}>
+      <AnimatePresence>
+        {building && <AgentBuild key="agent-build" onComplete={() => setBuilding(false)} />}
+      </AnimatePresence>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Space+Mono:wght@400;700&display=swap');
         @keyframes studioMarquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
@@ -655,6 +662,19 @@ export const StudioPage: React.FC = () => {
       </div>
 
       <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
+
+      {/* replay the live build */}
+      {!building && (
+        <button
+          onClick={() => setBuilding(true)}
+          className="fixed bottom-4 right-4 z-40 flex items-center gap-2 group"
+          title="Replay the live build"
+          style={{ background: 'rgba(14,14,12,0.9)', color: '#fff', border: 'none', padding: '9px 14px', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
+          <span style={{ width: 7, height: 7, borderRadius: 9999, background: T.accent }} />
+          <span style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.06em' }}>Built live by agents</span>
+          <span style={{ fontFamily: F.mono, fontSize: '13px', color: T.accent }}>↺</span>
+        </button>
+      )}
     </div>
   );
 };

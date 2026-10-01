@@ -45,23 +45,13 @@ const AppContent: React.FC = () => {
   );
 };
 
-// Studio-only app for the subdomain — renders StudioPage directly
-const StudioApp: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  return (
-    <>
-      <AnimatePresence>
-        {isLoading && <LoadingScreen variant="studio" onComplete={() => setIsLoading(false)} />}
-      </AnimatePresence>
-      {!isLoading && (
-        <div className="min-h-screen flex flex-col font-sans">
-          <StudioPage />
-        </div>
-      )}
-    </>
-  );
-};
+// Studio-only app for the subdomain — renders StudioPage directly.
+// The "agents build the page live" intro lives inside StudioPage, so no separate loader here.
+const StudioApp: React.FC = () => (
+  <div className="min-h-screen flex flex-col font-sans">
+    <StudioPage />
+  </div>
+);
 
 // Main site app with HashRouter
 const MainApp: React.FC = () => {
