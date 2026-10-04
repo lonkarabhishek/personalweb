@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion, useSpring, useMotionValue } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Calendar, X, Play } from 'lucide-react';
 import { AgentBuild } from '../components/AgentBuild';
 import { StudioAgent } from '../components/StudioAgent';
@@ -28,6 +28,12 @@ const F = {
   sans:    "'Inter', system-ui, sans-serif",
   mono:    "'Space Mono', ui-monospace, 'SF Mono', monospace",
 };
+
+/* Motion tokens (inspired by beui.dev) — spring physics over tweens.
+   Interfaces that move with intent: tactile press, soft lifts, magnetic pull. */
+const SPRING_PRESS = { type: 'spring', stiffness: 500, damping: 30 } as const;         // tappable surfaces
+const SPRING_SOFT  = { type: 'spring', stiffness: 260, damping: 26, mass: 0.9 } as const; // hover lifts
+const SPRING_MOUSE = { stiffness: 150, damping: 18, mass: 0.12 } as const;              // cursor-tracking tilt/magnet
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DATA
@@ -121,6 +127,54 @@ const Reveal: React.FC<{ children: React.ReactNode; delay?: number; y?: number; 
   );
 };
 
+/* Magnetic — the element drifts toward the cursor and springs back on leave.
+   Hover-only by nature (no pointer move on touch); disabled under reduced motion. */
+const Magnetic: React.FC<{ children: React.ReactNode; className?: string; strength?: number }> = ({ children, className = '', strength = 0.35 }) => {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const x = useSpring(mx, SPRING_MOUSE);
+  const y = useSpring(my, SPRING_MOUSE);
+  return (
+    <motion.span
+      ref={ref}
+      className={`inline-flex ${className}`}
+      style={{ x, y }}
+      onMouseMove={(e) => {
+        if (reduce || !ref.current) return;
+        const r = ref.current.getBoundingClientRect();
+        mx.set((e.clientX - (r.left + r.width / 2)) * strength);
+        my.set((e.clientY - (r.top + r.height / 2)) * strength);
+      }}
+      onMouseLeave={() => { mx.set(0); my.set(0); }}>
+      {children}
+    </motion.span>
+  );
+};
+
+/* WordStagger — headline words rise into place one after another on a spring. */
+const WordStagger: React.FC<{ text: string; className?: string; style?: React.CSSProperties }> = ({ text, className = '', style }) => {
+  const reduce = useReducedMotion();
+  const words = text.split(' ');
+  return (
+    <span className={className} style={style}>
+      {words.map((w, i) => (
+        <span key={i} className="inline-block overflow-hidden" style={{ verticalAlign: 'top' }}>
+          <motion.span
+            className="inline-block"
+            initial={reduce ? false : { y: '110%' }}
+            whileInView={{ y: '0%' }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ type: 'spring', stiffness: 140, damping: 26, mass: 1.2, delay: i * 0.08 }}>
+            {w}{i < words.length - 1 ? ' ' : ''}
+          </motion.span>
+        </span>
+      ))}
+    </span>
+  );
+};
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    BOOKING MODAL
    ═══════════════════════════════════════════════════════════════════════════════ */
@@ -168,6 +222,21 @@ const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
 const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   const [hover, setHover] = useState(false);
   const [shotOk, setShotOk] = useState(true);
+  const reduce = useReducedMotion();
+  // Cursor-tracking 3D tilt on the preview panel (beui-style), springed + reduced-motion safe.
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const srx = useSpring(rx, SPRING_MOUSE);
+  const sry = useSpring(ry, SPRING_MOUSE);
+  const onTilt = (e: React.MouseEvent<HTMLElement>) => {
+    if (reduce) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    ry.set(px * 7);
+    rx.set(-py * 7);
+  };
+  const resetTilt = () => { rx.set(0); ry.set(0); };
   const isAccent = p.tone === 'accent';
   const isDark = p.tone === 'dark';
   const panelBg = isAccent ? T.accent : isDark ? T.dark : T.bgAlt;
@@ -181,9 +250,14 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   return (
     <motion.a href={p.link} target="_blank" rel="noopener noreferrer"
       className="group block"
-      onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => { setHover(false); resetTilt(); }}
+      onMouseMove={onTilt}
+      whileHover={reduce ? undefined : { y: -5 }}
+      transition={SPRING_SOFT}
+      style={{ transformStyle: 'preserve-3d' }}>
       {/* Preview panel with browser chrome */}
-      <div className="relative overflow-hidden" style={{ background: panelBg, aspectRatio: '16 / 10' }}>
+      <motion.div className="relative overflow-hidden" style={{ background: panelBg, aspectRatio: '16 / 10', rotateX: srx, rotateY: sry, transformPerspective: 1000 }}>
         {/* browser bar */}
         <div className="absolute top-0 left-0 right-0 z-20 flex items-center gap-2 px-4" style={{ height: '40px', background: barBg }}>
           <span style={{ width: 8, height: 8, borderRadius: 9999, background: dot }} />
@@ -219,7 +293,7 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
           style={{ background: '#fff', color: T.text, padding: '7px 12px', fontFamily: F.mono, fontSize: '11px', boxShadow: '0 4px 16px rgba(0,0,0,0.18)' }}>
           Visit <ArrowUpRight size={13} />
         </motion.div>
-      </div>
+      </motion.div>
       {/* meta */}
       <div className="flex items-center justify-between mt-4" style={{ borderTop: `1px solid ${T.line}`, paddingTop: '14px' }}>
         <span style={{ fontFamily: F.mono, fontSize: '12px', letterSpacing: '0.02em', color: hover ? T.accent : T.muted, transition: 'color 0.3s' }}>
@@ -241,6 +315,7 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
    SERVICE TILE
    ═══════════════════════════════════════════════════════════════════════════════ */
 const ServiceTile: React.FC<{ s: typeof services[0]; className?: string }> = ({ s, className = '' }) => {
+  const reduce = useReducedMotion();
   const isAccent = s.tone === 'accent';
   const isDark = s.tone === 'dark';
   const bg = isAccent ? T.accent : isDark ? T.dark : T.bgAlt;
@@ -249,7 +324,9 @@ const ServiceTile: React.FC<{ s: typeof services[0]; className?: string }> = ({ 
   const tagBorder = isAccent ? 'rgba(255,255,255,0.30)' : isDark ? T.lineDark : T.line;
   const tagText = isAccent ? 'rgba(255,255,255,0.9)' : isDark ? T.onDarkMuted : T.muted;
   return (
-    <div className={`flex flex-col justify-between ${className}`}
+    <motion.div className={`flex flex-col justify-between ${className}`}
+      whileHover={reduce ? undefined : { y: -6 }}
+      transition={SPRING_SOFT}
       style={{ background: bg, padding: 'clamp(28px, 3vw, 44px)', minHeight: 'clamp(220px, 26vw, 320px)' }}>
       <h3 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.5rem, 2.6vw, 2.3rem)', lineHeight: 1.05, letterSpacing: '-0.025em', color: head }}>
         {s.title}
@@ -269,7 +346,7 @@ const ServiceTile: React.FC<{ s: typeof services[0]; className?: string }> = ({ 
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -313,7 +390,8 @@ const VideoEmbed: React.FC<{ v: typeof demoVideos[0] }> = ({ v }) => {
             className="absolute left-1/2 top-1/2 flex items-center justify-center"
             style={{ transform: 'translate(-50%,-50%)', width: 'clamp(64px, 8vw, 92px)', height: 'clamp(64px, 8vw, 92px)', borderRadius: '9999px', background: T.accent, boxShadow: '0 10px 40px rgba(31,58,255,0.45)' }}
             whileHover={{ scale: 1.08 }}
-            transition={{ duration: 0.3 }}>
+            whileTap={{ scale: 0.94 }}
+            transition={SPRING_PRESS}>
             <Play size={30} color="#fff" style={{ marginLeft: 4 }} className="fill-current" />
           </motion.span>
           <span className="absolute left-5 bottom-5 flex items-center gap-2" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)' }}>
@@ -331,7 +409,9 @@ const VideoEmbed: React.FC<{ v: typeof demoVideos[0] }> = ({ v }) => {
 export const StudioPage: React.FC = () => {
   const [showBooking, setShowBooking] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { scrollY } = useScroll();
+  const reduce = useReducedMotion();
+  const { scrollY, scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.6 });
   useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 40));
 
   useEffect(() => { document.title = 'Abhishek Lonkar Studio'; }, []);
@@ -362,6 +442,12 @@ export const StudioPage: React.FC = () => {
           backgroundSize: '220px 220px',
         }} />
 
+        {/* Scroll progress — thin springed bar tracking read position */}
+        <motion.div aria-hidden style={{
+          position: 'fixed', top: 0, left: 0, right: 0, height: '2px', zIndex: 101,
+          background: T.accent, transformOrigin: '0% 50%', scaleX: progress,
+        }} />
+
         {/* ═══ NAV ═══ */}
         <motion.nav
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}
@@ -383,12 +469,13 @@ export const StudioPage: React.FC = () => {
                   </button>
                 ))}
               </div>
-              <button onClick={() => setShowBooking(true)}
+              <motion.button onClick={() => setShowBooking(true)}
+                whileHover={reduce ? undefined : { scale: 1.03 }} whileTap={reduce ? undefined : { scale: 0.96 }} transition={SPRING_PRESS}
                 style={{ fontFamily: F.sans, fontSize: '13px', fontWeight: 500, color: '#fff', background: T.text, padding: '9px 18px', border: 'none', cursor: 'pointer' }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = T.accent)}
                 onMouseLeave={(e) => (e.currentTarget.style.background = T.text)}>
                 Let's talk
-              </button>
+              </motion.button>
             </div>
           </div>
         </motion.nav>
@@ -425,20 +512,24 @@ export const StudioPage: React.FC = () => {
 
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }}
                 className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0 w-full sm:w-auto">
-                <button onClick={() => setShowBooking(true)}
-                  className="flex items-center justify-center gap-2.5 w-full sm:w-auto"
-                  style={{ fontFamily: F.sans, fontSize: '15px', fontWeight: 500, color: '#fff', background: T.accent, padding: '16px 26px', border: 'none', cursor: 'pointer' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = T.text)}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = T.accent)}>
-                  Let's talk <ArrowRight size={17} />
-                </button>
-                <button onClick={() => scrollTo('work')}
+                <Magnetic className="w-full sm:w-auto">
+                  <motion.button onClick={() => setShowBooking(true)}
+                    whileHover={reduce ? undefined : { scale: 1.02 }} whileTap={reduce ? undefined : { scale: 0.97 }} transition={SPRING_PRESS}
+                    className="flex items-center justify-center gap-2.5 w-full"
+                    style={{ fontFamily: F.sans, fontSize: '15px', fontWeight: 500, color: '#fff', background: T.accent, padding: '16px 26px', border: 'none', cursor: 'pointer' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = T.text)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = T.accent)}>
+                    Let's talk <ArrowRight size={17} />
+                  </motion.button>
+                </Magnetic>
+                <motion.button onClick={() => scrollTo('work')}
+                  whileHover={reduce ? undefined : { scale: 1.02 }} whileTap={reduce ? undefined : { scale: 0.97 }} transition={SPRING_PRESS}
                   className="flex items-center justify-center w-full sm:w-auto"
                   style={{ fontFamily: F.sans, fontSize: '15px', color: T.text, background: 'none', border: `1px solid ${T.line}`, padding: '16px 26px', cursor: 'pointer' }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.text; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.line; }}>
                   See the work
-                </button>
+                </motion.button>
               </motion.div>
             </div>
           </div>
@@ -617,19 +708,21 @@ export const StudioPage: React.FC = () => {
 
             {/* CTA */}
             <div className="py-16 md:py-28 text-center">
-              <Reveal>
-                <h2 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2.6rem, 8vw, 7rem)', lineHeight: 0.98, letterSpacing: '-0.04em', color: T.onDark }}>
-                  Have a project?
-                </h2>
-              </Reveal>
+              <h2>
+                <WordStagger text="Have a project?"
+                  style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2.6rem, 8vw, 7rem)', lineHeight: 0.98, letterSpacing: '-0.04em', color: T.onDark }} />
+              </h2>
               <Reveal delay={0.08}>
-                <button onClick={() => setShowBooking(true)}
-                  className="inline-flex items-center justify-center gap-2.5 mt-9 w-full sm:w-auto"
-                  style={{ fontFamily: F.sans, fontSize: '16px', fontWeight: 500, color: '#fff', background: T.accent, padding: '17px 38px', border: 'none', cursor: 'pointer' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = '#fff', e.currentTarget.style.color = T.dark)}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = T.accent, e.currentTarget.style.color = '#fff')}>
-                  Let's talk <ArrowRight size={18} />
-                </button>
+                <Magnetic className="mt-9 w-full sm:w-auto" strength={0.4}>
+                  <motion.button onClick={() => setShowBooking(true)}
+                    whileHover={reduce ? undefined : { scale: 1.03 }} whileTap={reduce ? undefined : { scale: 0.97 }} transition={SPRING_PRESS}
+                    className="inline-flex items-center justify-center gap-2.5 w-full"
+                    style={{ fontFamily: F.sans, fontSize: '16px', fontWeight: 500, color: '#fff', background: T.accent, padding: '17px 38px', border: 'none', cursor: 'pointer' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#fff', e.currentTarget.style.color = T.dark)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = T.accent, e.currentTarget.style.color = '#fff')}>
+                    Let's talk <ArrowRight size={18} />
+                  </motion.button>
+                </Magnetic>
               </Reveal>
             </div>
 
