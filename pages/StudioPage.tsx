@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion, useSpring, useMotionValue } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Calendar, X, Play } from 'lucide-react';
-import { AgentBuild } from '../components/AgentBuild';
 // import { StudioAgent } from '../components/StudioAgent'; // hidden for now
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -172,6 +171,100 @@ const WordStagger: React.FC<{ text: string; className?: string; style?: React.CS
         </span>
       ))}
     </span>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LIVE BUILD — the page assembles itself piece by piece, in place.
+   Instead of a blocking loader, real sections materialize from a wireframe as
+   "agents" construct them; a small HUD narrates the work, then becomes the
+   replay badge. Each step index maps to a part of the page.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const CEASE = [0.16, 1, 0.3, 1] as const;
+const BUILD: { label: string }[] = [
+  { label: 'navigation' },
+  { label: 'the hero' },
+  { label: 'the numbers' },
+  { label: 'the call to action' },
+  { label: 'experience strip' },
+  { label: 'selected work' },
+  { label: 'work in motion' },
+  { label: 'the services grid' },
+  { label: 'the story + stats' },
+  { label: 'client reviews' },
+  { label: 'shipping to the edge' },
+];
+const STEP = { NAV: 0, HERO: 1, FIGS: 2, CTA: 3, EXP: 4, WORK: 5 };
+
+// Wrap a piece of the page so it builds in on its step: a labelled wireframe
+// skeleton that an agent fills in. Content keeps its space so nothing jumps.
+const Construct: React.FC<{ i: number; current: number; label: string; children: React.ReactNode; className?: string; contentClassName?: string }> = ({ i, current, label, children, className = '', contentClassName = '' }) => {
+  const reduce = useReducedMotion();
+  if (reduce) return <div className={`${className} ${contentClassName}`}>{children}</div>;
+  const built = current >= i;
+  const active = current === i - 1 || current === i; // scanning just before + on its step
+  return (
+    <div className={`relative ${className}`}>
+      <motion.div
+        className={contentClassName}
+        animate={{ opacity: built ? 1 : 0, y: built ? 0 : 14, filter: built ? 'blur(0px)' : 'blur(7px)' }}
+        transition={{ duration: 0.6, ease: CEASE }}
+        style={{ pointerEvents: built ? 'auto' : 'none' }}>
+        {children}
+      </motion.div>
+      <AnimatePresence>
+        {!built && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+            className="absolute inset-0 overflow-hidden"
+            style={{ border: `1px dashed ${active ? T.accent : T.line}`, background: active ? 'rgba(31,58,255,0.05)' : 'rgba(20,20,15,0.02)' }}>
+            {active && <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,transparent,rgba(31,58,255,0.75),transparent)', animation: 'studioScan 1.1s linear infinite' }} />}
+            <span className="uppercase" style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', color: active ? T.accent : T.faint, padding: '7px 9px', display: 'inline-block' }}>
+              {active ? `agent · building ${label}` : label}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// Corner HUD narrating the build; collapses into the replay badge when done.
+const BuildHUD: React.FC<{ current: number; secs: string; onSkip: () => void }> = ({ current, secs, onSkip }) => {
+  const rows = BUILD.map((b, i) => ({ ...b, i })).slice(Math.max(0, current - 2), current + 1);
+  const pct = Math.min(100, Math.round((current / BUILD.length) * 100));
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}
+      transition={{ duration: 0.4, ease: CEASE }}
+      className="fixed bottom-4 left-4 z-40"
+      style={{ width: 'min(300px, calc(100vw - 32px))', background: 'rgba(14,14,12,0.94)', color: '#fff', border: `1px solid rgba(255,255,255,0.12)`, backdropFilter: 'blur(10px)', boxShadow: '0 16px 50px rgba(0,0,0,0.4)' }}>
+      <div className="flex items-center justify-between" style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <span className="flex items-center gap-2" style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)' }}>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: T.accent }} /> building this page, live
+        </span>
+        <span style={{ fontFamily: F.mono, fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontVariantNumeric: 'tabular-nums' }}>{secs}s</span>
+      </div>
+      <div style={{ padding: '10px 12px' }}>
+        {rows.map((r) => {
+          const done = current > r.i;
+          return (
+            <div key={r.i} className="flex items-center gap-2" style={{ fontFamily: F.mono, fontSize: '11.5px', lineHeight: 1.85, color: done ? 'rgba(255,255,255,0.45)' : '#fff' }}>
+              <span style={{ color: done ? '#46d17f' : T.accent, width: 12, flexShrink: 0 }}>{done ? '✓' : '▸'}</span>
+              <span className="truncate">agent · {r.label}{!done && <span style={{ color: T.accent }}> …</span>}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex items-center justify-between" style={{ padding: '0 12px 11px' }}>
+        <div style={{ position: 'relative', height: 2, flex: 1, marginRight: 12, background: 'rgba(255,255,255,0.14)' }}>
+          <motion.div animate={{ width: `${pct}%` }} transition={{ duration: 0.3, ease: 'easeOut' }} style={{ position: 'absolute', inset: 0, right: 'auto', background: T.accent }} />
+        </div>
+        <button onClick={onSkip} style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          Skip
+        </button>
+      </div>
+    </motion.div>
   );
 };
 
@@ -416,19 +509,40 @@ export const StudioPage: React.FC = () => {
 
   useEffect(() => { document.title = 'Abhishek Lonkar Studio'; }, []);
 
-  // "agents build the page live" intro — plays on load, replayable via the badge
-  const [building, setBuilding] = useState(true);
+  // Live in-page build: sections assemble piece by piece. `current` is the step
+  // reached; it drives both the wireframe-to-content reveals and the HUD.
+  const [current, setCurrent] = useState(reduce ? BUILD.length : 0);
+  const [runId, setRunId] = useState(0);
+  const [secs, setSecs] = useState('0.0');
+
+  useEffect(() => {
+    if (reduce) { setCurrent(BUILD.length); return; }
+    setCurrent(0);
+    setSecs('0.0');
+    const start = performance.now();
+    // Hero pieces build deliberately; the rest of the page assembles faster.
+    const delayFor = (k: number) => (k <= STEP.CTA ? k * 340 : STEP.CTA * 340 + (k - STEP.CTA) * 200);
+    const timers = BUILD.map((_, idx) => setTimeout(() => setCurrent(idx + 1), delayFor(idx + 1)));
+    const tick = setInterval(() => setSecs(((performance.now() - start) / 1000).toFixed(1)), 60);
+    const stopTick = setTimeout(() => clearInterval(tick), delayFor(BUILD.length) + 250);
+    return () => { timers.forEach(clearTimeout); clearInterval(tick); clearTimeout(stopTick); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runId]);
+
+  const finished = current >= BUILD.length;
+  const replay = () => setRunId((r) => r + 1);
 
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
     <div style={{ background: T.bg, color: T.text, minHeight: '100vh', fontFamily: F.sans }}>
       <AnimatePresence>
-        {building && <AgentBuild key="agent-build" onComplete={() => setBuilding(false)} />}
+        {!finished && <BuildHUD key="build-hud" current={current} secs={secs} onSkip={() => setCurrent(BUILD.length)} />}
       </AnimatePresence>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Space+Mono:wght@400;700&display=swap');
         @keyframes studioMarquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+        @keyframes studioScan { 0% { top: 0 } 100% { top: 100% } }
         .studio-marquee { animation: studioMarquee 34s linear infinite; }
         #studio-root ::selection { background: rgba(31,58,255,0.18); }
         @media(prefers-reduced-motion:reduce){ .studio-marquee{ animation:none } }
@@ -483,13 +597,6 @@ export const StudioPage: React.FC = () => {
         {/* ═══ HERO ═══ */}
         <section className="relative flex items-center" style={{ minHeight: '100svh', padding: '96px clamp(20px, 4vw, 40px) 40px' }}>
           <div className="max-w-[1500px] mx-auto w-full">
-            {/* availability: single real status indicator */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex items-center gap-2.5 mb-8 md:mb-10">
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: T.accent }} />
-              <span style={{ fontFamily: F.mono, fontSize: '12px', letterSpacing: '0.02em', color: T.muted }}>Available for new projects</span>
-            </motion.div>
-
             {/* headline: max 2 lines, wide container */}
             <h1 className="max-w-[16ch] md:max-w-[20ch]" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2.6rem, 8.5vw, 8rem)', lineHeight: 0.98, letterSpacing: '-0.04em' }}>
               <span className="block overflow-hidden">
@@ -504,14 +611,28 @@ export const StudioPage: React.FC = () => {
               </span>
             </h1>
 
-            <div className="mt-8 md:mt-10 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
-              <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}
-                style={{ fontFamily: F.sans, fontSize: 'clamp(16px, 1.3vw, 19px)', color: T.muted, lineHeight: 1.6, maxWidth: '46ch' }}>
-                A small digital studio. We design, build, and grow websites and online stores for businesses that want to be taken seriously.
-              </motion.p>
+            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}
+              className="mt-8 md:mt-10"
+              style={{ fontFamily: F.sans, fontSize: 'clamp(16px, 1.3vw, 19px)', color: T.muted, lineHeight: 1.6, maxWidth: '46ch' }}>
+              A small digital studio. We design, build, and grow websites and online stores for businesses that want to be taken seriously.
+            </motion.p>
 
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0 w-full sm:w-auto">
+            {/* figures: credibility numbers, built in before the buttons */}
+            <div className="mt-12 md:mt-16 pt-8" style={{ borderTop: `1px solid ${T.line}` }}>
+              <Construct i={STEP.FIGS} current={current} label="the numbers"
+                contentClassName="grid grid-cols-2 sm:grid-cols-4 gap-y-7 gap-x-4">
+                {stats.map((s) => (
+                  <div key={s.label}>
+                    <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.9rem, 3.2vw, 2.9rem)', letterSpacing: '-0.035em', lineHeight: 1 }}>{s.value}</div>
+                    <div className="mt-2 uppercase" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.08em', color: T.faint }}>{s.label}</div>
+                  </div>
+                ))}
+              </Construct>
+            </div>
+
+            {/* CTAs, built in last */}
+            <Construct i={STEP.CTA} current={current} label="the call to action" className="mt-8 md:mt-10">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                 <Magnetic className="w-full sm:w-auto">
                   <motion.button onClick={() => setShowBooking(true)}
                     whileHover={reduce ? undefined : { scale: 1.02 }} whileTap={reduce ? undefined : { scale: 0.97 }} transition={SPRING_PRESS}
@@ -530,20 +651,8 @@ export const StudioPage: React.FC = () => {
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.line; }}>
                   See the work
                 </motion.button>
-              </motion.div>
-            </div>
-
-            {/* figures: credibility numbers up front */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.75 }}
-              className="mt-12 md:mt-16 pt-8 grid grid-cols-2 sm:grid-cols-4 gap-y-7 gap-x-4"
-              style={{ borderTop: `1px solid ${T.line}` }}>
-              {stats.map((s) => (
-                <div key={s.label}>
-                  <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.9rem, 3.2vw, 2.9rem)', letterSpacing: '-0.035em', lineHeight: 1 }}>{s.value}</div>
-                  <div className="mt-2 uppercase" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.08em', color: T.faint }}>{s.label}</div>
-                </div>
-              ))}
-            </motion.div>
+              </div>
+            </Construct>
           </div>
         </section>
 
@@ -771,19 +880,21 @@ export const StudioPage: React.FC = () => {
 
       {/* the studio's own agent — hidden for now (re-enable by uncommenting;
           the component and /api/agent backend are kept intact) */}
-      {/* {!building && <StudioAgent onBook={() => setShowBooking(true)} />} */}
+      {/* {finished && <StudioAgent onBook={() => setShowBooking(true)} />} */}
 
-      {/* replay the live build — bottom-left, clear of the agent launcher */}
-      {!building && (
-        <button
-          onClick={() => setBuilding(true)}
+      {/* replay the live build — bottom-left; re-runs the in-page construction */}
+      {finished && !reduce && (
+        <motion.button
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2, ease: CEASE }}
+          onClick={replay}
           className="fixed bottom-4 left-4 z-40 flex items-center gap-2 group"
           title="Replay the live build"
+          whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
           style={{ background: 'rgba(14,14,12,0.9)', color: '#fff', border: 'none', padding: '9px 14px', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
           <span style={{ width: 7, height: 7, borderRadius: 9999, background: T.accent }} />
           <span style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.06em' }}>Built live by agents</span>
           <span style={{ fontFamily: F.mono, fontSize: '13px', color: T.accent }}>↺</span>
-        </button>
+        </motion.button>
       )}
     </div>
   );
