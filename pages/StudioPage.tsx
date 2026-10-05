@@ -532,6 +532,18 @@ export const StudioPage: React.FC = () => {
                 </motion.button>
               </motion.div>
             </div>
+
+            {/* figures: credibility numbers up front */}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.75 }}
+              className="mt-12 md:mt-16 pt-8 grid grid-cols-2 sm:grid-cols-4 gap-y-7 gap-x-4"
+              style={{ borderTop: `1px solid ${T.line}` }}>
+              {stats.map((s) => (
+                <div key={s.label}>
+                  <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.9rem, 3.2vw, 2.9rem)', letterSpacing: '-0.035em', lineHeight: 1 }}>{s.value}</div>
+                  <div className="mt-2 uppercase" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.08em', color: T.faint }}>{s.label}</div>
+                </div>
+              ))}
+            </motion.div>
           </div>
         </section>
 
