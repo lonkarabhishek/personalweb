@@ -207,9 +207,9 @@ const CANVAS: { step: number; id: string; name: string; color: string }[] = [
   { step: STEP.CTA,  id: 'b-cta',  name: 'Growth', color: '#8257e6' },
 ];
 
-// Wrap a piece of the page so it builds in on its step: a labelled wireframe
-// skeleton that an agent fills in. Content keeps its space so nothing jumps.
-const Construct: React.FC<{ i: number; current: number; label: string; children: React.ReactNode; className?: string; contentClassName?: string; id?: string; tint?: string; agent?: string }> = ({ i, current, label, children, className = '', contentClassName = '', id, tint = T.accent, agent }) => {
+// Wrap a piece of the page so it builds in on its step: a wireframe skeleton
+// that fills in with content. Space is reserved so nothing jumps.
+const Construct: React.FC<{ i: number; current: number; children: React.ReactNode; className?: string; contentClassName?: string; id?: string; tint?: string }> = ({ i, current, children, className = '', contentClassName = '', id, tint = T.accent }) => {
   const reduce = useReducedMotion();
   if (reduce) return <div id={id} className={`${className} ${contentClassName}`}>{children}</div>;
   const built = current >= i;
@@ -230,9 +230,6 @@ const Construct: React.FC<{ i: number; current: number; label: string; children:
             className="absolute inset-0 overflow-hidden"
             style={{ border: `1px dashed ${active ? tint : T.line}`, background: active ? `${tint}14` : 'rgba(20,20,15,0.02)' }}>
             {active && <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: `linear-gradient(90deg,transparent,${tint}cc,transparent)`, animation: 'studioScan 1.1s linear infinite' }} />}
-            <span className="uppercase" style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', color: active ? tint : T.faint, padding: '7px 9px', display: 'inline-block' }}>
-              {active ? `${agent || 'agent'} · building ${label}` : label}
-            </span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -240,41 +237,21 @@ const Construct: React.FC<{ i: number; current: number; label: string; children:
   );
 };
 
-// Corner HUD narrating the build; collapses into the replay badge when done.
-const BuildHUD: React.FC<{ current: number; secs: string; onSkip: () => void }> = ({ current, secs, onSkip }) => {
-  const rows = BUILD.map((b, i) => ({ ...b, i })).slice(Math.max(0, current - 2), current + 1);
+// Minimal build chip — a thin progress bar and a skip. No narration.
+const BuildHUD: React.FC<{ current: number; onSkip: () => void }> = ({ current, onSkip }) => {
   const pct = Math.min(100, Math.round((current / BUILD.length) * 100));
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }}
       transition={{ duration: 0.4, ease: CEASE }}
-      className="fixed bottom-4 right-4 z-40"
-      style={{ width: 'min(300px, calc(100vw - 32px))', background: 'rgba(14,14,12,0.94)', color: '#fff', border: `1px solid rgba(255,255,255,0.12)`, backdropFilter: 'blur(10px)', boxShadow: '0 16px 50px rgba(0,0,0,0.4)' }}>
-      <div className="flex items-center justify-between" style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <span className="flex items-center gap-2" style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)' }}>
-          <span className="w-1.5 h-1.5 rounded-full" style={{ background: T.accent }} /> building this page, live
-        </span>
-        <span style={{ fontFamily: F.mono, fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontVariantNumeric: 'tabular-nums' }}>{secs}s</span>
+      className="fixed bottom-4 right-4 z-40 flex items-center gap-3"
+      style={{ background: 'rgba(14,14,12,0.9)', color: '#fff', border: `1px solid rgba(255,255,255,0.12)`, backdropFilter: 'blur(10px)', padding: '9px 13px', boxShadow: '0 12px 40px rgba(0,0,0,0.35)' }}>
+      <div style={{ position: 'relative', height: 2, width: 96, background: 'rgba(255,255,255,0.16)' }}>
+        <motion.div animate={{ width: `${pct}%` }} transition={{ duration: 0.3, ease: 'easeOut' }} style={{ position: 'absolute', top: 0, bottom: 0, left: 0, background: T.accent }} />
       </div>
-      <div style={{ padding: '10px 12px' }}>
-        {rows.map((r) => {
-          const done = current > r.i;
-          return (
-            <div key={r.i} className="flex items-center gap-2" style={{ fontFamily: F.mono, fontSize: '11.5px', lineHeight: 1.85, color: done ? 'rgba(255,255,255,0.45)' : '#fff' }}>
-              <span style={{ color: done ? '#46d17f' : T.accent, width: 12, flexShrink: 0 }}>{done ? '✓' : '▸'}</span>
-              <span className="truncate">{r.agent} · {r.label}{!done && <span style={{ color: T.accent }}> …</span>}</span>
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex items-center justify-between" style={{ padding: '0 12px 11px' }}>
-        <div style={{ position: 'relative', height: 2, flex: 1, marginRight: 12, background: 'rgba(255,255,255,0.14)' }}>
-          <motion.div animate={{ width: `${pct}%` }} transition={{ duration: 0.3, ease: 'easeOut' }} style={{ position: 'absolute', inset: 0, right: 'auto', background: T.accent }} />
-        </div>
-        <button onClick={onSkip} style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          Skip
-        </button>
-      </div>
+      <button onClick={onSkip} style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+        Skip
+      </button>
     </motion.div>
   );
 };
@@ -285,8 +262,8 @@ const AgentCursor: React.FC<{ color: string; name: string; active: boolean }> = 
     <svg width="23" height="23" viewBox="0 0 24 24" fill="none" style={{ filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.28))', flexShrink: 0 }}>
       <path d="M5 2.5 L5 19.5 L9.3 15.4 L12.2 21.8 L14.9 20.6 L12 14.2 L18.2 14.2 Z" fill={color} stroke="#fff" strokeWidth="1.3" strokeLinejoin="round" />
     </svg>
-    <span style={{ transform: 'translate(-3px, 13px)', background: color, color: '#fff', fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.03em', fontWeight: 700, padding: '3px 7px', borderRadius: 5, whiteSpace: 'nowrap', boxShadow: '0 3px 10px rgba(0,0,0,0.22)' }}>
-      {name}{active ? ' · building' : ''}
+    <span style={{ transform: 'translate(-3px, 13px)', background: color, color: '#fff', fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.03em', fontWeight: 700, padding: '3px 7px', borderRadius: 5, whiteSpace: 'nowrap', boxShadow: '0 3px 10px rgba(0,0,0,0.22)', opacity: active ? 1 : 0.9 }}>
+      {name}
     </span>
   </div>
 );
@@ -596,20 +573,15 @@ export const StudioPage: React.FC = () => {
   // reached; it drives both the wireframe-to-content reveals and the HUD.
   const [current, setCurrent] = useState(reduce ? BUILD.length : 0);
   const [runId, setRunId] = useState(0);
-  const [secs, setSecs] = useState('0.0');
 
   useEffect(() => {
     if (reduce) { setCurrent(BUILD.length); return; }
     setCurrent(0);
-    setSecs('0.0');
-    const start = performance.now();
     // Cumulative time at which each step completes (an agent finishes its piece).
     let acc = 0;
     const cum = STEP_MS.map((ms) => (acc += ms));
     const timers = BUILD.map((_, idx) => setTimeout(() => setCurrent(idx + 1), cum[idx]));
-    const tick = setInterval(() => setSecs(((performance.now() - start) / 1000).toFixed(1)), 60);
-    const stopTick = setTimeout(() => clearInterval(tick), cum[cum.length - 1] + 250);
-    return () => { timers.forEach(clearTimeout); clearInterval(tick); clearTimeout(stopTick); };
+    return () => { timers.forEach(clearTimeout); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runId]);
 
@@ -621,7 +593,7 @@ export const StudioPage: React.FC = () => {
   return (
     <div style={{ background: T.bg, color: T.text, minHeight: '100vh', fontFamily: F.sans }}>
       <AnimatePresence>
-        {!finished && <BuildHUD key="build-hud" current={current} secs={secs} onSkip={() => setCurrent(BUILD.length)} />}
+        {!finished && <BuildHUD key="build-hud" current={current} onSkip={() => setCurrent(BUILD.length)} />}
       </AnimatePresence>
       <CanvasAgents current={current} runId={runId} />
       <style>{`
@@ -704,7 +676,7 @@ export const StudioPage: React.FC = () => {
 
             {/* figures: credibility numbers, built in before the buttons */}
             <div id="b-figs" className="mt-12 md:mt-16 pt-8" style={{ borderTop: `1px solid ${T.line}` }}>
-              <Construct i={STEP.FIGS} current={current} label="the numbers" agent="Data" tint="#12a594"
+              <Construct i={STEP.FIGS} current={current} tint="#12a594"
                 contentClassName="grid grid-cols-2 sm:grid-cols-4 gap-y-7 gap-x-4">
                 {stats.map((s) => (
                   <div key={s.label}>
@@ -716,7 +688,7 @@ export const StudioPage: React.FC = () => {
             </div>
 
             {/* CTAs, built in last */}
-            <Construct i={STEP.CTA} current={current} label="the call to action" agent="Growth" tint="#8257e6" id="b-cta" className="mt-8 md:mt-10">
+            <Construct i={STEP.CTA} current={current} tint="#8257e6" id="b-cta" className="mt-8 md:mt-10">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                 <Magnetic className="w-full sm:w-auto">
                   <motion.button onClick={() => setShowBooking(true)}
@@ -967,17 +939,18 @@ export const StudioPage: React.FC = () => {
           the component and /api/agent backend are kept intact) */}
       {/* {finished && <StudioAgent onBook={() => setShowBooking(true)} />} */}
 
-      {/* replay the live build — bottom-left; re-runs the in-page construction */}
+      {/* replay the in-page construction — bottom-left */}
       {finished && !reduce && (
         <motion.button
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2, ease: CEASE }}
           onClick={replay}
           className="fixed bottom-4 left-4 z-40 flex items-center gap-2 group"
-          title="Replay the live build"
+          title="Replay"
+          aria-label="Replay the intro"
           whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
           style={{ background: 'rgba(14,14,12,0.9)', color: '#fff', border: 'none', padding: '9px 14px', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
           <span style={{ width: 7, height: 7, borderRadius: 9999, background: T.accent }} />
-          <span style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.06em' }}>Built live by agents</span>
+          <span style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.06em' }}>Replay</span>
           <span style={{ fontFamily: F.mono, fontSize: '13px', color: T.accent }}>↺</span>
         </motion.button>
       )}
