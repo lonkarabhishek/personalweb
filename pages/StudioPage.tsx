@@ -177,8 +177,8 @@ const WordStagger: React.FC<{ text: string; className?: string; style?: React.CS
 /* ═══════════════════════════════════════════════════════════════════════════════
    LIVE BUILD — the page assembles itself piece by piece, in place.
    Instead of a blocking loader, real sections materialize from a wireframe as
-   "agents" construct them; a small HUD narrates the work, then becomes the
-   replay badge. Each step index maps to a part of the page.
+   agent cursors construct them; a minimal progress + skip chip sits in the
+   corner. Each step index maps to a part of the page.
    ═══════════════════════════════════════════════════════════════════════════════ */
 const CEASE = [0.16, 1, 0.3, 1] as const;
 const BUILD: { label: string; agent: string }[] = [
@@ -269,7 +269,7 @@ const AgentCursor: React.FC<{ color: string; name: string; active: boolean }> = 
 );
 
 // Overlay of named agent cursors that fly to each piece and construct it in turn.
-const CanvasAgents: React.FC<{ current: number; runId: number }> = ({ current, runId }) => {
+const CanvasAgents: React.FC<{ current: number }> = ({ current }) => {
   const reduce = useReducedMotion();
   const [pts, setPts] = useState<Record<string, { x: number; y: number }>>({});
   useEffect(() => {
@@ -291,7 +291,7 @@ const CanvasAgents: React.FC<{ current: number; runId: number }> = ({ current, r
     window.addEventListener('resize', measure);
     return () => { clearTimeout(t1); clearTimeout(t2); window.removeEventListener('resize', measure); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reduce, runId]);
+  }, [reduce]);
 
   if (reduce) return null;
   const finished = current >= BUILD.length;
@@ -572,7 +572,6 @@ export const StudioPage: React.FC = () => {
   // Live in-page build: sections assemble piece by piece. `current` is the step
   // reached; it drives both the wireframe-to-content reveals and the HUD.
   const [current, setCurrent] = useState(reduce ? BUILD.length : 0);
-  const [runId, setRunId] = useState(0);
 
   useEffect(() => {
     if (reduce) { setCurrent(BUILD.length); return; }
@@ -583,10 +582,9 @@ export const StudioPage: React.FC = () => {
     const timers = BUILD.map((_, idx) => setTimeout(() => setCurrent(idx + 1), cum[idx]));
     return () => { timers.forEach(clearTimeout); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runId]);
+  }, []);
 
   const finished = current >= BUILD.length;
-  const replay = () => setRunId((r) => r + 1);
 
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -595,7 +593,7 @@ export const StudioPage: React.FC = () => {
       <AnimatePresence>
         {!finished && <BuildHUD key="build-hud" current={current} onSkip={() => setCurrent(BUILD.length)} />}
       </AnimatePresence>
-      <CanvasAgents current={current} runId={runId} />
+      <CanvasAgents current={current} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Space+Mono:wght@400;700&display=swap');
         @keyframes studioMarquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
@@ -939,21 +937,6 @@ export const StudioPage: React.FC = () => {
           the component and /api/agent backend are kept intact) */}
       {/* {finished && <StudioAgent onBook={() => setShowBooking(true)} />} */}
 
-      {/* replay the in-page construction — bottom-left */}
-      {finished && !reduce && (
-        <motion.button
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2, ease: CEASE }}
-          onClick={replay}
-          className="fixed bottom-4 left-4 z-40 flex items-center gap-2 group"
-          title="Replay"
-          aria-label="Replay the intro"
-          whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
-          style={{ background: 'rgba(14,14,12,0.9)', color: '#fff', border: 'none', padding: '9px 14px', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
-          <span style={{ width: 7, height: 7, borderRadius: 9999, background: T.accent }} />
-          <span style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.06em' }}>Replay</span>
-          <span style={{ fontFamily: F.mono, fontSize: '13px', color: T.accent }}>↺</span>
-        </motion.button>
-      )}
     </div>
   );
 };
