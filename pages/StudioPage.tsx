@@ -181,30 +181,41 @@ const WordStagger: React.FC<{ text: string; className?: string; style?: React.CS
    replay badge. Each step index maps to a part of the page.
    ═══════════════════════════════════════════════════════════════════════════════ */
 const CEASE = [0.16, 1, 0.3, 1] as const;
-const BUILD: { label: string }[] = [
-  { label: 'navigation' },
-  { label: 'the hero' },
-  { label: 'the numbers' },
-  { label: 'the call to action' },
-  { label: 'experience strip' },
-  { label: 'selected work' },
-  { label: 'work in motion' },
-  { label: 'the services grid' },
-  { label: 'the story + stats' },
-  { label: 'client reviews' },
-  { label: 'shipping to the edge' },
+const BUILD: { label: string; agent: string }[] = [
+  { label: 'navigation',           agent: 'Layout' },
+  { label: 'the hero',             agent: 'Copy' },
+  { label: 'the numbers',          agent: 'Data' },
+  { label: 'the call to action',   agent: 'Growth' },
+  { label: 'experience strip',     agent: 'Brand' },
+  { label: 'selected work',        agent: 'Build' },
+  { label: 'work in motion',       agent: 'Motion' },
+  { label: 'the services grid',    agent: 'Systems' },
+  { label: 'the story + stats',    agent: 'Copy' },
+  { label: 'client reviews',       agent: 'Brand' },
+  { label: 'shipping to the edge', agent: 'Deploy' },
 ];
 const STEP = { NAV: 0, HERO: 1, FIGS: 2, CTA: 3, EXP: 4, WORK: 5 };
+// per-step durations (ms): hero pieces build deliberately, the rest fast.
+const STEP_MS = [460, 540, 580, 640, 240, 220, 220, 220, 220, 220, 300];
+
+// Named agents that visibly build the above-the-fold pieces, each with its own
+// cursor colour and the id of the element it constructs — a canvas of agents.
+const CANVAS: { step: number; id: string; name: string; color: string }[] = [
+  { step: STEP.NAV,  id: 'b-nav',  name: 'Layout', color: '#1f3aff' },
+  { step: STEP.HERO, id: 'b-hero', name: 'Copy',   color: '#e4572e' },
+  { step: STEP.FIGS, id: 'b-figs', name: 'Data',   color: '#12a594' },
+  { step: STEP.CTA,  id: 'b-cta',  name: 'Growth', color: '#8257e6' },
+];
 
 // Wrap a piece of the page so it builds in on its step: a labelled wireframe
 // skeleton that an agent fills in. Content keeps its space so nothing jumps.
-const Construct: React.FC<{ i: number; current: number; label: string; children: React.ReactNode; className?: string; contentClassName?: string }> = ({ i, current, label, children, className = '', contentClassName = '' }) => {
+const Construct: React.FC<{ i: number; current: number; label: string; children: React.ReactNode; className?: string; contentClassName?: string; id?: string; tint?: string; agent?: string }> = ({ i, current, label, children, className = '', contentClassName = '', id, tint = T.accent, agent }) => {
   const reduce = useReducedMotion();
-  if (reduce) return <div className={`${className} ${contentClassName}`}>{children}</div>;
+  if (reduce) return <div id={id} className={`${className} ${contentClassName}`}>{children}</div>;
   const built = current >= i;
   const active = current === i - 1 || current === i; // scanning just before + on its step
   return (
-    <div className={`relative ${className}`}>
+    <div id={id} className={`relative ${className}`}>
       <motion.div
         className={contentClassName}
         animate={{ opacity: built ? 1 : 0, y: built ? 0 : 14, filter: built ? 'blur(0px)' : 'blur(7px)' }}
@@ -217,10 +228,10 @@ const Construct: React.FC<{ i: number; current: number; label: string; children:
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
             className="absolute inset-0 overflow-hidden"
-            style={{ border: `1px dashed ${active ? T.accent : T.line}`, background: active ? 'rgba(31,58,255,0.05)' : 'rgba(20,20,15,0.02)' }}>
-            {active && <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,transparent,rgba(31,58,255,0.75),transparent)', animation: 'studioScan 1.1s linear infinite' }} />}
-            <span className="uppercase" style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', color: active ? T.accent : T.faint, padding: '7px 9px', display: 'inline-block' }}>
-              {active ? `agent · building ${label}` : label}
+            style={{ border: `1px dashed ${active ? tint : T.line}`, background: active ? `${tint}14` : 'rgba(20,20,15,0.02)' }}>
+            {active && <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: `linear-gradient(90deg,transparent,${tint}cc,transparent)`, animation: 'studioScan 1.1s linear infinite' }} />}
+            <span className="uppercase" style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', color: active ? tint : T.faint, padding: '7px 9px', display: 'inline-block' }}>
+              {active ? `${agent || 'agent'} · building ${label}` : label}
             </span>
           </motion.div>
         )}
@@ -237,7 +248,7 @@ const BuildHUD: React.FC<{ current: number; secs: string; onSkip: () => void }> 
     <motion.div
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}
       transition={{ duration: 0.4, ease: CEASE }}
-      className="fixed bottom-4 left-4 z-40"
+      className="fixed bottom-4 right-4 z-40"
       style={{ width: 'min(300px, calc(100vw - 32px))', background: 'rgba(14,14,12,0.94)', color: '#fff', border: `1px solid rgba(255,255,255,0.12)`, backdropFilter: 'blur(10px)', boxShadow: '0 16px 50px rgba(0,0,0,0.4)' }}>
       <div className="flex items-center justify-between" style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
         <span className="flex items-center gap-2" style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)' }}>
@@ -251,7 +262,7 @@ const BuildHUD: React.FC<{ current: number; secs: string; onSkip: () => void }> 
           return (
             <div key={r.i} className="flex items-center gap-2" style={{ fontFamily: F.mono, fontSize: '11.5px', lineHeight: 1.85, color: done ? 'rgba(255,255,255,0.45)' : '#fff' }}>
               <span style={{ color: done ? '#46d17f' : T.accent, width: 12, flexShrink: 0 }}>{done ? '✓' : '▸'}</span>
-              <span className="truncate">agent · {r.label}{!done && <span style={{ color: T.accent }}> …</span>}</span>
+              <span className="truncate">{r.agent} · {r.label}{!done && <span style={{ color: T.accent }}> …</span>}</span>
             </div>
           );
         })}
@@ -265,6 +276,78 @@ const BuildHUD: React.FC<{ current: number; secs: string; onSkip: () => void }> 
         </button>
       </div>
     </motion.div>
+  );
+};
+
+// A single labelled agent cursor (arrow + name pill), like a live canvas cursor.
+const AgentCursor: React.FC<{ color: string; name: string; active: boolean }> = ({ color, name, active }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" style={{ filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.28))', flexShrink: 0 }}>
+      <path d="M5 2.5 L5 19.5 L9.3 15.4 L12.2 21.8 L14.9 20.6 L12 14.2 L18.2 14.2 Z" fill={color} stroke="#fff" strokeWidth="1.3" strokeLinejoin="round" />
+    </svg>
+    <span style={{ transform: 'translate(-3px, 13px)', background: color, color: '#fff', fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.03em', fontWeight: 700, padding: '3px 7px', borderRadius: 5, whiteSpace: 'nowrap', boxShadow: '0 3px 10px rgba(0,0,0,0.22)' }}>
+      {name}{active ? ' · building' : ''}
+    </span>
+  </div>
+);
+
+// Overlay of named agent cursors that fly to each piece and construct it in turn.
+const CanvasAgents: React.FC<{ current: number; runId: number }> = ({ current, runId }) => {
+  const reduce = useReducedMotion();
+  const [pts, setPts] = useState<Record<string, { x: number; y: number }>>({});
+  useEffect(() => {
+    if (reduce) return;
+    const measure = () => {
+      const next: Record<string, { x: number; y: number }> = {};
+      CANVAS.forEach((a) => {
+        const el = document.getElementById(a.id);
+        if (el) {
+          const r = el.getBoundingClientRect();
+          next[a.id] = { x: r.left + Math.min(70, r.width * 0.1), y: Math.max(8, r.top + Math.min(40, r.height * 0.28)) };
+        }
+      });
+      setPts(next);
+    };
+    measure();
+    const t1 = setTimeout(measure, 120);
+    const t2 = setTimeout(measure, 400);
+    window.addEventListener('resize', measure);
+    return () => { clearTimeout(t1); clearTimeout(t2); window.removeEventListener('resize', measure); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduce, runId]);
+
+  if (reduce) return null;
+  const finished = current >= BUILD.length;
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+  // each cursor flies in from a different edge
+  const origins = [
+    { x: -60, y: vh * 0.3 },
+    { x: vw + 60, y: vh * 0.22 },
+    { x: -60, y: vh * 0.72 },
+    { x: vw + 60, y: vh * 0.66 },
+  ];
+
+  return (
+    <div aria-hidden className="fixed inset-0 z-[110] pointer-events-none overflow-hidden">
+      {CANVAS.map((a, i) => {
+        const p = pts[a.id];
+        const reached = current >= a.step && p;
+        const active = current === a.step;
+        const pos = reached ? p! : origins[i % origins.length];
+        const opacity = finished ? 0 : current < a.step ? 0 : active ? 1 : 0.42;
+        return (
+          <motion.div
+            key={a.name + i}
+            initial={{ x: origins[i % origins.length].x, y: origins[i % origins.length].y, opacity: 0 }}
+            animate={{ x: pos.x, y: pos.y, opacity, scale: active ? 1 : 0.92 }}
+            transition={{ x: { type: 'spring', stiffness: 120, damping: 18, mass: 0.7 }, y: { type: 'spring', stiffness: 120, damping: 18, mass: 0.7 }, opacity: { duration: 0.3 }, scale: { duration: 0.3 } }}
+            style={{ position: 'absolute', top: 0, left: 0, willChange: 'transform' }}>
+            <AgentCursor color={a.color} name={a.name} active={active} />
+          </motion.div>
+        );
+      })}
+    </div>
   );
 };
 
@@ -520,11 +603,12 @@ export const StudioPage: React.FC = () => {
     setCurrent(0);
     setSecs('0.0');
     const start = performance.now();
-    // Hero pieces build deliberately; the rest of the page assembles faster.
-    const delayFor = (k: number) => (k <= STEP.CTA ? k * 340 : STEP.CTA * 340 + (k - STEP.CTA) * 200);
-    const timers = BUILD.map((_, idx) => setTimeout(() => setCurrent(idx + 1), delayFor(idx + 1)));
+    // Cumulative time at which each step completes (an agent finishes its piece).
+    let acc = 0;
+    const cum = STEP_MS.map((ms) => (acc += ms));
+    const timers = BUILD.map((_, idx) => setTimeout(() => setCurrent(idx + 1), cum[idx]));
     const tick = setInterval(() => setSecs(((performance.now() - start) / 1000).toFixed(1)), 60);
-    const stopTick = setTimeout(() => clearInterval(tick), delayFor(BUILD.length) + 250);
+    const stopTick = setTimeout(() => clearInterval(tick), cum[cum.length - 1] + 250);
     return () => { timers.forEach(clearTimeout); clearInterval(tick); clearTimeout(stopTick); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runId]);
@@ -539,6 +623,7 @@ export const StudioPage: React.FC = () => {
       <AnimatePresence>
         {!finished && <BuildHUD key="build-hud" current={current} secs={secs} onSkip={() => setCurrent(BUILD.length)} />}
       </AnimatePresence>
+      <CanvasAgents current={current} runId={runId} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Space+Mono:wght@400;700&display=swap');
         @keyframes studioMarquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
@@ -568,7 +653,7 @@ export const StudioPage: React.FC = () => {
           className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
           style={{ background: scrolled ? 'rgba(237,236,232,0.82)' : 'transparent', backdropFilter: scrolled ? 'blur(16px)' : 'none', borderBottom: scrolled ? `1px solid ${T.line}` : '1px solid transparent' }}>
           <div className="max-w-[1500px] mx-auto px-5 md:px-10 flex items-center justify-between" style={{ height: '68px' }}>
-            <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex items-center gap-2.5">
+            <a id="b-nav" href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex items-center gap-2.5">
               <img src="/favicon.png" alt="Abhishek Lonkar Studio" className="w-7 h-7 object-cover" />
               <span style={{ fontFamily: F.mono, fontSize: '13px', letterSpacing: '0.02em', color: T.text }}>Abhishek Lonkar Studio</span>
             </a>
@@ -598,7 +683,7 @@ export const StudioPage: React.FC = () => {
         <section className="relative flex items-center" style={{ minHeight: '100svh', padding: '96px clamp(20px, 4vw, 40px) 40px' }}>
           <div className="max-w-[1500px] mx-auto w-full">
             {/* headline: max 2 lines, wide container */}
-            <h1 className="max-w-[16ch] md:max-w-[20ch]" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2.6rem, 8.5vw, 8rem)', lineHeight: 0.98, letterSpacing: '-0.04em' }}>
+            <h1 id="b-hero" className="max-w-[16ch] md:max-w-[20ch]" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2.6rem, 8.5vw, 8rem)', lineHeight: 0.98, letterSpacing: '-0.04em' }}>
               <span className="block overflow-hidden">
                 <motion.span className="block" initial={{ y: '110%' }} animate={{ y: '0%' }} transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}>
                   Websites that
@@ -618,8 +703,8 @@ export const StudioPage: React.FC = () => {
             </motion.p>
 
             {/* figures: credibility numbers, built in before the buttons */}
-            <div className="mt-12 md:mt-16 pt-8" style={{ borderTop: `1px solid ${T.line}` }}>
-              <Construct i={STEP.FIGS} current={current} label="the numbers"
+            <div id="b-figs" className="mt-12 md:mt-16 pt-8" style={{ borderTop: `1px solid ${T.line}` }}>
+              <Construct i={STEP.FIGS} current={current} label="the numbers" agent="Data" tint="#12a594"
                 contentClassName="grid grid-cols-2 sm:grid-cols-4 gap-y-7 gap-x-4">
                 {stats.map((s) => (
                   <div key={s.label}>
@@ -631,7 +716,7 @@ export const StudioPage: React.FC = () => {
             </div>
 
             {/* CTAs, built in last */}
-            <Construct i={STEP.CTA} current={current} label="the call to action" className="mt-8 md:mt-10">
+            <Construct i={STEP.CTA} current={current} label="the call to action" agent="Growth" tint="#8257e6" id="b-cta" className="mt-8 md:mt-10">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                 <Magnetic className="w-full sm:w-auto">
                   <motion.button onClick={() => setShowBooking(true)}
