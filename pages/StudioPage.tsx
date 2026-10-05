@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion, useSpring, useMotionValue } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Calendar, X, Play } from 'lucide-react';
 import { AgentBuild } from '../components/AgentBuild';
-import { StudioAgent } from '../components/StudioAgent';
+// import { StudioAgent } from '../components/StudioAgent'; // hidden for now
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -757,8 +757,9 @@ export const StudioPage: React.FC = () => {
 
       <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
 
-      {/* the studio's own agent — launcher sits bottom-right */}
-      {!building && <StudioAgent onBook={() => setShowBooking(true)} />}
+      {/* the studio's own agent — hidden for now (re-enable by uncommenting;
+          the component and /api/agent backend are kept intact) */}
+      {/* {!building && <StudioAgent onBook={() => setShowBooking(true)} />} */}
 
       {/* replay the live build — bottom-left, clear of the agent launcher */}
       {!building && (
