@@ -303,6 +303,7 @@ const AgentCursor: React.FC<{ color: string; name: string; active: boolean }> = 
 const CanvasAgents: React.FC<{ current: number }> = ({ current }) => {
   const reduce = useReducedMotion();
   const [pts, setPts] = useState<Record<string, { x: number; y: number }>>({});
+  const [pm, setPm] = useState(false);
   useEffect(() => {
     if (reduce) return;
     const measure = () => {
@@ -324,10 +325,23 @@ const CanvasAgents: React.FC<{ current: number }> = ({ current }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduce]);
 
+  // Once the build agents finish, a PM swings by to sign it off, then leaves.
+  useEffect(() => {
+    if (reduce) return;
+    if (current >= BUILD.length) {
+      const show = setTimeout(() => setPm(true), 320);
+      const hide = setTimeout(() => setPm(false), 320 + 2200);
+      return () => { clearTimeout(show); clearTimeout(hide); };
+    }
+    setPm(false);
+  }, [current, reduce]);
+
   if (reduce) return null;
   const finished = current >= BUILD.length;
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const pmX = Math.min(vw * 0.62, vw - 230);
+  const pmY = Math.min(vh * 0.72, vh - 170);
   // each cursor flies in from a different edge
   const origins = [
     { x: -60, y: vh * 0.3 },
@@ -355,6 +369,29 @@ const CanvasAgents: React.FC<{ current: number }> = ({ current }) => {
           </motion.div>
         );
       })}
+
+      {/* PM sign-off: swings in once everything's built, says ready, then leaves */}
+      <AnimatePresence>
+        {pm && (
+          <motion.div
+            key="pm"
+            initial={{ opacity: 0, x: pmX, y: pmY - 52, scale: 0.9 }}
+            animate={{ opacity: 1, x: pmX, y: pmY, scale: 1 }}
+            exit={{ opacity: 0, y: pmY - 22, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 170, damping: 16 }}
+            style={{ position: 'absolute', top: 0, left: 0, willChange: 'transform' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" style={{ filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.28))', flexShrink: 0 }}>
+                <path d="M5 2.5 L5 19.5 L9.3 15.4 L12.2 21.8 L14.9 20.6 L12 14.2 L18.2 14.2 Z" fill="#1f9d55" stroke="#fff" strokeWidth="1.3" strokeLinejoin="round" />
+              </svg>
+              <span className="flex items-center gap-1.5" style={{ transform: 'translate(-3px, 13px)', background: '#1f9d55', color: '#fff', fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.03em', fontWeight: 700, padding: '3px 8px', borderRadius: 5, whiteSpace: 'nowrap', boxShadow: '0 3px 12px rgba(31,157,85,0.4)' }}>
+                PM · ready
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 12, height: 12, borderRadius: 999, background: '#fff', color: '#1f9d55', fontSize: '9px', lineHeight: 1 }}>✓</span>
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
