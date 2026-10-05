@@ -181,57 +181,52 @@ const WordStagger: React.FC<{ text: string; className?: string; style?: React.CS
    corner. Each step index maps to a part of the page.
    ═══════════════════════════════════════════════════════════════════════════════ */
 const CEASE = [0.16, 1, 0.3, 1] as const;
-const BUILD: { label: string; agent: string }[] = [
-  { label: 'navigation',           agent: 'Layout' },
-  { label: 'the hero',             agent: 'Copy' },
-  { label: 'the numbers',          agent: 'Data' },
-  { label: 'the call to action',   agent: 'Growth' },
-  { label: 'experience strip',     agent: 'Brand' },
-  { label: 'selected work',        agent: 'Build' },
-  { label: 'work in motion',       agent: 'Motion' },
-  { label: 'the services grid',    agent: 'Systems' },
-  { label: 'the story + stats',    agent: 'Copy' },
-  { label: 'client reviews',       agent: 'Brand' },
-  { label: 'shipping to the edge', agent: 'Deploy' },
-];
-const STEP = { NAV: 0, HERO: 1, FIGS: 2, CTA: 3, EXP: 4, WORK: 5 };
-// per-step durations (ms): hero agents take their time typing their piece,
-// the rest of the page (below the fold) assembles faster.
-const STEP_MS = [650, 1900, 1400, 1050, 300, 280, 280, 280, 280, 280, 360];
 
-// Named agents that visibly build the above-the-fold pieces, each with its own
-// cursor colour and the id of the element it constructs — a canvas of agents.
-const CANVAS: { step: number; id: string; name: string; color: string }[] = [
-  { step: STEP.NAV,  id: 'b-nav',  name: 'Layout', color: '#1f3aff' },
-  { step: STEP.HERO, id: 'b-hero', name: 'Copy',   color: '#e4572e' },
-  { step: STEP.FIGS, id: 'b-figs', name: 'Data',   color: '#12a594' },
-  { step: STEP.CTA,  id: 'b-cta',  name: 'Growth', color: '#8257e6' },
-];
+// The team of agents that build the above-the-fold pieces. They arrive within a
+// beat of each other and work in PARALLEL — each lingers on its piece for a few
+// seconds (start..start+work), like a real team on a shared canvas.
+type Phase = 'idle' | 'working' | 'done';
+type PhaseMap = Record<string, Phase>;
+const TEAM = [
+  { key: 'nav',  id: 'b-nav',  name: 'Layout', color: '#1f3aff', start: 200, work: 3700 },
+  { key: 'hero', id: 'b-hero', name: 'Copy',   color: '#e4572e', start: 350, work: 4400 },
+  { key: 'figs', id: 'b-figs', name: 'Data',   color: '#12a594', start: 550, work: 4000 },
+  { key: 'cta',  id: 'b-cta',  name: 'Growth', color: '#8257e6', start: 750, work: 3600 },
+] as const;
+const TEAM_KEYS = TEAM.map((m) => m.key);
 
-// Wrap a piece of the page so it builds in on its step: a wireframe skeleton
-// that fills in with content. Space is reserved so nothing jumps.
-const Construct: React.FC<{ i: number; current: number; children: React.ReactNode; className?: string; contentClassName?: string; id?: string; tint?: string; typed?: boolean }> = ({ i, current, children, className = '', contentClassName = '', id, tint = T.accent, typed = false }) => {
+// Wrap a piece of the page so its agent can build it: a wireframe skeleton while
+// idle, content once the agent is on it (`on`), with a faint activity sweep while
+// the agent is still working it. Space is reserved so nothing jumps.
+const Construct: React.FC<{ on: boolean; working: boolean; children: React.ReactNode; className?: string; contentClassName?: string; id?: string; tint?: string; typed?: boolean }> = ({ on, working, children, className = '', contentClassName = '', id, tint = T.accent, typed = false }) => {
   const reduce = useReducedMotion();
   if (reduce) return <div id={id} className={`${className} ${contentClassName}`}>{children}</div>;
-  const built = current >= i;
-  const active = current === i - 1 || current === i; // scanning just before + on its step
   return (
     <div id={id} className={`relative ${className}`}>
       <motion.div
         className={contentClassName}
         // typed pieces appear instantly so the inner typewriter does the reveal
-        animate={typed ? { opacity: built ? 1 : 0 } : { opacity: built ? 1 : 0, y: built ? 0 : 14, filter: built ? 'blur(0px)' : 'blur(7px)' }}
+        animate={typed ? { opacity: on ? 1 : 0 } : { opacity: on ? 1 : 0, y: on ? 0 : 14, filter: on ? 'blur(0px)' : 'blur(7px)' }}
         transition={typed ? { duration: 0.12 } : { duration: 0.6, ease: CEASE }}
-        style={{ pointerEvents: built ? 'auto' : 'none' }}>
+        style={{ pointerEvents: on ? 'auto' : 'none' }}>
         {children}
       </motion.div>
       <AnimatePresence>
-        {!built && (
+        {!on && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
             className="absolute inset-0 overflow-hidden"
-            style={{ border: `1px dashed ${active ? tint : T.line}`, background: active ? `${tint}14` : 'rgba(20,20,15,0.02)' }}>
-            {active && <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: `linear-gradient(90deg,transparent,${tint}cc,transparent)`, animation: 'studioScan 1.1s linear infinite' }} />}
+            style={{ border: `1px dashed ${working ? tint : T.line}`, background: working ? `${tint}14` : 'rgba(20,20,15,0.02)' }}>
+            {working && <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: `linear-gradient(90deg,transparent,${tint}cc,transparent)`, animation: 'studioScan 1.1s linear infinite' }} />}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {on && working && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+            aria-hidden className="absolute left-0 right-0 overflow-hidden pointer-events-none" style={{ bottom: -7, height: 2 }}>
+            <div style={{ position: 'absolute', top: 0, bottom: 0, width: '38%', background: `linear-gradient(90deg,transparent,${tint},transparent)`, animation: 'studioSweep 1.25s ease-in-out infinite' }} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -299,16 +294,18 @@ const AgentCursor: React.FC<{ color: string; name: string; active: boolean }> = 
   </div>
 );
 
-// Overlay of named agent cursors that fly to each piece and construct it in turn.
-const CanvasAgents: React.FC<{ current: number }> = ({ current }) => {
+// Overlay of named agent cursors. They arrive together and work their pieces in
+// parallel (phase === 'working'), each bobbing on its spot, then park when done.
+const CanvasAgents: React.FC<{ phase: PhaseMap }> = ({ phase }) => {
   const reduce = useReducedMotion();
   const [pts, setPts] = useState<Record<string, { x: number; y: number }>>({});
   const [pm, setPm] = useState(false);
+  const allDone = TEAM_KEYS.every((k) => phase[k] === 'done');
   useEffect(() => {
     if (reduce) return;
     const measure = () => {
       const next: Record<string, { x: number; y: number }> = {};
-      CANVAS.forEach((a) => {
+      TEAM.forEach((a) => {
         const el = document.getElementById(a.id);
         if (el) {
           const r = el.getBoundingClientRect();
@@ -325,19 +322,18 @@ const CanvasAgents: React.FC<{ current: number }> = ({ current }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduce]);
 
-  // Once the build agents finish, a PM swings by to sign it off, then leaves.
+  // Once the whole team finishes, a PM swings by to sign it off, then leaves.
   useEffect(() => {
     if (reduce) return;
-    if (current >= BUILD.length) {
+    if (allDone) {
       const show = setTimeout(() => setPm(true), 320);
       const hide = setTimeout(() => setPm(false), 320 + 2200);
       return () => { clearTimeout(show); clearTimeout(hide); };
     }
     setPm(false);
-  }, [current, reduce]);
+  }, [allDone, reduce]);
 
   if (reduce) return null;
-  const finished = current >= BUILD.length;
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
   const pmX = Math.min(vw * 0.62, vw - 230);
@@ -352,20 +348,25 @@ const CanvasAgents: React.FC<{ current: number }> = ({ current }) => {
 
   return (
     <div aria-hidden className="fixed inset-0 z-[110] pointer-events-none overflow-hidden">
-      {CANVAS.map((a, i) => {
+      {TEAM.map((a, i) => {
+        const ph = phase[a.key];
         const p = pts[a.id];
-        const reached = current >= a.step && p;
-        const active = current === a.step;
-        const pos = reached ? p! : origins[i % origins.length];
-        const opacity = finished ? 0 : current < a.step ? 0 : active ? 1 : 0.42;
+        const shown = ph !== 'idle' && !!p;
+        const working = ph === 'working';
+        const pos = shown ? p! : origins[i % origins.length];
+        const opacity = allDone ? 0 : ph === 'idle' ? 0 : working ? 1 : 0.5;
         return (
           <motion.div
-            key={a.name + i}
+            key={a.key}
             initial={{ x: origins[i % origins.length].x, y: origins[i % origins.length].y, opacity: 0 }}
-            animate={{ x: pos.x, y: pos.y, opacity, scale: active ? 1 : 0.92 }}
+            animate={{ x: pos.x, y: pos.y, opacity, scale: working ? 1 : 0.92 }}
             transition={{ x: { type: 'spring', stiffness: 120, damping: 18, mass: 0.7 }, y: { type: 'spring', stiffness: 120, damping: 18, mass: 0.7 }, opacity: { duration: 0.3 }, scale: { duration: 0.3 } }}
             style={{ position: 'absolute', top: 0, left: 0, willChange: 'transform' }}>
-            <AgentCursor color={a.color} name={a.name} active={active} />
+            <motion.div
+              animate={working ? { y: [0, -3, 0], x: [0, 1.5, 0] } : { y: 0, x: 0 }}
+              transition={working ? { duration: 1.15, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}>
+              <AgentCursor color={a.color} name={a.name} active={working} />
+            </motion.div>
           </motion.div>
         );
       })}
@@ -637,17 +638,21 @@ export const StudioPage: React.FC = () => {
 
   useEffect(() => { document.title = 'Abhishek Lonkar Studio'; }, []);
 
-  // Live in-page build: sections assemble piece by piece. `current` is the step
-  // reached; it drives both the wireframe-to-content reveals and the HUD.
-  const [current, setCurrent] = useState(reduce ? BUILD.length : 0);
+  // Live in-page build: the team works IN PARALLEL. Each agent moves to
+  // 'working' when it arrives and 'done' when it finishes; their windows overlap.
+  const allDone: PhaseMap = { nav: 'done', hero: 'done', figs: 'done', cta: 'done' };
+  const [phase, setPhase] = useState<PhaseMap>(reduce ? allDone : { nav: 'idle', hero: 'idle', figs: 'idle', cta: 'idle' });
+  const on = (k: string) => phase[k] !== 'idle';
+  const working = (k: string) => phase[k] === 'working';
 
   useEffect(() => {
-    if (reduce) { setCurrent(BUILD.length); return; }
-    setCurrent(0);
-    // Cumulative time at which each step completes (an agent finishes its piece).
-    let acc = 0;
-    const cum = STEP_MS.map((ms) => (acc += ms));
-    const timers = BUILD.map((_, idx) => setTimeout(() => setCurrent(idx + 1), cum[idx]));
+    if (reduce) { setPhase(allDone); return; }
+    setPhase({ nav: 'idle', hero: 'idle', figs: 'idle', cta: 'idle' });
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    TEAM.forEach((m) => {
+      timers.push(setTimeout(() => setPhase((p) => ({ ...p, [m.key]: 'working' })), m.start));
+      timers.push(setTimeout(() => setPhase((p) => ({ ...p, [m.key]: 'done' })), m.start + m.work));
+    });
     return () => { timers.forEach(clearTimeout); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -656,11 +661,12 @@ export const StudioPage: React.FC = () => {
 
   return (
     <div style={{ background: T.bg, color: T.text, minHeight: '100vh', fontFamily: F.sans }}>
-      <CanvasAgents current={current} />
+      <CanvasAgents phase={phase} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Space+Mono:wght@400;700&display=swap');
         @keyframes studioMarquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
         @keyframes studioScan { 0% { top: 0 } 100% { top: 100% } }
+        @keyframes studioSweep { 0% { left: -40% } 100% { left: 100% } }
         @keyframes studioCaret { 0%,100% { opacity: 1 } 50% { opacity: 0 } }
         .studio-marquee { animation: studioMarquee 34s linear infinite; }
         #studio-root ::selection { background: rgba(31,58,255,0.18); }
@@ -718,7 +724,7 @@ export const StudioPage: React.FC = () => {
           <div className="max-w-[1500px] mx-auto w-full">
             {/* headline: the Copy agent types it out */}
             <h1 id="b-hero" className="max-w-[16ch] md:max-w-[20ch]" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2.6rem, 8.5vw, 8rem)', lineHeight: 0.98, letterSpacing: '-0.04em' }}>
-              <TypeIn text="Websites that grow the business." start={current >= STEP.HERO} cps={19} caretColor="#e4572e" accentTail={1} accentColor={T.accent} />
+              <TypeIn text="Websites that grow the business." start={on('hero')} cps={19} caretColor="#e4572e" accentTail={1} accentColor={T.accent} />
             </h1>
 
             <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}
@@ -729,12 +735,12 @@ export const StudioPage: React.FC = () => {
 
             {/* figures: credibility numbers, built in before the buttons */}
             <div id="b-figs" className="mt-12 md:mt-16 pt-8" style={{ borderTop: `1px solid ${T.line}` }}>
-              <Construct i={STEP.FIGS} current={current} tint="#12a594" typed
+              <Construct on={on('figs')} working={working('figs')} tint="#12a594" typed
                 contentClassName="grid grid-cols-2 sm:grid-cols-4 gap-y-7 gap-x-4">
                 {stats.map((s, i) => (
                   <div key={s.label}>
                     <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.9rem, 3.2vw, 2.9rem)', letterSpacing: '-0.035em', lineHeight: 1 }}>
-                      <TypeIn text={s.value} start={current >= STEP.FIGS} cps={16} delayMs={i * 240} caretColor="#12a594" />
+                      <TypeIn text={s.value} start={on('figs')} cps={16} delayMs={i * 240} caretColor="#12a594" />
                     </div>
                     <div className="mt-2 uppercase" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.08em', color: T.faint }}>{s.label}</div>
                   </div>
@@ -743,7 +749,7 @@ export const StudioPage: React.FC = () => {
             </div>
 
             {/* CTAs — the Growth agent types the labels */}
-            <Construct i={STEP.CTA} current={current} tint="#8257e6" id="b-cta" typed className="mt-8 md:mt-10">
+            <Construct on={on('cta')} working={working('cta')} tint="#8257e6" id="b-cta" typed className="mt-8 md:mt-10">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                 <Magnetic className="w-full sm:w-auto">
                   <motion.button onClick={() => setShowBooking(true)}
@@ -752,7 +758,7 @@ export const StudioPage: React.FC = () => {
                     style={{ fontFamily: F.sans, fontSize: '15px', fontWeight: 500, color: '#fff', background: T.accent, padding: '16px 26px', border: 'none', cursor: 'pointer' }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = T.text)}
                     onMouseLeave={(e) => (e.currentTarget.style.background = T.accent)}>
-                    <TypeIn text="Let's talk" start={current >= STEP.CTA} cps={24} caretColor="#fff" /> <ArrowRight size={17} />
+                    <TypeIn text="Let's talk" start={on('cta')} cps={24} caretColor="#fff" /> <ArrowRight size={17} />
                   </motion.button>
                 </Magnetic>
                 <motion.button onClick={() => scrollTo('work')}
@@ -761,7 +767,7 @@ export const StudioPage: React.FC = () => {
                   style={{ fontFamily: F.sans, fontSize: '15px', color: T.text, background: 'none', border: `1px solid ${T.line}`, padding: '16px 26px', cursor: 'pointer' }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.text; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.line; }}>
-                  <TypeIn text="See the work" start={current >= STEP.CTA} cps={24} delayMs={360} caretColor="#8257e6" />
+                  <TypeIn text="See the work" start={on('cta')} cps={24} delayMs={360} caretColor="#8257e6" />
                 </motion.button>
               </div>
             </Construct>
