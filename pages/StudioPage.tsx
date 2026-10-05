@@ -195,8 +195,9 @@ const BUILD: { label: string; agent: string }[] = [
   { label: 'shipping to the edge', agent: 'Deploy' },
 ];
 const STEP = { NAV: 0, HERO: 1, FIGS: 2, CTA: 3, EXP: 4, WORK: 5 };
-// per-step durations (ms): hero pieces build deliberately, the rest fast.
-const STEP_MS = [460, 540, 580, 640, 240, 220, 220, 220, 220, 220, 300];
+// per-step durations (ms): hero agents take their time typing their piece,
+// the rest of the page (below the fold) assembles faster.
+const STEP_MS = [650, 1900, 1400, 1050, 300, 280, 280, 280, 280, 280, 360];
 
 // Named agents that visibly build the above-the-fold pieces, each with its own
 // cursor colour and the id of the element it constructs — a canvas of agents.
@@ -209,7 +210,7 @@ const CANVAS: { step: number; id: string; name: string; color: string }[] = [
 
 // Wrap a piece of the page so it builds in on its step: a wireframe skeleton
 // that fills in with content. Space is reserved so nothing jumps.
-const Construct: React.FC<{ i: number; current: number; children: React.ReactNode; className?: string; contentClassName?: string; id?: string; tint?: string }> = ({ i, current, children, className = '', contentClassName = '', id, tint = T.accent }) => {
+const Construct: React.FC<{ i: number; current: number; children: React.ReactNode; className?: string; contentClassName?: string; id?: string; tint?: string; typed?: boolean }> = ({ i, current, children, className = '', contentClassName = '', id, tint = T.accent, typed = false }) => {
   const reduce = useReducedMotion();
   if (reduce) return <div id={id} className={`${className} ${contentClassName}`}>{children}</div>;
   const built = current >= i;
@@ -218,8 +219,9 @@ const Construct: React.FC<{ i: number; current: number; children: React.ReactNod
     <div id={id} className={`relative ${className}`}>
       <motion.div
         className={contentClassName}
-        animate={{ opacity: built ? 1 : 0, y: built ? 0 : 14, filter: built ? 'blur(0px)' : 'blur(7px)' }}
-        transition={{ duration: 0.6, ease: CEASE }}
+        // typed pieces appear instantly so the inner typewriter does the reveal
+        animate={typed ? { opacity: built ? 1 : 0 } : { opacity: built ? 1 : 0, y: built ? 0 : 14, filter: built ? 'blur(0px)' : 'blur(7px)' }}
+        transition={typed ? { duration: 0.12 } : { duration: 0.6, ease: CEASE }}
         style={{ pointerEvents: built ? 'auto' : 'none' }}>
         {children}
       </motion.div>
@@ -237,22 +239,51 @@ const Construct: React.FC<{ i: number; current: number; children: React.ReactNod
   );
 };
 
-// Minimal build chip — a thin progress bar and a skip. No narration.
-const BuildHUD: React.FC<{ current: number; onSkip: () => void }> = ({ current, onSkip }) => {
-  const pct = Math.min(100, Math.round((current / BUILD.length) * 100));
+// Typewriter: once `start` is true, reveals text character by character with a
+// blinking caret, as if an agent were typing it.
+const Typed: React.FC<{ text: string; start: boolean; cps?: number; caretColor?: string; delayMs?: number; accentTail?: number; accentColor?: string }> = ({ text, start, cps = 30, caretColor = T.accent, delayMs = 0, accentTail = 0, accentColor = T.accent }) => {
+  const reduce = useReducedMotion();
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (reduce) { setN(text.length); return; }
+    if (!start) { setN(0); return; }
+    let id: ReturnType<typeof setInterval>;
+    const begin = setTimeout(() => {
+      let i = 0;
+      id = setInterval(() => {
+        i += 1;
+        setN(i);
+        if (i >= text.length) clearInterval(id);
+      }, 1000 / cps);
+    }, delayMs);
+    return () => { clearTimeout(begin); clearInterval(id); };
+  }, [start, text, reduce, cps, delayMs]);
+  const done = n >= text.length;
+  const shown = text.slice(0, n);
+  const head = accentTail && done ? shown.slice(0, shown.length - accentTail) : shown;
+  const tail = accentTail && done ? shown.slice(shown.length - accentTail) : '';
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }}
-      transition={{ duration: 0.4, ease: CEASE }}
-      className="fixed bottom-4 right-4 z-40 flex items-center gap-3"
-      style={{ background: 'rgba(14,14,12,0.9)', color: '#fff', border: `1px solid rgba(255,255,255,0.12)`, backdropFilter: 'blur(10px)', padding: '9px 13px', boxShadow: '0 12px 40px rgba(0,0,0,0.35)' }}>
-      <div style={{ position: 'relative', height: 2, width: 96, background: 'rgba(255,255,255,0.16)' }}>
-        <motion.div animate={{ width: `${pct}%` }} transition={{ duration: 0.3, ease: 'easeOut' }} style={{ position: 'absolute', top: 0, bottom: 0, left: 0, background: T.accent }} />
-      </div>
-      <button onClick={onSkip} style={{ fontFamily: F.mono, fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-        Skip
-      </button>
-    </motion.div>
+    <>
+      {head}{tail && <span style={{ color: accentColor }}>{tail}</span>}
+      {!reduce && start && !done && (
+        <span aria-hidden style={{ display: 'inline-block', width: '0.09em', height: '0.92em', marginLeft: '0.03em', verticalAlign: '-0.08em', background: caretColor, animation: 'studioCaret 0.9s step-end infinite' }} />
+      )}
+    </>
+  );
+};
+
+// TypeIn: Typed text that also reserves its final footprint, so the layout
+// never jumps while the characters are still being typed.
+const TypeIn: React.FC<{ text: string; start: boolean; cps?: number; caretColor?: string; delayMs?: number; accentTail?: number; accentColor?: string; className?: string; style?: React.CSSProperties }> = ({ text, start, cps, caretColor, delayMs, accentTail, accentColor, className = '', style }) => {
+  const reduce = useReducedMotion();
+  if (reduce) return <span className={className} style={style}>{text}</span>;
+  return (
+    <span className={className} style={{ ...style, position: 'relative', display: 'inline-block' }}>
+      <span aria-hidden style={{ visibility: 'hidden' }}>{text}</span>
+      <span style={{ position: 'absolute', left: 0, top: 0, right: 0 }}>
+        <Typed text={text} start={start} cps={cps} caretColor={caretColor} delayMs={delayMs} accentTail={accentTail} accentColor={accentColor} />
+      </span>
+    </span>
   );
 };
 
@@ -584,20 +615,16 @@ export const StudioPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const finished = current >= BUILD.length;
-
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
     <div style={{ background: T.bg, color: T.text, minHeight: '100vh', fontFamily: F.sans }}>
-      <AnimatePresence>
-        {!finished && <BuildHUD key="build-hud" current={current} onSkip={() => setCurrent(BUILD.length)} />}
-      </AnimatePresence>
       <CanvasAgents current={current} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Space+Mono:wght@400;700&display=swap');
         @keyframes studioMarquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
         @keyframes studioScan { 0% { top: 0 } 100% { top: 100% } }
+        @keyframes studioCaret { 0%,100% { opacity: 1 } 50% { opacity: 0 } }
         .studio-marquee { animation: studioMarquee 34s linear infinite; }
         #studio-root ::selection { background: rgba(31,58,255,0.18); }
         @media(prefers-reduced-motion:reduce){ .studio-marquee{ animation:none } }
@@ -652,18 +679,9 @@ export const StudioPage: React.FC = () => {
         {/* ═══ HERO ═══ */}
         <section className="relative flex items-center" style={{ minHeight: '100svh', padding: '96px clamp(20px, 4vw, 40px) 40px' }}>
           <div className="max-w-[1500px] mx-auto w-full">
-            {/* headline: max 2 lines, wide container */}
+            {/* headline: the Copy agent types it out */}
             <h1 id="b-hero" className="max-w-[16ch] md:max-w-[20ch]" style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2.6rem, 8.5vw, 8rem)', lineHeight: 0.98, letterSpacing: '-0.04em' }}>
-              <span className="block overflow-hidden">
-                <motion.span className="block" initial={{ y: '110%' }} animate={{ y: '0%' }} transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}>
-                  Websites that
-                </motion.span>
-              </span>
-              <span className="block overflow-hidden">
-                <motion.span className="block" initial={{ y: '110%' }} animate={{ y: '0%' }} transition={{ duration: 1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}>
-                  grow the business<span style={{ color: T.accent }}>.</span>
-                </motion.span>
-              </span>
+              <TypeIn text="Websites that grow the business." start={current >= STEP.HERO} cps={19} caretColor="#e4572e" accentTail={1} accentColor={T.accent} />
             </h1>
 
             <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}
@@ -674,19 +692,21 @@ export const StudioPage: React.FC = () => {
 
             {/* figures: credibility numbers, built in before the buttons */}
             <div id="b-figs" className="mt-12 md:mt-16 pt-8" style={{ borderTop: `1px solid ${T.line}` }}>
-              <Construct i={STEP.FIGS} current={current} tint="#12a594"
+              <Construct i={STEP.FIGS} current={current} tint="#12a594" typed
                 contentClassName="grid grid-cols-2 sm:grid-cols-4 gap-y-7 gap-x-4">
-                {stats.map((s) => (
+                {stats.map((s, i) => (
                   <div key={s.label}>
-                    <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.9rem, 3.2vw, 2.9rem)', letterSpacing: '-0.035em', lineHeight: 1 }}>{s.value}</div>
+                    <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.9rem, 3.2vw, 2.9rem)', letterSpacing: '-0.035em', lineHeight: 1 }}>
+                      <TypeIn text={s.value} start={current >= STEP.FIGS} cps={16} delayMs={i * 240} caretColor="#12a594" />
+                    </div>
                     <div className="mt-2 uppercase" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.08em', color: T.faint }}>{s.label}</div>
                   </div>
                 ))}
               </Construct>
             </div>
 
-            {/* CTAs, built in last */}
-            <Construct i={STEP.CTA} current={current} tint="#8257e6" id="b-cta" className="mt-8 md:mt-10">
+            {/* CTAs — the Growth agent types the labels */}
+            <Construct i={STEP.CTA} current={current} tint="#8257e6" id="b-cta" typed className="mt-8 md:mt-10">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                 <Magnetic className="w-full sm:w-auto">
                   <motion.button onClick={() => setShowBooking(true)}
@@ -695,7 +715,7 @@ export const StudioPage: React.FC = () => {
                     style={{ fontFamily: F.sans, fontSize: '15px', fontWeight: 500, color: '#fff', background: T.accent, padding: '16px 26px', border: 'none', cursor: 'pointer' }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = T.text)}
                     onMouseLeave={(e) => (e.currentTarget.style.background = T.accent)}>
-                    Let's talk <ArrowRight size={17} />
+                    <TypeIn text="Let's talk" start={current >= STEP.CTA} cps={24} caretColor="#fff" /> <ArrowRight size={17} />
                   </motion.button>
                 </Magnetic>
                 <motion.button onClick={() => scrollTo('work')}
@@ -704,7 +724,7 @@ export const StudioPage: React.FC = () => {
                   style={{ fontFamily: F.sans, fontSize: '15px', color: T.text, background: 'none', border: `1px solid ${T.line}`, padding: '16px 26px', cursor: 'pointer' }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.text; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.line; }}>
-                  See the work
+                  <TypeIn text="See the work" start={current >= STEP.CTA} cps={24} delayMs={360} caretColor="#8257e6" />
                 </motion.button>
               </div>
             </Construct>
