@@ -444,12 +444,17 @@ const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
 /* ═══════════════════════════════════════════════════════════════════════════════
    WORK CARD (branded preview + always-visible detail)
    ═══════════════════════════════════════════════════════════════════════════════ */
-// Live website thumbnail via WordPress mShots (rendered in the visitor's browser).
-const shotUrl = (link: string) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent(link)}?w=1000&h=750`;
+// Live website thumbnails. thum.io renders on demand and CDN-caches the result,
+// so it returns the real screenshot directly and fast (WordPress mShots serves a
+// slow "generating" placeholder on first hit). mShots is kept as a fallback,
+// then the branded wordmark. All load in the visitor's browser.
+const shotUrl = (link: string) => `https://image.thum.io/get/width/1000/crop/750/noanimate/${link}`;
+const shotFallbackUrl = (link: string) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent(link)}?w=1000&h=750`;
 
 const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   const [hover, setHover] = useState(false);
   const [shotOk, setShotOk] = useState(true);
+  const [srcIdx, setSrcIdx] = useState(0);
   const reduce = useReducedMotion();
   // Cursor-tracking 3D tilt on the preview panel (beui-style), springed + reduced-motion safe.
   const rx = useMotionValue(0);
@@ -472,7 +477,10 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   const barBg = isAccent ? 'rgba(255,255,255,0.12)' : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(20,20,15,0.05)';
   const dot = isAccent || isDark ? 'rgba(255,255,255,0.4)' : 'rgba(20,20,15,0.22)';
   const urlColor = isAccent || isDark ? 'rgba(255,255,255,0.7)' : T.muted;
-  const shot = shotUrl(p.link);
+  // Prefer a bundled static screenshot when provided (instant, same-origin), then
+  // the live screenshot providers, then the branded wordmark fallback.
+  const localShot = (p as { shot?: string }).shot;
+  const sources = [localShot, shotUrl(p.link), shotFallbackUrl(p.link)].filter(Boolean) as string[];
 
   return (
     <motion.a href={p.link} target="_blank" rel="noopener noreferrer"
@@ -507,8 +515,8 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
         {/* live website thumbnail */}
         {shotOk && (
           <motion.img
-            src={shot} alt={`${p.title} website preview`} loading="lazy"
-            onError={() => setShotOk(false)}
+            src={sources[srcIdx]} alt={`${p.title} website preview`} loading="lazy"
+            onError={() => { if (srcIdx + 1 < sources.length) setSrcIdx(srcIdx + 1); else setShotOk(false); }}
             animate={{ scale: hover ? 1.03 : 1 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="absolute left-0 w-full z-10"
             style={{ top: '40px', height: 'calc(100% - 40px)', objectFit: 'cover', objectPosition: 'top center' }}
@@ -644,12 +652,19 @@ export const StudioPage: React.FC = () => {
   useEffect(() => { document.title = 'Abhishek Lonkar Studio'; }, []);
 
   // Warm the work previews while the intro is still building, so the cards are
-  // ready (not loading) by the time the viewer scrolls down to them. mShots also
-  // needs a head start to render each screenshot.
+  // ready (not loading) by the time the viewer scrolls down to them. The provider
+  // renders + CDN-caches each shot, so the head start pays off on scroll.
   useEffect(() => {
+    const hosts = ['https://image.thum.io', 'https://s.wordpress.com', 'https://i.ytimg.com'];
+    const links = hosts.map((href) => {
+      const l = document.createElement('link');
+      l.rel = 'preconnect'; l.href = href; l.crossOrigin = 'anonymous';
+      document.head.appendChild(l);
+      return l;
+    });
     const imgs = projects.map((p) => { const im = new Image(); im.src = shotUrl(p.link); return im; });
     const vid = new Image(); vid.src = `https://i.ytimg.com/vi/${demoVideos[0].id}/maxresdefault.jpg`;
-    return () => { imgs.forEach((im) => { im.src = ''; }); };
+    return () => { imgs.forEach((im) => { im.src = ''; }); links.forEach((l) => l.remove()); };
   }, []);
 
   // Live in-page build: the team works IN PARALLEL. Each agent moves to
