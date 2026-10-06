@@ -38,6 +38,9 @@ const SPRING_MOUSE = { stiffness: 150, damping: 18, mass: 0.12 } as const;      
    DATA
    ═══════════════════════════════════════════════════════════════════════════════ */
 const projects = [
+  { n: '07', title: 'Big Life Gym', kind: 'Brand Site', year: '2026', tone: 'accent', preview: false,
+    link: 'https://big-life-gym.vercel.app', domain: 'big-life-gym.vercel.app',
+    desc: 'A bold, high-energy website for a gym. Classes, memberships, trainers, and timetables, built to turn visitors into members.' },
   { n: '01', title: 'Haddu Clothing', kind: 'E-Commerce', year: '2026', tone: 'dark', preview: false,
     link: 'https://www.hadduclothing.com/', domain: 'hadduclothing.com',
     desc: 'A full fashion store built from scratch. Catalog, payments, inventory, shipping, and a Pinterest engine doing 80k views a month.' },
@@ -441,6 +444,9 @@ const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
 /* ═══════════════════════════════════════════════════════════════════════════════
    WORK CARD (branded preview + always-visible detail)
    ═══════════════════════════════════════════════════════════════════════════════ */
+// Live website thumbnail via WordPress mShots (rendered in the visitor's browser).
+const shotUrl = (link: string) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent(link)}?w=1000&h=750`;
+
 const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   const [hover, setHover] = useState(false);
   const [shotOk, setShotOk] = useState(true);
@@ -466,8 +472,7 @@ const WorkCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => {
   const barBg = isAccent ? 'rgba(255,255,255,0.12)' : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(20,20,15,0.05)';
   const dot = isAccent || isDark ? 'rgba(255,255,255,0.4)' : 'rgba(20,20,15,0.22)';
   const urlColor = isAccent || isDark ? 'rgba(255,255,255,0.7)' : T.muted;
-  // Live website thumbnail rendered by WordPress mShots (loads in the visitor's browser).
-  const shot = `https://s.wordpress.com/mshots/v1/${encodeURIComponent(p.link)}?w=1000&h=750`;
+  const shot = shotUrl(p.link);
 
   return (
     <motion.a href={p.link} target="_blank" rel="noopener noreferrer"
@@ -637,6 +642,15 @@ export const StudioPage: React.FC = () => {
   useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 40));
 
   useEffect(() => { document.title = 'Abhishek Lonkar Studio'; }, []);
+
+  // Warm the work previews while the intro is still building, so the cards are
+  // ready (not loading) by the time the viewer scrolls down to them. mShots also
+  // needs a head start to render each screenshot.
+  useEffect(() => {
+    const imgs = projects.map((p) => { const im = new Image(); im.src = shotUrl(p.link); return im; });
+    const vid = new Image(); vid.src = `https://i.ytimg.com/vi/${demoVideos[0].id}/maxresdefault.jpg`;
+    return () => { imgs.forEach((im) => { im.src = ''; }); };
+  }, []);
 
   // Live in-page build: the team works IN PARALLEL. Each agent moves to
   // 'working' when it arrives and 'done' when it finishes; their windows overlap.
