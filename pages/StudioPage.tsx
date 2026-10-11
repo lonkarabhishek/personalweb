@@ -517,14 +517,15 @@ const AskOverlay: React.FC<{ isOpen: boolean; onClose: () => void; onBook: () =>
             <span className="hidden md:flex items-center gap-2" style={{ ...mono, color: T.muted }}>
               <span className="inline-block w-1.5 h-1.5" style={{ background: '#2fb56a' }} /> Ask the studio
             </span>
+            {/* big, unmissable exit: solid square with a cross (Escape also closes) */}
             <motion.button
-              onClick={onClose} aria-label="Close"
-              className="flex items-center gap-2"
-              whileHover={{ backgroundColor: T.text, color: '#ffffff' }}
-              whileTap={{ scale: 0.97 }}
+              onClick={onClose} aria-label="Close" title="Close (Esc)"
+              className="flex items-center justify-center"
+              whileHover={{ backgroundColor: T.accent, rotate: 90 }}
+              whileTap={{ scale: 0.94 }}
               transition={SPRING_PRESS}
-              style={{ ...mono, color: T.text, background: 'transparent', border: `1px solid ${T.line}`, padding: '9px 12px', cursor: 'pointer' }}>
-              Close <X size={14} />
+              style={{ width: 44, height: 44, background: T.text, color: '#fff', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+              <X size={22} strokeWidth={2.25} />
             </motion.button>
           </div>
 
