@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Sparkles } from 'lucide-react';
+import type { WorkCard } from '../content/work';
+import { WorkShowcase } from './WorkShowcase';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    SITE AGENT — an inline assistant panel (Claude via /api/agent) that lives in
@@ -22,7 +24,7 @@ type Copy = {
   fallback: string;
 };
 
-type Theme = {
+export type Theme = {
   radius: number;   // panel corners
   bubble: number;   // message-bubble corners
   control: number;  // input / button corners
@@ -55,7 +57,7 @@ const COPY: Record<Persona, Copy> = {
     name: "Abhishek's Assistant",
     subtitle: 'online · knows his work',
     greeting: "Hi, I'm Abhishek's assistant. Ask me about his GTM & RevOps experience, what he's built at G2, or whether he'd be a fit for your team.",
-    quick: ['What does Abhishek do?', 'Tell me about his G2 work', 'Is he a fit for RevOps?', 'How do I reach him?'],
+    quick: ['What does Abhishek do?', 'Show me his best work', 'Is he a fit for RevOps?', 'How do I reach him?'],
     steps: ['Reading your message', 'Pulling his experience', 'Checking the numbers', 'Composing a reply'],
     placeholder: 'Ask about his experience…',
     book: 'or book a call with Abhishek →',
@@ -83,7 +85,7 @@ const THEME: Record<Persona, Theme> = {
   },
 };
 
-type Msg = { role: 'user' | 'assistant'; text: string };
+type Msg = { role: 'user' | 'assistant'; text: string; cards?: WorkCard[] };
 
 // `fill`: stretch to the parent's full height (for a full-screen takeover) instead of
 // growing in place with an internal ~460px scroll cap. `autoFocus` focuses the input on mount.
@@ -98,7 +100,23 @@ export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void; fill?: 
   const started = messages.length > 1;
 
   // Keep the newest message in view inside the panel (the page itself never moves).
-  useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages, busy, stepIdx]);
+  // A reply with work cards is tall, so scroll to ITS top (intro line + first cards)
+  // rather than the bottom; everything else scrolls to the end as usual.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const last = messages[messages.length - 1];
+    if (!busy && last?.role === 'assistant' && last.cards?.length) {
+      const nodes = el.querySelectorAll<HTMLElement>('[data-msg]');
+      const node = nodes[nodes.length - 1];
+      if (node) {
+        const top = node.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop - 10;
+        el.scrollTo({ top, behavior: 'smooth' });
+        return;
+      }
+    }
+    el.scrollTop = el.scrollHeight;
+  }, [messages, busy, stepIdx]);
 
   useEffect(() => {
     if (!busy) return;
@@ -118,11 +136,12 @@ export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void; fill?: 
       const r = await fetch('/api/agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ persona, messages: next }),
+        body: JSON.stringify({ persona, messages: next.map(({ role, text }) => ({ role, text })) }),
       });
       const data = await r.json().catch(() => ({}));
       const reply = r.ok && data?.text ? data.text : P.fallback;
-      setMessages((m) => [...m, { role: 'assistant', text: reply }]);
+      const cards: WorkCard[] | undefined = r.ok && Array.isArray(data?.cards) && data.cards.length ? data.cards : undefined;
+      setMessages((m) => [...m, { role: 'assistant', text: reply, cards }]);
     } catch (e) {
       setMessages((m) => [...m, { role: 'assistant', text: "I couldn't connect just now. Try again in a moment, or use the link below to reach Abhishek directly." }]);
     } finally {
@@ -159,7 +178,7 @@ export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void; fill?: 
       <div ref={scrollRef} style={{ ...(fill ? { flex: 1, minHeight: 0 } : { maxHeight: 460 }), overflowY: 'auto', padding: '18px 18px 6px' }}>
         <div className="flex flex-col gap-3">
           {messages.map((m, i) => (
-            <div key={i} className="flex" style={{ justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+            <div key={i} data-msg className="flex flex-col gap-2.5" style={{ alignItems: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
               <div style={{
                 maxWidth: '82%', padding: '10px 14px', fontFamily: S.sans, fontSize: 14.5, lineHeight: 1.55,
                 background: m.role === 'user' ? S.accent : S.surface, color: m.role === 'user' ? '#fff' : S.fg,
@@ -169,6 +188,10 @@ export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void; fill?: 
               }}>
                 {m.text}
               </div>
+              {/* "show me your work" → the assistant's picks, as real cards */}
+              {m.role === 'assistant' && m.cards && m.cards.length > 0 && (
+                <WorkShowcase cards={m.cards} S={S} persona={persona} onBook={onBook} />
+              )}
             </div>
           ))}
 

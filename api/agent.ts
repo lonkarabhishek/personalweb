@@ -4,6 +4,7 @@
 // `persona` and the matching system prompt is selected HERE (clients can never
 // supply prompt text).
 import Anthropic from '@anthropic-ai/sdk';
+import { WORK, type WorkCard } from '../content/work';
 
 const STUDIO_PROMPT = `You ARE "Abhishek Lonkar Studio" — a small digital studio run by Abhishek Lonkar with a small team. You live on the studio's website (studio.workwithabhi.online) and talk to prospective clients.
 
@@ -18,7 +19,9 @@ What the studio does:
 - Growth & Analytics: Pinterest marketing, SEO, dashboards, reporting.
 - AI / agents: the studio builds interactive AI agents (you are a live example).
 
-Selected work: Big Life Gym (gym brand site), Haddu Clothing (e-commerce, ~80k Pinterest views/mo), JSB Foods (brand site), TapTurf (sports-venue booking web app), Deft Chemistry (brand site with 3D chemistry structures), The Nashik Kumbh (trilingual site), SD Overseas (brand site). Clients/experience include G2, Cognizant, Levi's, KIST.
+Selected work (ids for the show_work tool in brackets): Big Life Gym [big-life-gym] (gym brand site), Haddu Clothing [haddu] (e-commerce, ~80k Pinterest views/mo), JSB Foods [jsb-foods] (brand site), TapTurf [tapturf] (sports-venue booking web app), Deft Chemistry [deft-chemistry] (brand site with 3D chemistry structures), The Nashik Kumbh [nashik-kumbh] (trilingual site), SD Overseas [sd-overseas] (brand site). Clients/experience include G2, Cognizant, Levi's, KIST.
+
+Showing our work: whenever the visitor wants to SEE what we've built (portfolio, examples, projects, "show me your work", "what have you made", "something like X", or they describe a project similar to one of ours), call the show_work tool instead of listing projects as text. Pick 2 to 4 ids that fit best (all 4 strongest if they just want to see work: big-life-gym, haddu, tapturf, nashik-kumbh). The message you pass is shown above the cards: one or two warm, proud sentences in our voice, no list. The cards themselves carry the names, descriptions and links, so do not repeat them.
 
 How you behave:
 - Be concise, warm, and sharp. 2-4 short sentences per reply, plainly written. No em dashes.
@@ -41,6 +44,8 @@ Skills: GTM & revenue (pipeline generation, revenue attribution, win-rate analys
 Recommendations: Syed Rahman (GTM Ops & Analytics, 6sense; managed him at G2) praises his ownership, work ethic, and stakeholder relationships, especially with Partnerships. Mitch Osborne (Director of Business Systems, G2) highlights their overhaul of ARR waterfall reporting that improved leadership visibility and forecasting.
 
 He also runs a small digital studio (studio.workwithabhi.online) that builds websites and online stores; mention it only if someone asks about freelance or web work.
+
+Showing his work: whenever someone wants to SEE what he has done (his work, projects, achievements, examples, "show me", "what has he built", "proof", or a role-fit question where concrete results help), call the show_work tool instead of listing it as text. Ids: g2-partner-impact (30% partner-influenced revenue, 90% larger deals, 20% faster), g2-attainment (attainment reporting, 79 FY25 deliverables), g2-arr (ARR reconciliation and waterfall QA), g2-data-ops (Python automation and data pipelines), levis-redesign (40% performance gain at Cognizant), cognizant-perf-system (15% efficiency gain), studio (his side web studio; only when freelance/web work comes up). Pick 2 to 4 that fit best (default: g2-partner-impact, g2-attainment, g2-arr, levis-redesign). The message you pass is shown above the cards: one or two confident sentences, no list, and do not repeat the card contents.
 
 How to reach him: there is a "book a call" button in this chat that opens his booking calendar; LinkedIn is linkedin.com/in/lonkarabhishek; email is abhisheksoffice11@gmail.com; his resume is downloadable on the page.
 
@@ -98,19 +103,39 @@ export default async function handler(req: any, res: any) {
 
     const client = new Anthropic();
     const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5';
+    const catalog = WORK[persona as 'studio' | 'main'];
+
+    // One tool: the model "shows" work by naming catalog ids + a short intro. We
+    // resolve the ids server-side and the chat renders them as cards, so the
+    // model never has to describe the portfolio in prose (and never invents it).
+    const showWork: Anthropic.Tool = {
+      name: 'show_work',
+      description: 'Show selected work as rich visual cards in the chat (previews, descriptions, links). Use whenever the visitor wants to see work, projects, examples, achievements or proof. Pass 2 to 4 ids that fit the request best.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', description: 'One or two sentences shown above the cards, in your usual voice. Do not list the projects; the cards do that.' },
+          ids: { type: 'array', items: { type: 'string', enum: catalog.map((c) => c.id) }, minItems: 1, maxItems: 4, description: 'Catalog ids to show, most relevant first.' },
+        },
+        required: ['message', 'ids'],
+      },
+    };
 
     const response = await client.messages.create({
       model,
       // Replies are deliberately short (2-4 sentences); this is a cost cap, not a typical budget.
-      max_tokens: 600,
+      max_tokens: 700,
       // Static per-persona prompt first so it is a stable, cacheable prefix.
       system: [{ type: 'text', text: PROMPTS[persona], cache_control: { type: 'ephemeral' } }],
+      tools: [showWork],
+      tool_choice: { type: 'auto' },
       // Chat-style route: low effort keeps it fast and cheap; adaptive thinking stays on by default.
       output_config: { effort: 'low' },
       messages,
     });
 
     let text = FALLBACK[persona];
+    let cards: WorkCard[] = [];
     if (response.stop_reason === 'refusal') {
       text = REFUSAL[persona];
     } else {
@@ -120,10 +145,20 @@ export default async function handler(req: any, res: any) {
         .join('')
         .trim();
       if (joined) text = joined;
+
+      const call = response.content.find((b): b is Anthropic.ToolUseBlock => b.type === 'tool_use' && b.name === 'show_work');
+      if (call) {
+        const input = (call.input || {}) as { message?: unknown; ids?: unknown };
+        const ids = Array.isArray(input.ids) ? input.ids.filter((x): x is string => typeof x === 'string') : [];
+        cards = ids.map((id) => catalog.find((c) => c.id === id)).filter((c): c is WorkCard => Boolean(c)).slice(0, 4);
+        const msg = typeof input.message === 'string' ? input.message.trim() : '';
+        if (msg) text = msg;
+        else if (!joined) text = persona === 'studio' ? "Here's some of what we've built." : "Here's some of what he has built.";
+      }
     }
 
     res.setHeader('Cache-Control', 'no-store');
-    res.status(200).json({ text });
+    res.status(200).json(cards.length ? { text, cards } : { text });
   } catch (error: any) {
     // Most specific first; every branch keeps the JSON shape the widget falls back on.
     if (error instanceof Anthropic.AuthenticationError) {
