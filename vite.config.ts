@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react()],
-      // NOTE: the Gemini API key is intentionally NOT exposed to the client.
+      // NOTE: the Anthropic API key is intentionally NOT exposed to the client.
       // It is used only server-side by the /api/agent serverless function.
       build: {
         rollupOptions: {
