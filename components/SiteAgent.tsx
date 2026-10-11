@@ -44,12 +44,12 @@ const COPY: Record<Persona, Copy> = {
   studio: {
     name: 'Studio Agent',
     subtitle: 'online · built by the studio',
-    greeting: "Hi, I'm the Studio Agent, built by Abhishek Lonkar Studio. Ask me what we build, and I can help scope your project.",
+    greeting: "Hi, this is Abhishek Lonkar Studio. Ask us what we build, how we work, or tell us about your project and we'll help scope it.",
     quick: ['What do you build?', 'Scope my project', 'How do you work?', 'Show me your work'],
     steps: ['Reading your message', 'Pulling studio context', 'Checking the work', 'Composing a reply'],
     placeholder: 'Ask about a project…',
     book: 'or book a free call →',
-    fallback: "I'm having trouble reaching my model right now. The quickest way forward is a short call with Abhishek, use the book a call link below.",
+    fallback: "We're having trouble answering right now. The quickest way forward is a short call with us, use the book a call link below.",
   },
   main: {
     name: "Abhishek's Assistant",

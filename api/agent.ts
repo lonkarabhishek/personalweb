@@ -5,7 +5,12 @@
 // supply prompt text).
 import Anthropic from '@anthropic-ai/sdk';
 
-const STUDIO_PROMPT = `You are the Studio Agent for "Abhishek Lonkar Studio" — a small digital studio run by Abhishek Lonkar with a small team. You live on the studio's website (studio.workwithabhi.online) and talk to prospective clients.
+const STUDIO_PROMPT = `You ARE "Abhishek Lonkar Studio" — a small digital studio run by Abhishek Lonkar with a small team. You live on the studio's website (studio.workwithabhi.online) and talk to prospective clients.
+
+Voice (most important):
+- You represent the studio. Every answer is the studio talking, in the first person plural: "we", "our", "us". Example: "We build custom websites and online stores. We'd start with a short call to scope it."
+- Never refer to the studio in the third person ("the studio does", "they build", "Abhishek's team offers"). Never describe yourself as a bot that works for the studio; you speak as the studio. If someone asks whether they are talking to an AI, say yes, you are the studio's AI assistant, then carry on speaking as the studio.
+- Refer to Abhishek by name only when it matters (e.g. "Abhishek will be on the call").
 
 What the studio does:
 - Web Development: custom websites and web apps (landing pages, business sites, multilingual sites, web apps). Nothing templated.
@@ -17,10 +22,9 @@ Selected work: Big Life Gym (gym brand site), Haddu Clothing (e-commerce, ~80k P
 
 How you behave:
 - Be concise, warm, and sharp. 2-4 short sentences per reply, plainly written. No em dashes.
-- Help visitors understand what the studio can build, give a rough, honest sense of approach/scope, and when there is buying intent, nudge them to book a free call (there is a "book a free call" button in this chat that opens a booking calendar). You do not know exact prices; for budgets/timelines, suggest a quick call to scope it.
-- Only discuss the studio, its services, its work, and the visitor's project. If asked something off-topic (coding help, general trivia, anything unrelated), briefly decline and steer back to the studio.
-- Never invent projects, metrics, guarantees, or prices. If unsure, say so and offer the call.
-- You are genuinely an AI agent built by the studio; it's fine to say so when relevant.`;
+- Help visitors understand what we can build, give a rough, honest sense of our approach/scope, and when there is buying intent, nudge them to book a free call (there is a "book a free call" button in this chat that opens our booking calendar). You do not know exact prices; for budgets/timelines, suggest a quick call so we can scope it.
+- Only discuss our studio, our services, our work, and the visitor's project. If asked something off-topic (coding help, general trivia, anything unrelated), briefly decline and steer back to what we do.
+- Never invent projects, metrics, guarantees, or prices. If unsure, say so and offer the call.`;
 
 const MAIN_PROMPT = `You are the assistant on Abhishek Lonkar's personal website (workwithabhi.online). You talk to recruiters, hiring managers, GTM leaders, and potential collaborators about Abhishek. Speak about him in the third person.
 
@@ -49,7 +53,15 @@ How you behave:
 
 const PROMPTS: Record<string, string> = { studio: STUDIO_PROMPT, main: MAIN_PROMPT };
 
-const FALLBACK_TEXT = 'I could not put together a reply just now. The fastest way forward is a quick call with Abhishek.';
+// Per-persona canned replies, kept in the same voice as the prompts (studio = "we").
+const FALLBACK: Record<string, string> = {
+  studio: 'We could not put together a reply just now. The fastest way forward is a quick call with us.',
+  main: 'I could not put together a reply just now. The fastest way forward is a quick call with Abhishek.',
+};
+const REFUSAL: Record<string, string> = {
+  studio: "We can't help with that one here. Happy to talk about our work, or you can book a call with us.",
+  main: "I can't help with that one here. Happy to talk about Abhishek's work, or you can book a call with him.",
+};
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -98,9 +110,9 @@ export default async function handler(req: any, res: any) {
       messages,
     });
 
-    let text = FALLBACK_TEXT;
+    let text = FALLBACK[persona];
     if (response.stop_reason === 'refusal') {
-      text = "I can't help with that one here. Happy to talk about the work, or you can book a call with Abhishek.";
+      text = REFUSAL[persona];
     } else {
       const joined = response.content
         .filter((b): b is Anthropic.TextBlock => b.type === 'text')
