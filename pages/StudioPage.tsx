@@ -673,7 +673,6 @@ export const StudioPage: React.FC = () => {
   const [phase, setPhase] = useState<PhaseMap>(reduce ? allDone : { nav: 'idle', hero: 'idle', figs: 'idle', cta: 'idle' });
   const on = (k: string) => phase[k] !== 'idle';
   const working = (k: string) => phase[k] === 'working';
-  const teamDone = TEAM_KEYS.every((k) => phase[k] === 'done');
 
   useEffect(() => {
     if (reduce) { setPhase(allDone); return; }
@@ -824,6 +823,29 @@ export const StudioPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* ═══ ASK THE STUDIO (inline assistant, in the page flow) ═══ */}
+        <section id="ask" style={{ padding: 'clamp(56px, 7vw, 110px) clamp(20px, 4vw, 40px)' }}>
+          <div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
+            <div className="md:col-span-4">
+              <Reveal>
+                <h2 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2rem, 4vw, 3.4rem)', lineHeight: 1.02, letterSpacing: '-0.035em' }}>
+                  Ask the studio<span style={{ color: T.accent }}>.</span>
+                </h2>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p className="mt-4" style={{ fontFamily: F.sans, fontSize: '15px', color: T.muted, lineHeight: 1.6, maxWidth: '36ch' }}>
+                  An assistant we built that knows our work. Ask what we can build, how we work, or get a rough scope for your project. For specifics, book a call.
+                </p>
+              </Reveal>
+            </div>
+            <div className="md:col-span-8">
+              <Reveal delay={0.15} y={20}>
+                <SiteAgent persona="studio" onBook={() => setShowBooking(true)} />
+              </Reveal>
+            </div>
+          </div>
+        </section>
 
         {/* ═══ WORK ═══ */}
         <section id="work" style={{ padding: 'clamp(64px, 8vw, 130px) clamp(20px, 4vw, 40px)', scrollMarginTop: '68px' }}>
@@ -1026,8 +1048,6 @@ export const StudioPage: React.FC = () => {
 
       <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
 
-      {/* the studio's own agent — appears once the build team has finished */}
-      {teamDone && <SiteAgent persona="studio" onBook={() => setShowBooking(true)} />}
 
     </div>
   );

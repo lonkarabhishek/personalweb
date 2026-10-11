@@ -8,8 +8,6 @@ import { StudioPage } from './pages/StudioPage';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { LoadingScreen } from './components/LoadingScreen';
-import { SiteAgent } from './components/SiteAgent';
-import { BookingModal } from './components/BookingModal';
 
 // Detect if we're on the studio subdomain
 const isStudioSubdomain = window.location.hostname === 'studio.workwithabhi.online';
@@ -27,9 +25,6 @@ const ScrollToTop = () => {
 const AppContent: React.FC = () => {
   const location = useLocation();
   const isStandalonePage = location.pathname === '/resume' || location.pathname === '/barkit' || location.pathname === '/studio';
-  const [showBooking, setShowBooking] = useState(false);
-  // The studio route carries its own agent; everywhere else gets Abhishek's assistant.
-  const showAgent = location.pathname !== '/studio';
 
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-primary/30 gradient-bg">
@@ -46,8 +41,6 @@ const AppContent: React.FC = () => {
         </AnimatePresence>
       </main>
       {!isStandalonePage && <Footer />}
-      {showAgent && <SiteAgent persona="main" onBook={() => setShowBooking(true)} />}
-      <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
     </div>
   );
 };
