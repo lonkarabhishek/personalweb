@@ -85,7 +85,9 @@ const THEME: Record<Persona, Theme> = {
 
 type Msg = { role: 'user' | 'assistant'; text: string };
 
-export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void }> = ({ persona, onBook }) => {
+// `fill`: stretch to the parent's full height (for a full-screen takeover) instead of
+// growing in place with an internal ~460px scroll cap. `autoFocus` focuses the input on mount.
+export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void; fill?: boolean; autoFocus?: boolean }> = ({ persona, onBook, fill = false, autoFocus = false }) => {
   const P = COPY[persona];
   const S = THEME[persona];
   const [messages, setMessages] = useState<Msg[]>([{ role: 'assistant', text: P.greeting }]);
@@ -131,11 +133,14 @@ export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void }> = ({ 
   const labelStyle: React.CSSProperties = { fontFamily: S.label, fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase', color: S.muted };
 
   return (
-    <div className="w-full" style={{ background: S.bg, border: `1px solid ${S.border}`, borderRadius: S.radius, boxShadow: S.shadow, overflow: 'hidden', color: S.fg }}>
+    <div className="w-full" style={{
+      background: S.bg, border: `1px solid ${S.border}`, borderRadius: S.radius, boxShadow: S.shadow, overflow: 'hidden', color: S.fg,
+      ...(fill ? { height: '100%', display: 'flex', flexDirection: 'column' as const } : {}),
+    }}>
       <style>{`@keyframes agBlink{0%,100%{opacity:1}50%{opacity:0.2}}`}</style>
 
       {/* header */}
-      <div className="flex items-center justify-between" style={{ padding: '14px 18px', borderBottom: `1px solid ${S.border}` }}>
+      <div className="flex items-center justify-between" style={{ padding: '14px 18px', borderBottom: `1px solid ${S.border}`, flexShrink: 0 }}>
         <div className="flex items-center gap-3">
           <div style={{ width: 32, height: 32, borderRadius: S.control || 6, background: S.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Sparkles size={16} color="#fff" />
@@ -150,8 +155,8 @@ export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void }> = ({ 
         <span className="hidden sm:block" style={{ ...labelStyle, color: S.faint }}>AI · replies in seconds</span>
       </div>
 
-      {/* conversation — grows in place, scrolls internally past ~460px */}
-      <div ref={scrollRef} style={{ maxHeight: 460, overflowY: 'auto', padding: '18px 18px 6px' }}>
+      {/* conversation — grows in place and scrolls internally past ~460px; in `fill` mode it takes all remaining height */}
+      <div ref={scrollRef} style={{ ...(fill ? { flex: 1, minHeight: 0 } : { maxHeight: 460 }), overflowY: 'auto', padding: '18px 18px 6px' }}>
         <div className="flex flex-col gap-3">
           {messages.map((m, i) => (
             <div key={i} className="flex" style={{ justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
@@ -200,10 +205,10 @@ export const SiteAgent: React.FC<{ persona: Persona; onBook: () => void }> = ({ 
       </div>
 
       {/* input + book */}
-      <div style={{ borderTop: `1px solid ${S.border}`, padding: '12px 14px 10px' }}>
+      <div style={{ borderTop: `1px solid ${S.border}`, padding: '12px 14px 10px', flexShrink: 0 }}>
         <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="flex items-center gap-2">
           <input
-            value={input} onChange={(e) => setInput(e.target.value)} disabled={busy}
+            value={input} onChange={(e) => setInput(e.target.value)} disabled={busy} autoFocus={autoFocus}
             placeholder={P.placeholder} aria-label={P.placeholder}
             style={{ flex: 1, minWidth: 0, fontFamily: S.sans, fontSize: 14.5, color: S.fg, background: S.surface, border: `1px solid ${S.border}`, padding: '11px 14px', outline: 'none', borderRadius: S.control }}
             onFocus={(e) => { e.currentTarget.style.borderColor = S.accent; }}

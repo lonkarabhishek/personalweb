@@ -442,6 +442,130 @@ const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
 );
 
 /* ═══════════════════════════════════════════════════════════════════════════════
+   ASK THE STUDIO — floating button → full-screen takeover with the assistant
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const ASK_TOPICS = [
+  ['01', 'Websites & web apps'],
+  ['02', 'Online stores'],
+  ['03', 'Growth & analytics'],
+  ['04', 'Scope for your project'],
+];
+
+// Floating launcher, bottom-right. Appears once the team has finished building the
+// page (so it never competes with the intro) and hides while the takeover is open.
+const AskButton: React.FC<{ show: boolean; onClick: () => void }> = ({ show, onClick }) => (
+  <AnimatePresence>
+    {show && (
+      <motion.div
+        className="fixed z-[120]"
+        style={{ right: 'clamp(16px, 2.5vw, 32px)', bottom: 'clamp(16px, 2.5vw, 32px)' }}
+        initial={{ opacity: 0, y: 16, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 12, scale: 0.96, transition: { duration: 0.18 } }}
+        transition={SPRING_SOFT}>
+        <Magnetic strength={0.22}>
+          <motion.button
+            onClick={onClick}
+            aria-label="Ask the studio"
+            className="flex items-center gap-3"
+            whileHover={{ y: -2, backgroundColor: T.accent }}
+            whileTap={{ scale: 0.97 }}
+            transition={SPRING_PRESS}
+            style={{ background: T.text, color: '#fff', border: 'none', padding: '14px 18px 14px 16px', cursor: 'pointer', boxShadow: '0 16px 44px rgba(14,14,12,0.28)' }}>
+            <span className="relative flex w-2 h-2">
+              <span className="absolute inline-flex h-full w-full animate-ping" style={{ background: '#2fb56a', opacity: 0.6 }} />
+              <span className="relative inline-flex w-2 h-2" style={{ background: '#2fb56a' }} />
+            </span>
+            <span style={{ fontFamily: F.mono, fontSize: '11.5px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Ask the studio</span>
+            <ArrowUpRight size={14} />
+          </motion.button>
+        </Magnetic>
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
+// Full-screen takeover: covers the page (grain + cursors included), locks scroll,
+// closes on Escape. Desktop gets a short intro column beside the chat; mobile is
+// edge-to-edge chat. The booking modal sits above it (z-200) so "book a call" works.
+const AskOverlay: React.FC<{ isOpen: boolean; onClose: () => void; onBook: () => void }> = ({ isOpen, onClose, onBook }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+  }, [isOpen, onClose]);
+
+  const mono: React.CSSProperties = { fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase' };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          role="dialog" aria-modal="true" aria-label="Ask the studio"
+          className="fixed inset-0 z-[150] flex flex-col"
+          style={{ background: T.bg, color: T.text }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.2 } }}
+          transition={{ duration: 0.3 }}>
+          {/* top bar */}
+          <div className="flex items-center justify-between px-5 md:px-10" style={{ height: 64, borderBottom: `1px solid ${T.line}`, flexShrink: 0 }}>
+            <span style={{ fontFamily: F.display, fontWeight: 700, fontSize: '17px', letterSpacing: '-0.02em' }}>
+              Abhishek Lonkar<span style={{ color: T.accent }}>.</span> Studio
+            </span>
+            <span className="hidden md:flex items-center gap-2" style={{ ...mono, color: T.muted }}>
+              <span className="inline-block w-1.5 h-1.5" style={{ background: '#2fb56a' }} /> Ask the studio
+            </span>
+            <motion.button
+              onClick={onClose} aria-label="Close"
+              className="flex items-center gap-2"
+              whileHover={{ backgroundColor: T.text, color: '#ffffff' }}
+              whileTap={{ scale: 0.97 }}
+              transition={SPRING_PRESS}
+              style={{ ...mono, color: T.text, background: 'transparent', border: `1px solid ${T.line}`, padding: '9px 12px', cursor: 'pointer' }}>
+              Close <X size={14} />
+            </motion.button>
+          </div>
+
+          {/* body */}
+          <div className="flex-1 min-h-0 w-full max-w-[1500px] mx-auto flex lg:gap-12 lg:px-10 lg:py-10">
+            <motion.div
+              className="hidden lg:flex flex-col justify-between shrink-0"
+              style={{ width: 380 }}
+              initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}>
+              <div>
+                <h2 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2.4rem, 3.6vw, 3.6rem)', lineHeight: 1.0, letterSpacing: '-0.035em' }}>
+                  Talk to us<span style={{ color: T.accent }}>.</span>
+                </h2>
+                <p className="mt-5" style={{ fontFamily: F.sans, fontSize: '15px', color: T.muted, lineHeight: 1.6, maxWidth: '34ch' }}>
+                  Ask what we build, how we work, or tell us about your project and we'll give you a rough scope. For specifics, book a call.
+                </p>
+              </div>
+              <ul className="flex flex-col" style={{ borderTop: `1px solid ${T.line}` }}>
+                {ASK_TOPICS.map(([n, label]) => (
+                  <li key={n} className="flex items-baseline gap-4 py-3" style={{ borderBottom: `1px solid ${T.line}` }}>
+                    <span style={{ ...mono, color: T.accent }}>{n}</span>
+                    <span style={{ fontFamily: F.sans, fontSize: '14px', color: T.text }}>{label}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+            <motion.div
+              className="flex-1 min-w-0 min-h-0"
+              initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}>
+              <SiteAgent persona="studio" onBook={onBook} fill autoFocus />
+            </motion.div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    WORK CARD (branded preview + always-visible detail)
    ═══════════════════════════════════════════════════════════════════════════════ */
 // Live website thumbnails. thum.io renders on demand and CDN-caches the result,
@@ -673,6 +797,8 @@ export const StudioPage: React.FC = () => {
   const [phase, setPhase] = useState<PhaseMap>(reduce ? allDone : { nav: 'idle', hero: 'idle', figs: 'idle', cta: 'idle' });
   const on = (k: string) => phase[k] !== 'idle';
   const working = (k: string) => phase[k] === 'working';
+  const teamDone = TEAM_KEYS.every((k) => phase[k] === 'done');
+  const [askOpen, setAskOpen] = useState(false);
 
   useEffect(() => {
     if (reduce) { setPhase(allDone); return; }
@@ -823,29 +949,6 @@ export const StudioPage: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* ═══ ASK THE STUDIO (inline assistant, in the page flow) ═══ */}
-        <section id="ask" style={{ padding: 'clamp(56px, 7vw, 110px) clamp(20px, 4vw, 40px)' }}>
-          <div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
-            <div className="md:col-span-4">
-              <Reveal>
-                <h2 style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(2rem, 4vw, 3.4rem)', lineHeight: 1.02, letterSpacing: '-0.035em' }}>
-                  Ask the studio<span style={{ color: T.accent }}>.</span>
-                </h2>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <p className="mt-4" style={{ fontFamily: F.sans, fontSize: '15px', color: T.muted, lineHeight: 1.6, maxWidth: '36ch' }}>
-                  An assistant we built that knows our work. Ask what we can build, how we work, or get a rough scope for your project. For specifics, book a call.
-                </p>
-              </Reveal>
-            </div>
-            <div className="md:col-span-8">
-              <Reveal delay={0.15} y={20}>
-                <SiteAgent persona="studio" onBook={() => setShowBooking(true)} />
-              </Reveal>
-            </div>
-          </div>
-        </section>
 
         {/* ═══ WORK ═══ */}
         <section id="work" style={{ padding: 'clamp(64px, 8vw, 130px) clamp(20px, 4vw, 40px)', scrollMarginTop: '68px' }}>
@@ -1046,9 +1149,10 @@ export const StudioPage: React.FC = () => {
         </section>
       </div>
 
+      {/* Ask the studio: floating button (after the team has finished building) → full-screen takeover */}
+      <AskButton show={teamDone && !askOpen} onClick={() => setAskOpen(true)} />
+      <AskOverlay isOpen={askOpen} onClose={() => setAskOpen(false)} onBook={() => setShowBooking(true)} />
       <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
-
-
     </div>
   );
 };
