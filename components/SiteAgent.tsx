@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Sparkles } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   SITE AGENT — a real assistant (Gemini via /api/agent) that also shows its
+   SITE AGENT — a real assistant (Claude via /api/agent) that also shows its
    working steps as it answers. Dark, self-contained widget used on both sites;
    the `persona` picks the voice, prompts and accent. The matching system prompt
    lives server-side and is selected by the same persona key.

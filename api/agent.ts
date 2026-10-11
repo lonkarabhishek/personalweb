@@ -1,7 +1,9 @@
-// Vercel serverless function: site assistant agents, backed by Google Gemini.
-// The API key lives only here (server-side env), never in the client bundle.
-// One endpoint serves both sites; the client sends `persona` and the matching
-// system prompt is selected HERE (clients can never supply prompt text).
+// Vercel serverless function: site assistant agents, backed by Claude (Haiku 5.5)
+// via the official Anthropic SDK. The API key lives only here (server-side env),
+// never in the client bundle. One endpoint serves both sites; the client sends
+// `persona` and the matching system prompt is selected HERE (clients can never
+// supply prompt text).
+import Anthropic from '@anthropic-ai/sdk';
 
 const STUDIO_PROMPT = `You are the Studio Agent for "Abhishek Lonkar Studio" — a small digital studio run by Abhishek Lonkar with a small team. You live on the studio's website (studio.workwithabhi.online) and talk to prospective clients.
 
@@ -47,13 +49,16 @@ How you behave:
 
 const PROMPTS: Record<string, string> = { studio: STUDIO_PROMPT, main: MAIN_PROMPT };
 
+const FALLBACK_TEXT = 'I could not put together a reply just now. The fastest way forward is a quick call with Abhishek.';
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) {
+  // The SDK reads ANTHROPIC_API_KEY itself; we check up front so a missing key
+  // yields a clean 503 the widget can fall back on, not an auth error mid-call.
+  if (!process.env.ANTHROPIC_API_KEY) {
     res.status(503).json({ error: 'not_configured' });
     return;
   }
@@ -65,52 +70,58 @@ export default async function handler(req: any, res: any) {
     const persona = typeof body.persona === 'string' && body.persona in PROMPTS ? body.persona : 'studio';
 
     // Guardrails: cap conversation length and per-message size to bound cost.
-    const contents = incoming
+    const messages: Anthropic.MessageParam[] = incoming
       .slice(-12)
       .filter((m: any) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.text === 'string')
-      .map((m: any) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: String(m.text).slice(0, 1500) }],
-      }));
+      .map((m: any) => ({ role: m.role as 'user' | 'assistant', content: String(m.text).slice(0, 1500) }));
 
-    if (contents.length === 0) {
+    // The widget's transcript opens with the assistant greeting; the API requires
+    // the first message to be from the user, so drop any leading assistant turns.
+    while (messages.length && messages[0].role !== 'user') messages.shift();
+
+    if (messages.length === 0) {
       res.status(400).json({ error: 'no_message' });
       return;
     }
 
-    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+    const client = new Anthropic();
+    const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5';
 
-    const payload = {
-      systemInstruction: { parts: [{ text: PROMPTS[persona] }] },
-      contents,
-      generationConfig: { maxOutputTokens: 400, temperature: 0.6, topP: 0.9 },
-      safetySettings: [
-        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-      ],
-    };
-
-    const r = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    const response = await client.messages.create({
+      model,
+      // Replies are deliberately short (2-4 sentences); this is a cost cap, not a typical budget.
+      max_tokens: 600,
+      // Static per-persona prompt first so it is a stable, cacheable prefix.
+      system: [{ type: 'text', text: PROMPTS[persona], cache_control: { type: 'ephemeral' } }],
+      // Chat-style route: low effort keeps it fast and cheap; adaptive thinking stays on by default.
+      output_config: { effort: 'low' },
+      messages,
     });
 
-    if (!r.ok) {
-      const detail = await r.text().catch(() => '');
-      res.status(502).json({ error: 'upstream_error', status: r.status, detail: detail.slice(0, 300) });
-      return;
+    let text = FALLBACK_TEXT;
+    if (response.stop_reason === 'refusal') {
+      text = "I can't help with that one here. Happy to talk about the work, or you can book a call with Abhishek.";
+    } else {
+      const joined = response.content
+        .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+        .map((b) => b.text)
+        .join('')
+        .trim();
+      if (joined) text = joined;
     }
-
-    const data: any = await r.json();
-    const text =
-      data?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text || '').join('').trim() ||
-      "I could not generate a reply just now. The fastest way forward is a quick call with Abhishek.";
 
     res.setHeader('Cache-Control', 'no-store');
     res.status(200).json({ text });
-  } catch (e: any) {
-    res.status(500).json({ error: 'server_error', detail: String(e?.message || e).slice(0, 200) });
+  } catch (error: any) {
+    // Most specific first; every branch keeps the JSON shape the widget falls back on.
+    if (error instanceof Anthropic.AuthenticationError) {
+      res.status(503).json({ error: 'not_configured', detail: 'invalid API key' });
+    } else if (error instanceof Anthropic.RateLimitError) {
+      res.status(429).json({ error: 'rate_limited' });
+    } else if (error instanceof Anthropic.APIError) {
+      res.status(502).json({ error: 'upstream_error', status: error.status, detail: String(error.message).slice(0, 300) });
+    } else {
+      res.status(500).json({ error: 'server_error', detail: String(error?.message || error).slice(0, 200) });
+    }
   }
 }
