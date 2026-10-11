@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion, useSpring, useMotionValue } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Calendar, X, Play } from 'lucide-react';
-// import { StudioAgent } from '../components/StudioAgent'; // hidden for now
+import { SiteAgent } from '../components/SiteAgent';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -673,6 +673,7 @@ export const StudioPage: React.FC = () => {
   const [phase, setPhase] = useState<PhaseMap>(reduce ? allDone : { nav: 'idle', hero: 'idle', figs: 'idle', cta: 'idle' });
   const on = (k: string) => phase[k] !== 'idle';
   const working = (k: string) => phase[k] === 'working';
+  const teamDone = TEAM_KEYS.every((k) => phase[k] === 'done');
 
   useEffect(() => {
     if (reduce) { setPhase(allDone); return; }
@@ -1025,9 +1026,8 @@ export const StudioPage: React.FC = () => {
 
       <BookingModal isOpen={showBooking} onClose={() => setShowBooking(false)} />
 
-      {/* the studio's own agent — hidden for now (re-enable by uncommenting;
-          the component and /api/agent backend are kept intact) */}
-      {/* {finished && <StudioAgent onBook={() => setShowBooking(true)} />} */}
+      {/* the studio's own agent — appears once the build team has finished */}
+      {teamDone && <SiteAgent persona="studio" onBook={() => setShowBooking(true)} />}
 
     </div>
   );
