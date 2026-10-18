@@ -27,7 +27,7 @@ type Tier = {
 
 const TIERS: Tier[] = [
   {
-    key: 'free', n: '01', name: 'Free', price: '₹0', per: 'already yours',
+    key: 'free', n: '01', name: 'Free', price: '0', per: 'already yours',
     tagline: 'The website we already built for you.',
     features: [
       'Live on our shareable link',
@@ -37,7 +37,7 @@ const TIERS: Tier[] = [
     cta: 'This is your current site',
   },
   {
-    key: 'growth', n: '02', name: 'Growth', price: '₹1,999', per: 'one-time', flag: 'Most popular', featured: true,
+    key: 'growth', n: '02', name: 'Growth', price: '1,999', per: 'one-time', flag: 'Most popular', featured: true,
     tagline: 'Make it yours and get found on Google.',
     features: [
       'Badge removed',
@@ -50,7 +50,7 @@ const TIERS: Tier[] = [
     cta: 'Start with Growth',
   },
   {
-    key: 'pro', n: '03', name: 'Pro', price: '₹9,999', per: 'one-time',
+    key: 'pro', n: '03', name: 'Pro', price: '9,999', per: 'one-time',
     tagline: 'A proper brand, bookings, and a year of support.',
     features: [
       'Everything in Growth',
@@ -62,7 +62,7 @@ const TIERS: Tier[] = [
     cta: 'Go Pro',
   },
   {
-    key: 'signature', n: '04', name: 'Signature', price: '₹99,999', per: 'scoped with you', flag: 'Invite only', dark: true,
+    key: 'signature', n: '04', name: 'Signature', price: '99,999', per: 'scoped with you', flag: 'Invite only', dark: true,
     tagline: 'A custom web app and a team behind it.',
     features: [
       'Everything in Pro',
@@ -119,6 +119,15 @@ const FAQ: { q: string; a: string }[] = [
 
 const mono: React.CSSProperties = { fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase' };
 
+// Indian Rupee. The display and mono fonts don't carry the ₹ glyph reliably, so
+// the symbol is always set in Inter (which does), slightly smaller than the digits.
+const Rupees: React.FC<{ amount: string; size?: number | string; color?: string; weight?: number }> = ({ amount, size, color, weight = 700 }) => (
+  <span style={{ whiteSpace: 'nowrap', color }}>
+    <span style={{ fontFamily: F.sans, fontWeight: weight, fontSize: size ?? '0.8em', letterSpacing: 0, marginRight: '0.06em' }}>₹</span>
+    {amount}
+  </span>
+);
+
 /* ── Tier card ───────────────────────────────────────────────────────────────── */
 const TierCard: React.FC<{ t: Tier; i: number; onPick: () => void }> = ({ t, i, onPick }) => {
   const bg = t.dark ? T.dark : '#fff';
@@ -147,7 +156,9 @@ const TierCard: React.FC<{ t: Tier; i: number; onPick: () => void }> = ({ t, i, 
           <span style={{ ...mono, color: muted }}>{t.per}</span>
         </div>
         <h3 className="mt-4" style={{ fontFamily: F.display, fontWeight: 600, fontSize: '1.5rem', letterSpacing: '-0.02em', lineHeight: 1 }}>{t.name}</h3>
-        <div className="mt-3" style={{ fontFamily: F.display, fontWeight: 700, fontSize: 'clamp(2.4rem, 3.2vw, 3rem)', letterSpacing: '-0.04em', lineHeight: 1, color: t.featured ? T.accent : fg }}>{t.price}</div>
+        <div className="mt-3" style={{ fontFamily: F.display, fontWeight: 700, fontSize: 'clamp(2.4rem, 3.2vw, 3rem)', letterSpacing: '-0.04em', lineHeight: 1, color: t.featured ? T.accent : fg }}>
+          <Rupees amount={t.price} />
+        </div>
         <p className="mt-3" style={{ fontFamily: F.sans, fontSize: '14px', color: muted, lineHeight: 1.55 }}>{t.tagline}</p>
         <div className="my-5" style={{ height: 1, background: line }} />
         <ul className="flex flex-col gap-2.5 flex-1">
@@ -260,7 +271,7 @@ export const StudioPricingPage: React.FC = () => {
             {TIERS.map((t, i) => <TierCard key={t.key} t={t} i={i} onPick={() => setShowBooking(true)} />)}
           </div>
           <Reveal delay={0.3}>
-            <p className="max-w-[1500px] mx-auto mt-5" style={{ ...mono, color: T.faint }}>All prices in INR · Growth and Pro are one-time · Domain renewals at cost</p>
+            <p className="max-w-[1500px] mx-auto mt-5" style={{ ...mono, color: T.faint }}>All prices in Indian Rupees (INR) · Growth and Pro are one-time · Domain renewals at cost</p>
           </Reveal>
         </section>
 
@@ -282,7 +293,7 @@ export const StudioPricingPage: React.FC = () => {
                       {TIERS.map((t) => (
                         <th key={t.key} className="text-left" style={{ padding: '16px 18px', background: t.featured ? 'rgba(31,58,255,0.05)' : undefined }}>
                           <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: '1.05rem', letterSpacing: '-0.01em', color: t.featured ? T.accent : T.text }}>{t.name}</div>
-                          <div style={{ ...mono, color: T.muted, marginTop: 3, fontSize: '10.5px' }}>{t.price}</div>
+                          <div style={{ ...mono, color: T.muted, marginTop: 3, fontSize: '10.5px' }}><Rupees amount={t.price} size="1em" weight={500} /></div>
                         </th>
                       ))}
                     </tr>
