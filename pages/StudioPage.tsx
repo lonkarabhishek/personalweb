@@ -863,6 +863,12 @@ export const StudioPage: React.FC = () => {
                     {l}
                   </button>
                 ))}
+                <a href="/pricing"
+                  style={{ fontFamily: F.sans, fontSize: '14px', color: T.muted, textDecoration: 'none' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = T.text)}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = T.muted)}>
+                  Pricing
+                </a>
               </div>
               <motion.button onClick={() => setShowBooking(true)}
                 whileHover={reduce ? undefined : { scale: 1.03 }} whileTap={reduce ? undefined : { scale: 0.96 }} transition={SPRING_PRESS}
