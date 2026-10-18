@@ -7,7 +7,7 @@ import { SiteAgent } from '../components/SiteAgent';
    DESIGN TOKENS
    Monochrome light + one electric accent. No cream, no burnt orange, no serif.
    ═══════════════════════════════════════════════════════════════════════════════ */
-const T = {
+export const T = {
   bg:      '#edece8',   // neutral light, not warm cream
   bgAlt:   '#e4e3de',
   dark:    '#0e0e0c',   // near-black for the single dark chapter
@@ -22,7 +22,7 @@ const T = {
   lineDark:'rgba(255,255,255,0.14)',
 };
 
-const F = {
+export const F = {
   display: "'Bricolage Grotesque', 'Space Grotesk', system-ui, sans-serif",
   sans:    "'Inter', system-ui, sans-serif",
   mono:    "'Space Mono', ui-monospace, 'SF Mono', monospace",
@@ -30,9 +30,9 @@ const F = {
 
 /* Motion tokens (inspired by beui.dev) — spring physics over tweens.
    Interfaces that move with intent: tactile press, soft lifts, magnetic pull. */
-const SPRING_PRESS = { type: 'spring', stiffness: 500, damping: 30 } as const;         // tappable surfaces
-const SPRING_SOFT  = { type: 'spring', stiffness: 260, damping: 26, mass: 0.9 } as const; // hover lifts
-const SPRING_MOUSE = { stiffness: 150, damping: 18, mass: 0.12 } as const;              // cursor-tracking tilt/magnet
+export const SPRING_PRESS = { type: 'spring', stiffness: 500, damping: 30 } as const;         // tappable surfaces
+export const SPRING_SOFT  = { type: 'spring', stiffness: 260, damping: 26, mass: 0.9 } as const; // hover lifts
+export const SPRING_MOUSE = { stiffness: 150, damping: 18, mass: 0.12 } as const;              // cursor-tracking tilt/magnet
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    DATA
@@ -115,7 +115,7 @@ const testimonials = [
 /* ═══════════════════════════════════════════════════════════════════════════════
    PRIMITIVES
    ═══════════════════════════════════════════════════════════════════════════════ */
-const Reveal: React.FC<{ children: React.ReactNode; delay?: number; y?: number; className?: string }> = ({ children, delay = 0, y = 28, className = '' }) => {
+export const Reveal: React.FC<{ children: React.ReactNode; delay?: number; y?: number; className?: string }> = ({ children, delay = 0, y = 28, className = '' }) => {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -131,7 +131,7 @@ const Reveal: React.FC<{ children: React.ReactNode; delay?: number; y?: number; 
 
 /* Magnetic — the element drifts toward the cursor and springs back on leave.
    Hover-only by nature (no pointer move on touch); disabled under reduced motion. */
-const Magnetic: React.FC<{ children: React.ReactNode; className?: string; strength?: number }> = ({ children, className = '', strength = 0.35 }) => {
+export const Magnetic: React.FC<{ children: React.ReactNode; className?: string; strength?: number }> = ({ children, className = '', strength = 0.35 }) => {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLSpanElement>(null);
   const mx = useMotionValue(0);
@@ -403,7 +403,7 @@ const CanvasAgents: React.FC<{ phase: PhaseMap }> = ({ phase }) => {
 /* ═══════════════════════════════════════════════════════════════════════════════
    BOOKING MODAL
    ═══════════════════════════════════════════════════════════════════════════════ */
-const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => (
+export const BookingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => (
   <AnimatePresence>
     {isOpen && (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
