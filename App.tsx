@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { ResumePage } from './pages/ResumePage';
 import { BarkitPage } from './pages/BarkitPage';
 import { StudioPage } from './pages/StudioPage';
+import { StudioPricingPage } from './pages/StudioPricingPage';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { LoadingScreen } from './components/LoadingScreen';
@@ -47,11 +48,15 @@ const AppContent: React.FC = () => {
 
 // Studio-only app for the subdomain — renders StudioPage directly.
 // The "agents build the page live" intro lives inside StudioPage, so no separate loader here.
-const StudioApp: React.FC = () => (
-  <div className="min-h-screen flex flex-col font-sans">
-    <StudioPage />
-  </div>
-);
+// `/pricing` is the plans page we send to businesses (vercel.json rewrites it to index.html).
+const StudioApp: React.FC = () => {
+  const path = window.location.pathname.replace(/\/+$/, '');
+  return (
+    <div className="min-h-screen flex flex-col font-sans">
+      {path === '/pricing' ? <StudioPricingPage /> : <StudioPage />}
+    </div>
+  );
+};
 
 // Main site app with HashRouter
 const MainApp: React.FC = () => {
