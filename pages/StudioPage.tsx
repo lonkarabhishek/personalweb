@@ -89,6 +89,15 @@ const stats = [
   { value: '6+', label: 'Years building' },
 ];
 
+// Google Search Console, web search, 7 days (Oct 19–25, 2026). Daily series are
+// read off the chart; the totals are the report's headline numbers.
+const SEARCH = {
+  period: 'Oct 19–25, 2026',
+  clicks: { total: '551', daily: [45, 45, 50, 68, 110, 132, 96] },
+  impressions: { total: '111K', daily: [8.5, 8.4, 9.5, 13.5, 21, 30, 17.5] },
+  position: '7.9',
+};
+
 const clients = [
   { name: 'G2', logo: '/logos/g2logo.jpg' },
   { name: 'Cognizant', logo: '/logos/cognizantlogo.jpeg' },
@@ -396,6 +405,81 @@ const CanvasAgents: React.FC<{ phase: PhaseMap }> = ({ phase }) => {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SEARCH PROOF — Google Search Console numbers under the hero figures, with a
+   sparkline of the week's climb. Lines draw in when the Data agent reaches it.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const sparkPath = (values: number[], w: number, h: number, pad: number) => {
+  const max = Math.max(...values) * 1.08;
+  const step = (w - pad * 2) / (values.length - 1);
+  const pts = values.map((v, i) => [pad + i * step, h - pad - (v / max) * (h - pad * 2)] as const);
+  const d = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  return { d, last: pts[pts.length - 1], area: `${d} L${pts[pts.length - 1][0].toFixed(1)},${h - pad} L${pad},${h - pad} Z` };
+};
+
+const SearchProof: React.FC<{ on: boolean }> = ({ on }) => {
+  const reduce = useReducedMotion();
+  const W = 360, H = 96, P = 6;
+  const imp = sparkPath(SEARCH.impressions.daily, W, H, P);
+  const clk = sparkPath(SEARCH.clicks.daily, W, H, P);
+  const impColor = '#5b3fd6';
+  const clkColor = '#4a86f7';
+  const figs = [
+    { value: SEARCH.impressions.total, label: 'Impressions', color: impColor },
+    { value: SEARCH.clicks.total, label: 'Clicks', color: clkColor },
+    { value: SEARCH.position, label: 'Avg. position', color: T.text },
+  ];
+  const draw = (delay: number) => reduce ? {} : { initial: { pathLength: 0, opacity: 0 }, animate: on ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }, transition: { duration: 1.4, ease: [0.16, 1, 0.3, 1] as const, delay } };
+  return (
+    <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center" style={{ background: '#fff', border: `1px solid ${T.line}`, padding: 'clamp(18px, 2vw, 26px)' }}>
+      <div className="lg:col-span-7">
+        <div className="flex items-center gap-2 flex-wrap" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: T.muted }}>
+          <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: '#2fb56a', boxShadow: '0 0 0 3px rgba(47,181,106,0.18)' }} />
+          Google Search Console <span style={{ color: T.faint }}>·</span> web search <span style={{ color: T.faint }}>·</span> {SEARCH.period}
+        </div>
+        <p className="mt-2" style={{ fontFamily: F.sans, fontSize: '14px', color: T.muted, lineHeight: 1.55, maxWidth: '44ch' }}>
+          Not a claim. Our own numbers on Google, last seven days.
+        </p>
+        <div className="mt-5 grid grid-cols-3 gap-4">
+          {figs.map((f, i) => (
+            <div key={f.label}>
+              <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 'clamp(1.6rem, 2.6vw, 2.4rem)', letterSpacing: '-0.035em', lineHeight: 1, color: f.color }}>
+                <TypeIn text={f.value} start={on} cps={14} delayMs={1000 + i * 220} caretColor={f.color} />
+              </div>
+              <div className="mt-1.5 uppercase" style={{ fontFamily: F.mono, fontSize: '10.5px', letterSpacing: '0.08em', color: T.faint }}>{f.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="lg:col-span-5">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 'auto', display: 'block', overflow: 'visible' }} role="img" aria-label="Clicks and impressions rising over the week">
+          <defs>
+            <linearGradient id="seoImp" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor={impColor} stopOpacity="0.18" />
+              <stop offset="1" stopColor={impColor} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {[0.25, 0.5, 0.75].map((g) => (
+            <line key={g} x1={P} x2={W - P} y1={P + (H - P * 2) * g} y2={P + (H - P * 2) * g} stroke={T.line} strokeDasharray="2 4" />
+          ))}
+          <motion.path d={imp.area} fill="url(#seoImp)" initial={{ opacity: 0 }} animate={{ opacity: on ? 1 : 0 }} transition={{ duration: 1, delay: 0.9 }} />
+          <motion.path d={imp.d} fill="none" stroke={impColor} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" {...draw(0.4)} />
+          <motion.path d={clk.d} fill="none" stroke={clkColor} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" {...draw(0.6)} />
+          <motion.circle cx={imp.last[0]} cy={imp.last[1]} r="3.5" fill={impColor} initial={{ scale: 0, opacity: 0 }} animate={on ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }} transition={{ ...SPRING_SOFT, delay: 1.7 }} style={{ transformOrigin: `${imp.last[0]}px ${imp.last[1]}px` }} />
+          <motion.circle cx={clk.last[0]} cy={clk.last[1]} r="3.5" fill={clkColor} initial={{ scale: 0, opacity: 0 }} animate={on ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }} transition={{ ...SPRING_SOFT, delay: 1.9 }} style={{ transformOrigin: `${clk.last[0]}px ${clk.last[1]}px` }} />
+        </svg>
+        <div className="mt-2 flex items-center justify-between" style={{ fontFamily: F.mono, fontSize: '10.5px', letterSpacing: '0.06em', color: T.faint }}>
+          <span className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5" style={{ background: impColor }} /> Impressions</span>
+            <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5" style={{ background: clkColor }} /> Clicks</span>
+          </span>
+          <span>Oct 19 → Oct 25</span>
+        </div>
+      </div>
     </div>
   );
 };
@@ -907,6 +991,10 @@ export const StudioPage: React.FC = () => {
                     <div className="mt-2 uppercase" style={{ fontFamily: F.mono, fontSize: '11px', letterSpacing: '0.08em', color: T.faint }}>{s.label}</div>
                   </div>
                 ))}
+              </Construct>
+              {/* Google Search Console proof: the Data agent builds this right after the figures */}
+              <Construct on={on('figs')} working={working('figs')} tint="#12a594">
+                <SearchProof on={on('figs')} />
               </Construct>
             </div>
 
